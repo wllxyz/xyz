@@ -1,0 +1,11 @@
+3.329 pid=17831 tid=22608000] [main/TestLog2.cpp:14:main] this is a c error log
+[2015/11/24 14:55:13.384 pid=17831 tid=22608000] [main/TestLog2.cpp:12:main] [ERROR] ERROR
+[2015/11/24 14:55:13.385 pid=17831 tid=22608000] [main/TestLog2.cpp:14:main] this is a c error log
+[2015/11/24 14:55:13.440 pid=17831 tid=22608000] [main/TestLog2.cpp:12:main] [ERROR] ERROR
+[2015/11/24 14:55:13.491 pid=17831 tid=22608000] [main/TestLog2.cpp:14:main] this is a c error log
+[2015/11/24 14:55:13.548 pid=17831 tid=22608000] [main/TestLog2.cpp:12:main] [ERROR] ERROR
+[2015/11/24 14:55:13.549 pid=17831 tid=22608000] [main/TestLog2.cpp:14:main] this is a c error log
+[2015/11/24 14:55:13.601 pid=17831 tid=22608000] [main/TestLog2.cpp:12:main] [ERROR] ERROR
+[2015/11/24 14:55:13.604 pid=17831 tid=22608000] [main/TestLog2.cpp:14:main] this is a c error log
+[2015/11/24 14:55:13.657 pid=17831 tid=22608000] [main/TestLog2.cpp:12:main] [ERROR] ERROR
+[2015/11/24 14:55:13.658 pid=17831 tid=22608000] [main/TestLog2.cpp:1

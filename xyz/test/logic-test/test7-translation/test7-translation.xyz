@@ -1,0 +1,5 @@
+<english>-->"do "<subject><action><object>"?\n"==><chinese>--><subject><action><object>" ma?";
+<subject>-->"I "==><subject>-->"wo ";
+<action>-->"love "==><action>-->"ai ";
+<object>-->"you "==><object>-->"ni ";
+

@@ -1,0 +1,31 @@
+1. SelfExplain函数
+	引入$IGNORE标记符号,忽略其后括号范围内的文法符号的求值,修改后缀表达式求值时括号匹配算法(加入括号深度匹配)
+	加入对整型数的加法支持: 使用abc库,不修改Symbols类型,完全在Symbols的常量字符串的基础上实现运算.(不使用另外的堆栈)
+
+2. 在关键点加入一些INFO日志信息,以帮助理解数据流的变化.
+3. Wll0Loader加入了对Remark标记的识别支持
++	//<remark>-->$*==><remark>-->$*;
++	//<remark>-->"$"<identifier>==><remark>-->"$"<identifier>;
+4. data/grammar.wll0文法,加入了remark的识别支持
++<remark>-->$LEFT_QUOTE==><remark>-->$LEFT_QUOTE;
++<remark>-->$RIGHT_QUOTE==><remark>-->$RIGHT_QUOTE;
++<remark>-->$IGNORE==><remark>-->$IGNORE;
++<remark>-->$LOAD_TRANSLATIONS==><remark>-->$LOAD_TRANSLATIONS;
++<remark>-->$ADD==><remark>-->$ADD;
++<remark>-->$SUB==><remark>-->$SUB;
++<remark>-->$MUL==><remark>-->$MUL;
++<remark>-->$DIV==><remark>-->$DIV;
++<remark>-->$SEPERATOR==><remark>-->$SEPERATOR;
+
+5. data/grammar.wll0文法修改了$LOAD_TRANSLATIONS$IGNORE规则,以加载原始的文法符号串输入
+-<start>--><wll0>==><start>-->$LEFT_QUOTE$LOAD_TRANSLATIONS<wll0>$RIGHT_QUOTE;
++<start>--><wll0>==><start>-->$LEFT_QUOTE$LOAD_TRANSLATIONS$IGNORE$LEFT_QUOTE<wll0>$RIGHT_QUOTE$RIGHT_QUOTE;
+
+6. data/grammar.wll0
+应该使用$SEPERATOR标记而不是$NULL标记来分隔s表达式的参数,因为$NULL标记有可能在文法分析阶段和内部标记e空字符输入规则的标记冲突.
+-<expression_list>--><expression><space><spaces><expression_list>==><expression_list>--><expression>$NULL<expression_list>;
++<expression_list>--><expression><space><spaces><expression_list>==><expression_list>--><expression>$SEPERATOR<expression_list>;
+
+7. $NUL,$END标记也是内部文法解析过程中使用的保留标记,不要在文法和自解释文法中出现.
+
+

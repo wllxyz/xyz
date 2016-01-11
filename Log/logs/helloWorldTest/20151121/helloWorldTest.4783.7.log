@@ -1,0 +1,8 @@
+68] [main/TestLog2.cpp:12:main] [ERROR] ERROR
+[2015/11/21 09:16:14.458 pid=4783 tid=38000768] [main/TestLog2.cpp:14:main] this is a c error log
+[2015/11/21 09:16:14.513 pid=4783 tid=38000768] [main/TestLog2.cpp:12:main] [ERROR] ERROR
+[2015/11/21 09:16:14.514 pid=4783 tid=38000768] [main/TestLog2.cpp:14:main] this is a c error log
+[2015/11/21 09:16:14.570 pid=4783 tid=38000768] [main/TestLog2.cpp:12:main] [ERROR] ERROR
+[2015/11/21 09:16:14.573 pid=4783 tid=38000768] [main/TestLog2.cpp:14:main] this is a c error log
+[2015/11/21 09:16:14.636 pid=4783 tid=38000768] [main/TestLog2.cpp:12:main] [ERROR] ERROR
+[2015/11/21 09:16:14.641 pid=4783 tid=38000768] [main/TestLog2.cpp:14:main] this is a c error log

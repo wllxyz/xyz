@@ -1,0 +1,10 @@
+<start>--><wll0>==><start>-->$WLL0<wll0>;
+<wll0>--><translation>";"<spaces>==><wll0>--><translation>;
+<wll0>--><translation><wll0>==><wll0>--><translation><wll0>;
+<translation>--><source_rule>"==>"<destination_rule>==><translation>--><source_rule><destination_rule>$TRANSLATION;
+<source_rule>--><rule>==><source_rule>--><rule>$SOURCE-RULE;
+<destination_rule>--><rule>==><destination_rule>--><rule>$DESTINATION-RULE;
+<rule>--><root>"-->"<expression>==><rule>--><root><expression>$EXPRESSION$RULE;
+<root>--><variable>==><root>--><variable>$ROOT-SYMBOL;
+<expression>--><symbol>==><expression>--><symbol>;
+<expression>--><symbol><expression>==><expression>--><symbol><expression>;
