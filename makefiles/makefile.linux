@@ -1,0 +1,29 @@
+include makefile.common
+
+.PHONY: NULL
+
+#--------------------------------------
+$(ALL_OBJS):%.o:%.d NULL
+	make --no-print-directory -f $<
+#--------------------------------------
+$(CPP_DEPENDS):tmp/%.d:%.cpp
+	mkdir -p `dirname $@`
+	$(GCC) $(COMPILE_OPTIONS) -MM $< | sed '1 s/^/tmp\/cpp\//' >$@
+	@echo '	$(GCC) -c -fpic -o $$@ $$< $(COMPILE_OPTIONS)' >>$@   
+
+$(C_DEPENDS):tmp/%.d:%.c
+	mkdir -p `dirname $@`
+	$(GCC) $(COMPILE_OPTIONS) -MM $< | sed '1 s/^/tmp\/c\//' >$@
+	@echo '	$(GCC) -c -fpic -o $$@ $$< $(COMPILE_OPTIONS)' >>$@  
+#--------------------------------------
+$(MAIN_DEPENDS):tmp/%.d:%.cpp
+	mkdir -p `dirname $@`
+	$(GCC) $(COMPILE_OPTIONS) -MM $< | sed '1 s/^/tmp\/main\//' >$@
+	@echo '	$(GCC) -c -fpic -o $$@ $$< $(COMPILE_OPTIONS)' >>$@ 
+
+$(MAIN_C_DEPENDS):tmp/%.d:%.c
+	mkdir -p `dirname $@`
+	$(GCC) $(COMPILE_OPTIONS) -MM $< | sed '1 s/^/tmp\/main\//' >$@
+	@echo '	$(GCC) -c -fpic -o $$@ $$< $(COMPILE_OPTIONS)' >>$@ 
+#--------------------------------------
+

@@ -1,0 +1,10 @@
+include makefile.common
+
+#--------------------------------------
+$(MAIN_OBJS) $(CPP_OBJS):tmp/%.o:%.cpp
+	mkdir -p `dirname $@`
+	$(COMPILE)
+$(MAIN_C_OBJS) $(C_OBJS):tmp/%.o:%.c
+	mkdir -p `dirname $@`
+	$(COMPILE)
+#--------------------------------------
