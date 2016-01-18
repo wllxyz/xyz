@@ -306,6 +306,35 @@ bool NotCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
+ShellCommand::ShellCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+}
+
+bool ShellCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size() == 2);
+	stringstream input;
+	input<<this->parameters[1];
+	FILE* fp = popen(input.str().c_str(),"r");
+	if(fp==NULL)
+	{
+		ERROR("popen failed");
+		return false;
+	}
+	char c;
+	while((c=fgetc(fp))!=EOF)
+	{
+		result.push_back(c);
+	}
+	if(pclose(fp)!=0)
+	{
+		ERROR("pclose failed");
+		return false;
+	}
+	return true;
+}
+
 
 WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 {
@@ -357,6 +386,10 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	else if(cmd == Symbols::NOT)
 	{
 		command = new NotCommand(cmd, parameter_fields, intepreter);
+	}
+	else if(cmd == Symbols::SHELL)
+	{
+		command = new ShellCommand(cmd,parameter_fields, intepreter);
 	}
 
 	return command;

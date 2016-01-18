@@ -37,7 +37,7 @@ const Symbols Symbols::LT(REMARK_SYMBOL,"$LT");
 const Symbols Symbols::AND(REMARK_SYMBOL,"$AND");
 const Symbols Symbols::OR(REMARK_SYMBOL,"$OR");
 const Symbols Symbols::NOT(REMARK_SYMBOL,"$NOT");
-
+const Symbols Symbols::SHELL(REMARK_SYMBOL,"$SHELL");
 
 Symbols::Symbols()
 {

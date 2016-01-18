@@ -73,6 +73,7 @@ public:
 	static const Symbols AND;
 	static const Symbols OR;
 	static const Symbols NOT;
+	static const Symbols SHELL;
 };
 
 ostream& operator<< (ostream& o, const Symbols& symbol);
