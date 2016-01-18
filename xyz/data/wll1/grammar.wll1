@@ -45,6 +45,8 @@
 <remark>-->$CDR==><remark>-->$CDR;
 <remark>-->$SEPERATOR==><remark>-->$SEPERATOR;
 <remark>-->$SHELL==><remark>-->$SHELL;
+<remark>-->$SET==><remark>-->$SET;
+<remark>-->$GET==><remark>-->$GET;
 <identifier>--><letter>==><identifier>--><letter>;
 <identifier>--><letter><letter_digit_string>==><identifier>--><letter><letter_digit_string>;
 <letter_digit_string>--><letter>==><letter_digit_string>--><letter>;

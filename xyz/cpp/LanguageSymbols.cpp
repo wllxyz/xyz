@@ -38,6 +38,8 @@ const Symbols Symbols::AND(REMARK_SYMBOL,"$AND");
 const Symbols Symbols::OR(REMARK_SYMBOL,"$OR");
 const Symbols Symbols::NOT(REMARK_SYMBOL,"$NOT");
 const Symbols Symbols::SHELL(REMARK_SYMBOL,"$SHELL");
+const Symbols Symbols::SET(REMARK_SYMBOL,"$SET");
+const Symbols Symbols::GET(REMARK_SYMBOL,"$GET");
 
 Symbols::Symbols()
 {
@@ -193,3 +195,23 @@ vector<Symbols>& operator+= (vector<Symbols>& a, const vector<Symbols>& b)
 	}
 	return a;
 }
+
+std::vector<Symbols>& operator+= (std::vector<Symbols>& a, const std::string& b)
+{
+	for(string::const_iterator i = b.begin(); i != b.end(); ++i)
+	{
+		a.push_back(*i);
+	}
+	return a;
+}
+
+const std::string& ToString (std::string& str, const std::vector<Symbols>& symbols)
+{
+	str.clear();
+	for(std::vector<Symbols>::const_iterator i = symbols.begin(); i != symbols.end(); ++i)
+	{
+		str.push_back(char(i->value));
+	}
+	return str;
+}
+

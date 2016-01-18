@@ -74,12 +74,17 @@ public:
 	static const Symbols OR;
 	static const Symbols NOT;
 	static const Symbols SHELL;
+	//支持变量存储
+	static const Symbols SET;
+	static const Symbols GET;
 };
 
 ostream& operator<< (ostream& o, const Symbols& symbol);
 ostream& operator<< (ostream& o, const vector<Symbols>& symbols);
 int Split(const vector<Symbols>&symbols, Symbols seperator, vector< vector<Symbols> >& fields);
 std::vector<Symbols>& operator+= (std::vector<Symbols>& a, const std::vector<Symbols>& b);
+std::vector<Symbols>& operator+= (std::vector<Symbols>& a, const std::string& b);
+const std::string& ToString (std::string& str, const std::vector<Symbols>& symbols);
 
 #endif	//LANGUAGE_SYMBOLS_H
 

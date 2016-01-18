@@ -7,11 +7,11 @@
 
 #include "WllCommand.h"
 #include "VariableNode.h"
-#include <sstream>
 #include "Wll0Loader.h"
 #include "Wll1Loader.h"
 #include "Wll1Intepreter.h"
 #include "WllTrace.h"
+#include "WllSingleton.h"
 using namespace std;
 
 WllCommand::WllCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* wll_intepreter)
@@ -31,9 +31,9 @@ bool AddCommand::Intepret(std::vector<Symbols>& result)
 	Integer sum("0");
 	for(vector< vector<Symbols> >::iterator i = parameters.begin()+1; i != parameters.end(); ++i)
 	{
-		stringstream s;
-		s<<*i;
-		Integer n(s.str());
+		string s;
+		ToString(s, *i);
+		Integer n(s);
 		sum += n;
 	}
 
@@ -55,9 +55,9 @@ bool SubCommand::Intepret(std::vector<Symbols>& result)
 	Integer sum("0");
 	for(vector< vector<Symbols> >::iterator i = parameters.begin()+1; i != parameters.end(); ++i)
 	{
-		stringstream s;
-		s<<*i;
-		Integer n(s.str());
+		string s;
+		ToString(s, *i);
+		Integer n(s);
 
 		if(i==parameters.begin()+1)
 		{
@@ -87,9 +87,9 @@ bool MulCommand::Intepret(std::vector<Symbols>& result)
 	Integer sum("0");
 	for(vector< vector<Symbols> >::iterator i = parameters.begin()+1; i != parameters.end(); ++i)
 	{
-		stringstream s;
-		s<<*i;
-		Integer n(s.str());
+		string s;
+		ToString(s, *i);
+		Integer n(s);
 
 		if(i==parameters.begin()+1)
 		{
@@ -119,9 +119,9 @@ bool DivCommand::Intepret(std::vector<Symbols>& result)
 	Integer sum("0");
 	for(vector< vector<Symbols> >::iterator i = parameters.begin()+1; i != parameters.end(); ++i)
 	{
-		stringstream s;
-		s<<*i;
-		Integer n(s.str());
+		string s;
+		ToString(s, *i);
+		Integer n(s);
 
 		if(i==parameters.begin()+1)
 		{
@@ -314,9 +314,9 @@ ShellCommand::ShellCommand(Symbols cmd, std::vector< std::vector<Symbols> >& par
 bool ShellCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size() == 2);
-	stringstream input;
-	input<<this->parameters[1];
-	FILE* fp = popen(input.str().c_str(),"r");
+	string input;
+	ToString(input,this->parameters[1]);
+	FILE* fp = popen(input.c_str(),"r");
 	if(fp==NULL)
 	{
 		ERROR("popen failed");
@@ -335,6 +335,39 @@ bool ShellCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
+SetCommand::SetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool SetCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size() == 3);
+	VariableTable* variable_table = Singleton<VariableTable>::GetInstance();
+	string variable_name;
+	string variable_value;
+	ToString(variable_name, this->parameters[1]);
+	ToString(variable_value, this->parameters[2]);
+	(*variable_table)[variable_name] = variable_value;
+	return true;
+}
+
+GetCommand::GetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool GetCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size() == 2);
+	VariableTable* variable_table = Singleton<VariableTable>::GetInstance();
+	string variable_name;
+	ToString(variable_name, this->parameters[1]);
+	result += ((*variable_table)[variable_name].value);
+	return true;
+}
 
 WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 {
@@ -390,6 +423,14 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	else if(cmd == Symbols::SHELL)
 	{
 		command = new ShellCommand(cmd,parameter_fields, intepreter);
+	}
+	else if(cmd == Symbols::SET)
+	{
+		command = new SetCommand(cmd,parameter_fields, intepreter);
+	}
+	else if(cmd == Symbols::GET)
+	{
+		command = new GetCommand(cmd,parameter_fields, intepreter);
 	}
 
 	return command;
