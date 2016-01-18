@@ -1,0 +1,13 @@
+<i>--><stat>";\n"==><o>--><stat>;
+<i>--><stat>";\n"<i>==><o>--><stat><o>;
+<stat>--><assign>==><stat>--><assign>;
+<assign>--><v>"="<expr>==><assign>-->($SET <v> <expr>);
+<stat>-->"print("<expr>")"==><stat>--><expr>"\n";
+<v>-->"a"==><v>-->"a";
+<v>-->"b"==><v>-->"b";
+<expr>--><i>==><expr>--><i>;
+<expr>-->"("<expr>")"==><expr>--><expr>;
+<i>--><v>==><i>-->($GET <v>);
+<i>-->"0"==><i>-->"0";
+<i>-->"1"==><i>-->"1";
+
