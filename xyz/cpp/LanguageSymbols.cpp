@@ -40,6 +40,8 @@ const Symbols Symbols::NOT(REMARK_SYMBOL,"$NOT");
 const Symbols Symbols::SHELL(REMARK_SYMBOL,"$SHELL");
 const Symbols Symbols::SET(REMARK_SYMBOL,"$SET");
 const Symbols Symbols::GET(REMARK_SYMBOL,"$GET");
+const Symbols Symbols::PUSH_DATA(REMARK_SYMBOL,"$PUSH_DATA");
+const Symbols Symbols::POP_DATA(REMARK_SYMBOL,"$POP_DATA");
 
 Symbols::Symbols()
 {

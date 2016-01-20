@@ -1,3 +1,4 @@
+<s>--><i>==><s>-->($PUSH_DATA)<o>;
 <i>--><stat>";\n"==><o>--><stat>;
 <i>--><stat>";\n"<i>==><o>--><stat><o>;
 <stat>--><assign>==><stat>--><assign>;

@@ -128,6 +128,20 @@ public:
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
+class PushDataCommand : public WllCommand
+{
+public:
+	PushDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
+class PopDataCommand : public WllCommand
+{
+public:
+	PopDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
 class WllCommandFactory
 {
 public:

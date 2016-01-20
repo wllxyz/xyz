@@ -344,12 +344,14 @@ SetCommand::SetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& paramet
 bool SetCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size() == 3);
-	VariableTable* variable_table = Singleton<VariableTable>::GetInstance();
+	vector<VariableTable>* variable_table_stack = Singleton<vector<VariableTable> >::GetInstance();
+	assert(!variable_table_stack->empty());
+	VariableTable& variable_table = variable_table_stack->back();
 	string variable_name;
 	string variable_value;
 	ToString(variable_name, this->parameters[1]);
 	ToString(variable_value, this->parameters[2]);
-	(*variable_table)[variable_name] = variable_value;
+	variable_table[variable_name] = variable_value;
 	return true;
 }
 
@@ -362,12 +364,43 @@ GetCommand::GetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& paramet
 bool GetCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size() == 2);
-	VariableTable* variable_table = Singleton<VariableTable>::GetInstance();
+	vector<VariableTable>* variable_table_stack = Singleton<vector<VariableTable> >::GetInstance();
+	assert(!variable_table_stack->empty());
+	VariableTable& variable_table = variable_table_stack->back();
 	string variable_name;
 	ToString(variable_name, this->parameters[1]);
-	result += ((*variable_table)[variable_name].value);
+	result += (variable_table[variable_name].value);
 	return true;
 }
+
+PushDataCommand::PushDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool PushDataCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size() == 1);
+	vector<VariableTable>* variable_table_stack = Singleton<vector<VariableTable> >::GetInstance();
+	variable_table_stack->push_back(VariableTable());
+	return true;
+}
+
+PopDataCommand::PopDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool PopDataCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size() == 1);
+	vector<VariableTable>* variable_table_stack = Singleton<vector<VariableTable> >::GetInstance();
+	variable_table_stack->pop_back();
+	return true;
+}
+
 
 WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 {
@@ -431,6 +464,14 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	else if(cmd == Symbols::GET)
 	{
 		command = new GetCommand(cmd,parameter_fields, intepreter);
+	}
+	else if(cmd == Symbols::PUSH_DATA)
+	{
+		command = new PushDataCommand(cmd,parameter_fields, intepreter);
+	}
+	else if(cmd == Symbols::POP_DATA)
+	{
+		command = new PopDataCommand(cmd,parameter_fields, intepreter);
 	}
 
 	return command;

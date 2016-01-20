@@ -77,6 +77,8 @@ public:
 	//支持变量存储
 	static const Symbols SET;
 	static const Symbols GET;
+	static const Symbols PUSH_DATA;
+	static const Symbols POP_DATA;
 };
 
 ostream& operator<< (ostream& o, const Symbols& symbol);
