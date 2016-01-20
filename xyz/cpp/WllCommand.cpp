@@ -366,11 +366,19 @@ bool GetCommand::Intepret(std::vector<Symbols>& result)
 	assert(this->parameters.size() == 2);
 	vector<VariableTable>* variable_table_stack = Singleton<vector<VariableTable> >::GetInstance();
 	assert(!variable_table_stack->empty());
-	VariableTable& variable_table = variable_table_stack->back();
+
 	string variable_name;
 	ToString(variable_name, this->parameters[1]);
-	result += (variable_table[variable_name].value);
-	return true;
+	for(vector<VariableTable>::reverse_iterator i = variable_table_stack->rbegin(); i != variable_table_stack->rend(); ++i)
+	{
+		if(i->Has(variable_name))
+		{
+			result += ((*i)[variable_name].value);
+			return true;
+		}
+	}
+
+	return false;
 }
 
 PushDataCommand::PushDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
