@@ -488,6 +488,25 @@ inline std::ostream& operator<< (std::ostream& o, const VariableNode& variable_n
 class VariableTable
 {
 public:
+	bool Has(const std::string& variable_name)
+	{
+		std::vector<std::string> name_fields;
+		Wll::Util::split(variable_name, '.', name_fields);
+		VariableNode* node = &variable_table;
+		for(std::vector<std::string>::iterator i = name_fields.begin(); i != name_fields.end(); ++i)
+		{
+			if(node->sub_nodes.find(*i) != node->sub_nodes.end())
+			{
+				node = &(node->sub_nodes[*i]);
+			}
+			else
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
 	ValueType& operator[] (const std::string& variable_name)
 	{
 		std::vector<std::string> name_fields;

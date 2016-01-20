@@ -119,4 +119,15 @@ TEST(VariableTableTest,Get_And_Set)
 	cout<<t.variable_table<<endl;
 }
 
+TEST(VariableTableTest,Has)
+{
+	VariableTable t;
+	t["a"] = "a";
+	t["b"] = "b";
+	t["a.b.c"] = "abc";
 
+	EXPECT_TRUE(t.Has("a"));
+	EXPECT_TRUE(t.Has("b"));
+	EXPECT_TRUE(t.Has("a.b.c"));
+	EXPECT_TRUE(!t.Has("d"));
+}
