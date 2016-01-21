@@ -1,0 +1,42 @@
+/*
+ * Wll2IntepreterLL1Impl.h
+ *
+ *  Created on: 2016-1-20
+ *      Author: wll
+ */
+
+#ifndef WLL2INTEPRETERLL1IMPL_H_
+#define WLL2INTEPRETERLL1IMPL_H_
+
+#include "LanguageSymbols.h"
+#include "LanguageTranslations.h"
+#include "WllIntepreter.h"
+#include <vector>
+
+class Wll2IntepreterLL1Impl
+{
+public:
+	Wll2IntepreterLL1Impl(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols, std::vector<LanguageTranslations>* translations,WllIntepreter* intepreter);
+	virtual bool IntepretWll();
+	void ShowErrorMessage();
+protected:
+	const std::vector<Symbols>& input_symbols;
+	std::vector<Symbols>& output_symbols;
+	std::vector<LanguageTranslations>* translations;
+	WllIntepreter* intepreter;
+	int input_pos;
+	//<e>--><i><e>
+	//<i>--><s>
+	//<i>--><a>
+	//<s>-->(<el>)
+	//<el>--><e>
+	//<el>--><e> <el>
+	bool IntepretExpression(std::vector<Symbols>& result);
+	bool IntepretSExpression(std::vector<Symbols>& result);
+	bool Accept(const Symbols& symbol);
+	bool Encount(const Symbols& symbol);
+	const Symbols& GetSymbol();
+};
+
+
+#endif /* WLL2INTEPRETERLL1IMPL_H_ */

@@ -1,12 +1,12 @@
 /*
- * VariableNode.h
+ * ValueType.h
  *
  *  Created on: Sep 2, 2015
  *      Author: wll
  */
 
-#ifndef VARIABLENODE_H_
-#define VARIABLENODE_H_
+#ifndef VALUE_TYPE_H_
+#define VALUE_TYPE_H_
 
 #include <map>
 #include <string>
@@ -450,77 +450,4 @@ struct Real : public ValueType
 	
 };
 
-struct VariableNode
-{
-	std::map<std::string, VariableNode> sub_nodes;
-	std::string name;
-	ValueType value;
-
-	ValueType& operator [] (const std::string& sub_node_name)
-	{
-		return this->sub_nodes[sub_node_name].value;
-	}
-
-	VariableNode(){}
-	VariableNode(const VariableNode& that)
-	{
-		this->sub_nodes = that.sub_nodes;
-		this->value = that.value;
-	}
-
-	const VariableNode& operator = (const VariableNode& that)
-	{
-		this->sub_nodes = that.sub_nodes;
-		this->value = that.value;
-		return (*this);
-	}
-};
-inline std::ostream& operator<< (std::ostream& o, const VariableNode& variable_node)
-{
-	for(std::map<std::string, VariableNode>::const_iterator i = variable_node.sub_nodes.begin(); i != variable_node.sub_nodes.end(); ++i)
-	{
-		o << i->first << "==>" << i->second.value << std::endl;
-		o << i->second;
-	}
-	return o;
-}
-
-class VariableTable
-{
-public:
-	bool Has(const std::string& variable_name)
-	{
-		std::vector<std::string> name_fields;
-		Wll::Util::split(variable_name, '.', name_fields);
-		VariableNode* node = &variable_table;
-		for(std::vector<std::string>::iterator i = name_fields.begin(); i != name_fields.end(); ++i)
-		{
-			if(node->sub_nodes.find(*i) != node->sub_nodes.end())
-			{
-				node = &(node->sub_nodes[*i]);
-			}
-			else
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
-	ValueType& operator[] (const std::string& variable_name)
-	{
-		std::vector<std::string> name_fields;
-		Wll::Util::split(variable_name, '.', name_fields);
-		VariableNode* node = &variable_table;
-		for(std::vector<std::string>::iterator i = name_fields.begin(); i != name_fields.end(); ++i)
-		{
-			node = &(node->sub_nodes[*i]);
-		}
-		return node->value;
-	}
-private:
-	VariableNode variable_table;
-};
-
-
-#endif /* VARIABLENODE_H_ */
+#endif /* VALUE_TYPE_H_ */

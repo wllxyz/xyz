@@ -15,15 +15,9 @@
 class WllIntepreter
 {
 public:
-	WllIntepreter(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols, std::vector<LanguageTranslations>& translations);
-	virtual bool IntepretWll()=0;
-	std::vector<LanguageTranslations>& GetTranslations() { return translations; }
+	virtual bool IntepretWll(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols, std::vector<LanguageTranslations>* translations)=0;
 protected:
 	int SplitParameters(const vector<Symbols>&symbols,  vector< vector<Symbols> >& fields);
-protected:
-	const std::vector<Symbols>& input_symbols;
-	std::vector<Symbols>& output_symbols;
-	std::vector<LanguageTranslations>& translations;
 };
 
 #endif /* WLL_INTEPRETER_H */

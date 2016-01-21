@@ -7,7 +7,6 @@
 #include <stack>
 #include <queue>
 #include "WllTrace.h"
-#include "VariableNode.h"
 #include "Wll0Intepreter.h"
 #include "Wll1Intepreter.h"
 #include "Wll2Intepreter.h"
@@ -322,16 +321,16 @@ bool TranslateTree(LanguageTree* source,LanguageTree*& dest,const vector<Languag
 //<variable>-->"<"<identifier>">"==><variable>--><identifier>$VARIABLE;
 //<constant>-->"\""<string>"\""==><constant>--><string>$CONSTANT;
 //<remark>-->"$"<identifier>==><remark>--><identifier>$REMARK;
-bool SelfExplain(const vector<Symbols>& symbols,vector<LanguageTranslations>& languages)
+bool SelfExplain(const vector<Symbols>& input_symbols,vector<LanguageTranslations>& languages)
 {
 	vector<Symbols> output_symbols;
 #ifndef	WLL1LOADER
-	Wll0Intepreter intepreter(symbols, output_symbols, languages);
+	Wll0Intepreter intepreter;
 #else
-	Wll1Intepreter intepreter(symbols, output_symbols, languages);
-	//Wll2Intepreter intepreter(symbols, output_symbols, languages);
+	Wll1Intepreter intepreter;
+	//Wll2Intepreter intepreter();
 #endif
-	bool retval = intepreter.IntepretWll();
+	bool retval = intepreter.IntepretWll(input_symbols, output_symbols, &languages);
 	cout<<output_symbols;
 	return retval;
 }

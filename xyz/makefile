@@ -11,7 +11,7 @@
 DEBUG=1
 #--------------------------------------
 #to set the default compiler, default use c++
-GCC=c++
+GCC=clang++-3.5
 #--------------------------------------
 #here you can set your customer macros defined for compiler
 #DEFINE_OPTION=-DLR1WLLXYZ -DPARSER=2 #-DDEBUG

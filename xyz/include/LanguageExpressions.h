@@ -12,6 +12,7 @@ public:
 	LanguageExpressions();
 	LanguageExpressions(const Symbols& c);
 	LanguageExpressions(const char* constants);
+	LanguageExpressions(const vector<Symbols>& symbols);
 	LanguageExpressions(const LanguageExpressions& that);
 	const LanguageExpressions& operator= (const LanguageExpressions& that);
 	//LanguageExpressions(int len,...);

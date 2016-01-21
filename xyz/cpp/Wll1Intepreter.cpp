@@ -12,22 +12,15 @@
 #include <queue>
 #include "WllTrace.h"
 #include <cassert>
-#include "VariableNode.h"
 #include "WllCommand.h"
 
-Wll1Intepreter::Wll1Intepreter(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols, std::vector<LanguageTranslations>& translations)
-:WllIntepreter(input_symbols,output_symbols,translations)
+bool Wll1Intepreter::IntepretWll(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols, std::vector<LanguageTranslations>* translations)
 {
-
-}
-
-bool Wll1Intepreter::IntepretWll()
-{
-	DEBUG_LOG("symbols="<<this->input_symbols);
+	DEBUG_LOG("symbols="<<input_symbols);
 
 	vector<Symbols>& data_stack = output_symbols;
 
-	for(vector<Symbols>::const_iterator i = this->input_symbols.begin(); i != this->input_symbols.end(); ++i)
+	for(vector<Symbols>::const_iterator i = input_symbols.begin(); i != input_symbols.end(); ++i)
 	{
 		Symbols symbol = *i;
 		DEBUG_LOG("explain symbol["<<symbol<<"] ...");
@@ -40,7 +33,7 @@ bool Wll1Intepreter::IntepretWll()
 			++i;
 			assert(*i == Symbols::LEFT_QUOTE);
 			int depth = 1;
-			while(++i != this->input_symbols.end())
+			while(++i != input_symbols.end())
 			{
 				if(*i == Symbols::RIGHT_QUOTE && depth == 1) break;
 				if(*i == Symbols::LEFT_QUOTE) depth++;
@@ -72,7 +65,7 @@ bool Wll1Intepreter::IntepretWll()
 				symbol = parameter_fields[0][0];
 				DEBUG_LOG("symbol="<<symbol);
 
-				WllCommand* command = WllCommandFactory::CreateCommand(symbol, parameter_fields,this);
+				WllCommand* command = WllCommandFactory::CreateCommand(symbol, parameter_fields,this, translations);
 				assert(command!=NULL);
 				command->Intepret(data_stack);
 				delete command;

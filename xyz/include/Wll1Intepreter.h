@@ -16,8 +16,7 @@
 class Wll1Intepreter : public WllIntepreter
 {
 public:
-	Wll1Intepreter(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols, std::vector<LanguageTranslations>& translations);
-	virtual bool IntepretWll();
+	virtual bool IntepretWll(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols, std::vector<LanguageTranslations>* translations);
 };
 
 #endif /* WLL1_INTEPRETER_H */

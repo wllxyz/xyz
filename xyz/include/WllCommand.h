@@ -13,18 +13,19 @@
 class WllCommand
 {
 public:
-	WllCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	WllCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result) = 0;
 protected:
 	Symbols command;
 	std::vector< std::vector<Symbols> >& parameters;
 	WllIntepreter* intepreter;
+	std::vector<LanguageTranslations>* translations;
 };
 
 class AddCommand : public WllCommand
 {
 public:
-	AddCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	AddCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
@@ -32,63 +33,63 @@ public:
 class SubCommand : public WllCommand
 {
 public:
-	SubCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	SubCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
 class MulCommand : public WllCommand
 {
 public:
-	MulCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	MulCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
 class DivCommand : public WllCommand
 {
 public:
-	DivCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	DivCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
 class LoadTranslationsCommand : public WllCommand
 {
 public:
-	LoadTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	LoadTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
 class AddTranslationsCommand : public WllCommand
 {
 public:
-	AddTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	AddTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
 class CondCommand : public WllCommand
 {
 public:
-	CondCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	CondCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
 class EqCommand : public WllCommand
 {
 public:
-	EqCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	EqCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
 class LtCommand : public WllCommand
 {
 public:
-	LtCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	LtCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
 class AndCommand : public WllCommand
 {
 public:
-	AndCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	AndCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
@@ -96,56 +97,63 @@ public:
 class OrCommand : public WllCommand
 {
 public:
-	OrCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	OrCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
 class NotCommand : public WllCommand
 {
 public:
-	NotCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	NotCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
 class ShellCommand : public WllCommand
 {
 public:
-	ShellCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	ShellCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
 class SetCommand : public WllCommand
 {
 public:
-	SetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	SetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
 class GetCommand : public WllCommand
 {
 public:
-	GetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	GetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
 class PushDataCommand : public WllCommand
 {
 public:
-	PushDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	PushDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
 class PopDataCommand : public WllCommand
 {
 public:
-	PopDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	PopDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
+class EvalCommand : public WllCommand
+{
+public:
+	EvalCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
 class WllCommandFactory
 {
 public:
-	static WllCommand* CreateCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	static WllCommand* CreateCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 };
 
 #endif /* WLL_COMMAND_H_ */

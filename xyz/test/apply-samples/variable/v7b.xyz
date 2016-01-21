@@ -1,0 +1,1 @@
+<i>-->"\n"==><o>-->($PUSH_DATA)($SET "a" $IGNORE($LEFT_QUOTE$ADD$SEPERATOR0$SEPERATOR1$RIGHT_QUOTE))($EVAL ($GET "a"))"\n";

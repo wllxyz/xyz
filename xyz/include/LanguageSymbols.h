@@ -79,6 +79,7 @@ public:
 	static const Symbols GET;
 	static const Symbols PUSH_DATA;
 	static const Symbols POP_DATA;
+	static const Symbols EVAL;
 };
 
 ostream& operator<< (ostream& o, const Symbols& symbol);

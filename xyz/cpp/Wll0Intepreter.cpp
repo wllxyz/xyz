@@ -12,21 +12,14 @@
 #include <queue>
 #include "WllTrace.h"
 #include <cassert>
-#include "VariableNode.h"
 
-Wll0Intepreter::Wll0Intepreter(const std::vector<Symbols>& input_symbols, std::vector<Symbols>& output_symbols, std::vector<LanguageTranslations>& translations)
-:WllIntepreter(input_symbols, output_symbols, translations)
+bool Wll0Intepreter::IntepretWll(const std::vector<Symbols>& input_symbols, std::vector<Symbols>& output_symbols, std::vector<LanguageTranslations>* translations)
 {
-
-}
-
-bool Wll0Intepreter::IntepretWll()
-{
-	if( !this->input_symbols.empty() && this->input_symbols.front()==Symbols::REMARK_WLL0 )
+	if( !input_symbols.empty() && input_symbols.front()==Symbols::REMARK_WLL0 )
 	{
-		Wll0Loader loader(this->input_symbols);
-		this->translations.clear();
-		if(!loader.LoadWll(this->translations))
+		Wll0Loader loader(input_symbols);
+		translations->clear();
+		if(!loader.LoadWll(*translations))
 		{
 			loader.ShowErrorMessage();
 			return false;
@@ -38,7 +31,7 @@ bool Wll0Intepreter::IntepretWll()
 	}
 	else
 	{
-		this->output_symbols = this->input_symbols;
+		output_symbols = input_symbols;
 		return true;
 	}
 }

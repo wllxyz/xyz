@@ -1,5 +1,5 @@
 /*
- * TestVariableNode.cpp
+ * TestValueType.cpp
  *
  *  Created on: Sep 2, 2015
  *      Author: wll
@@ -7,7 +7,7 @@
 
 #define private public
 
-#include "VariableNode.h"
+#include "ValueType.h"
 #include <iostream>
 #include <assert.h>
 using namespace std;
@@ -105,29 +105,3 @@ TEST(IntegerTest,Calculate_MUL_DIV)
 	}
 }
 
-TEST(VariableTableTest,Get_And_Set)
-{
-	VariableTable t;
-	t["a"] = "a";
-	t["b"] = "b";
-	t["a.b.c"] = "abc";
-
-	EXPECT_TRUE(t["a"].value=="a");
-	EXPECT_TRUE(t["b"]=="b");
-	EXPECT_TRUE(t["a.b.c"]=="abc");
-	EXPECT_TRUE(t["d"]=="");
-	cout<<t.variable_table<<endl;
-}
-
-TEST(VariableTableTest,Has)
-{
-	VariableTable t;
-	t["a"] = "a";
-	t["b"] = "b";
-	t["a.b.c"] = "abc";
-
-	EXPECT_TRUE(t.Has("a"));
-	EXPECT_TRUE(t.Has("b"));
-	EXPECT_TRUE(t.Has("a.b.c"));
-	EXPECT_TRUE(!t.Has("d"));
-}

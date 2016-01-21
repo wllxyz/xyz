@@ -8,12 +8,6 @@
 
 #include "WllIntepreter.h"
 
-WllIntepreter::WllIntepreter(const std::vector<Symbols>& _input_symbols,std::vector<Symbols>& _output_symbols, std::vector<LanguageTranslations>& _translations)
-:input_symbols(_input_symbols), output_symbols(_output_symbols), translations(_translations)
-{
-
-}
-
 int WllIntepreter::SplitParameters(const vector<Symbols>&symbols, vector< vector<Symbols> >& fields)
 {
 	fields.clear();

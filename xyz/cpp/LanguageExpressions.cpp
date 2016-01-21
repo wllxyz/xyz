@@ -24,6 +24,12 @@ LanguageExpressions::LanguageExpressions(const char* constants)
 	}
 }
 
+LanguageExpressions::LanguageExpressions(const vector<Symbols>& symbols)
+: symbols(symbols)
+{
+
+}
+
 const LanguageExpressions& LanguageExpressions::operator= (const LanguageExpressions& that)
 {
 	this->symbols=that.symbols;

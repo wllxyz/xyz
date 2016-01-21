@@ -42,6 +42,7 @@ const Symbols Symbols::SET(REMARK_SYMBOL,"$SET");
 const Symbols Symbols::GET(REMARK_SYMBOL,"$GET");
 const Symbols Symbols::PUSH_DATA(REMARK_SYMBOL,"$PUSH_DATA");
 const Symbols Symbols::POP_DATA(REMARK_SYMBOL,"$POP_DATA");
+const Symbols Symbols::EVAL(REMARK_SYMBOL,"$EVAL");
 
 Symbols::Symbols()
 {
