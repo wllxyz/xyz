@@ -19,8 +19,8 @@ static const char* DEFAULT_REMOTE_LOG_SERVER_NAME="WLL_LOG_SERVER";
 
 //default log configure: these configure should only effect on UNIX server
 static const long DEFAULT_MAX_LOG_FILE_SIZE=20*1024*1024;
-static const int DEFAULT_MAX_LOG_FILE_NUMBER=10;
-static const int DEFAULT_MAX_LOG_BUFFERED_LINES=1024;
+static const int DEFAULT_MAX_LOG_FILE_NUMBER=0;
+static const int DEFAULT_MAX_LOG_BUFFERED_LINES=0;
 
 //buffer size limits
 static const int MAX_CONFIG_LENGTH=512;

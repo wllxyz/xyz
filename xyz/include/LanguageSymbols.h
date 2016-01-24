@@ -68,6 +68,7 @@ public:
 	static const Symbols TRUE;
 	static const Symbols FALSE;
 	static const Symbols COND;
+	static const Symbols LOOP;
 	static const Symbols EQ;	
 	static const Symbols LT;
 	static const Symbols AND;

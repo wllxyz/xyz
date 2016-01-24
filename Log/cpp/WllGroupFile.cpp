@@ -59,7 +59,7 @@ bool GroupFile::Open(const char* filename_template, FileOpenMode open_mode,
  int max_buffer_size /*=DEFAULT_MAX_BUFFER_SIZE*/)
 {
  //parameters check
- if(max_file_number<0 || max_file_size<=0 || max_buffer_size<=0 || !CheckFileNameTemplate(filename_template))
+ if(max_file_number<0 || max_file_size<=0 || max_buffer_size<0 || !CheckFileNameTemplate(filename_template))
  {
   DEBUG_LOG("open parameters[max_file_number="<<max_file_number<<",max_file_size="<<max_file_size<<"max_buffer_size="<<max_buffer_size<<"] invalid, open group file ["<<filename_template<<"] failed");
   return false;
@@ -140,7 +140,7 @@ bool GroupFile::IsOpened(void)
 void GroupFile::Config(int max_file_number /*=DEFAULT_MAX_FILE_NUMBER*/, long max_file_size /*=DEFAULT_MAX_FILE_SIZE*/, int max_buffer_size /*=DEFAULT_MAX_BUFFER_SIZE*/)
 {
  //parameters check
- if(max_file_number<0 || max_file_size<=0 || max_buffer_size<=0)
+ if(max_file_number<0 || max_file_size<=0 || max_buffer_size<0)
  {
   DEBUG_LOG("config parameter [max_file_number="<<max_file_number<<",max_file_size="<<max_file_size<<",max_buffer_size="<<max_buffer_size<<"] invalid");
   return;
@@ -177,7 +177,7 @@ void GroupFile::Config(int max_file_number /*=DEFAULT_MAX_FILE_NUMBER*/, long ma
    {
     DEBUG_LOG("buffer is not null or try to set no buffer");
     //try to set buffer
-    if(setvbuf(this->current_opened_file,buffer,_IOFBF,max_buffer_size)==0)
+    if(setvbuf(this->current_opened_file,buffer,(buffer!=NULL&&max_buffer_size>0?_IOFBF:_IONBF),max_buffer_size)==0)
     {
      DEBUG_LOG("setvbuf successed,try to release old buffer memory...");
      //release old buffer memory

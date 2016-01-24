@@ -150,6 +150,13 @@ public:
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
+class LoopCommand : public WllCommand
+{
+public:
+	LoopCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
 class WllCommandFactory
 {
 public:

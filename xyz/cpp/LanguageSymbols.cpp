@@ -32,6 +32,7 @@ const Symbols Symbols::DIV(REMARK_SYMBOL,"$DIV");
 const Symbols Symbols::TRUE(REMARK_SYMBOL,"$TRUE");
 const Symbols Symbols::FALSE(REMARK_SYMBOL,"$FALSE");
 const Symbols Symbols::COND(REMARK_SYMBOL,"$COND");
+const Symbols Symbols::LOOP(REMARK_SYMBOL,"$LOOP");
 const Symbols Symbols::EQ(REMARK_SYMBOL,"$EQ");
 const Symbols Symbols::LT(REMARK_SYMBOL,"$LT");
 const Symbols Symbols::AND(REMARK_SYMBOL,"$AND");

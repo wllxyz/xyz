@@ -239,6 +239,40 @@ bool CondCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
+LoopCommand::LoopCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
+: WllCommand(cmd,parameter_fields,intepreter,translations)
+{
+
+}
+
+//($LOOP <condition> <expression>)
+bool LoopCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size()==3);
+	do
+	{
+		std::vector<Symbols> condition_result;
+		INFO("Intepret LoopCommand condition part: condition=["<<this->parameters[1]<<"],expression=["<<this->parameters[2]<<"]");
+		if(!this->intepreter->IntepretWll(this->parameters[1],condition_result,this->translations))
+		{
+			TERM_ERROR("Intepret LoopCommand condition failed: condition=["<<this->parameters[1]<<"],expression=["<<this->parameters[2]<<"]");
+			return false;
+		}
+
+		INFO("condition_result="<<condition_result);
+		if(condition_result[0] == Symbols::FALSE) break;
+
+		INFO("Intepret LoopCommand expression part: condition=["<<this->parameters[1]<<"],expression=["<<this->parameters[2]<<"]");
+		if(!this->intepreter->IntepretWll(this->parameters[2], result, this->translations))
+		{
+			TERM_ERROR("Intepret LoopCommand expression failed: condition=["<<this->parameters[1]<<"],expression=["<<this->parameters[2]<<"]");
+			return false;
+		}
+	}while(true);
+
+	return true;
+}
+
 EqCommand::EqCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
 : WllCommand(cmd,parameter_fields,intepreter,translations)
 {
@@ -371,7 +405,7 @@ bool GetCommand::Intepret(std::vector<Symbols>& result)
 		}
 	}
 
-	INFO("GetCommand failed! variable_name["<<variable_name<<"] not find in variable table stack");
+	TERM_ERROR("GetCommand failed! variable_name["<<variable_name<<"] not find in variable table stack");
 	return false;
 }
 
@@ -454,6 +488,10 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	{
 		command = new CondCommand(cmd,parameter_fields,intepreter,translations);
 	}//COND
+	else if(cmd == Symbols::LOOP)
+	{
+		command = new LoopCommand(cmd,parameter_fields,intepreter,translations);
+	}//LOOP
 	else if(cmd == Symbols::EQ)
 	{
 		command = new EqCommand(cmd,parameter_fields,intepreter,translations);

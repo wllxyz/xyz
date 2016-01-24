@@ -67,9 +67,13 @@ bool Wll1Intepreter::IntepretWll(const std::vector<Symbols>& input_symbols,std::
 
 				WllCommand* command = WllCommandFactory::CreateCommand(symbol, parameter_fields,this, translations);
 				assert(command!=NULL);
-				command->Intepret(data_stack);
+				bool retval = command->Intepret(data_stack);
 				delete command;
-				//TODO:
+				if(retval == false)
+				{
+					TERM_ERROR("Intepret command["<<symbol<<"], parameters["<<vector<Symbols>(parameters.begin(),parameters.end())<<"] failed!!!");
+					return false;
+				}
 			}//parameters not empty
 		}
 		//没到求值时机,先压栈
