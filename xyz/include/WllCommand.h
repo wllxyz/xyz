@@ -115,6 +115,13 @@ public:
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
+class DefCommand : public WllCommand
+{
+public:
+	DefCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
 class SetCommand : public WllCommand
 {
 public:
@@ -136,10 +143,24 @@ public:
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
+class PushCommand : public WllCommand
+{
+public:
+	PushCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
 class PopDataCommand : public WllCommand
 {
 public:
 	PopDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
+class PopCommand : public WllCommand
+{
+public:
+	PopCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
@@ -162,5 +183,7 @@ class WllCommandFactory
 public:
 	static WllCommand* CreateCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations);
 };
+
+bool AddTranslations(const std::vector<Symbols>& input_symbols, std::vector<LanguageTranslations>& translations);
 
 #endif /* WLL_COMMAND_H_ */

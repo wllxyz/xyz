@@ -87,14 +87,14 @@ int main(int argc,char** argv)
 			if(input_file.fail())
 			{
 				cerr<<"open input file ["<<argv[i]<<"] failed!"<<endl;
-				continue;
+				return -1;
 			}
 			input = &input_file;
 		}
 		if(!parser.Process(*input,cout))
 		{
 			cerr<<"process input file ["<<argv[i]<<"] failed!"<<endl;
-			continue;
+			return -1;
 		}
 	}
 

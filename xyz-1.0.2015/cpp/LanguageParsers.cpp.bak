@@ -1,0 +1,697 @@
+﻿#include "LanguageParsers.h"
+#include <assert.h>
+
+//LanguageParsers
+ LanguageParsers::LanguageParsers()
+ {
+        this->source_tree=this->destination_tree=0;
+	//加载默认的WLL0分析器规则
+	if(!this->LoadLanguage()) return false; 
+ }
+
+LanguageParsers::LanguageParsers(const LanguageParser& that)
+{
+	this->source_tree=this->destination_tree=0;
+	this->languages = that.languages;
+	this->AnalyzeLanguage();
+}
+
+//析构函数
+LanguageParsers::~LanguageParsers()
+{
+	//销毁源语言文法分析树
+	if(this->source_tree)
+	    DestroyTree(this->source_tree);
+	this->source_tree=0;
+
+	//销毁目标语言文法分析树
+	if(this->destination_tree)
+		DestroyTree(this->destination_tree);
+	this->dest_tree=0;
+}
+
+ //自动加载WLL0文法模板
+ bool LanguageParsers::LoadLanguage()
+ {
+	//扩展文法(need to be auto add)
+	//源语言和目标语言可以用相同的文法变量，它们默认互不影响,相同文法变量共享相同的内部id
+	//<start>--><wll0>==><start>-->$WLL0<wll0>;
+	this->source_languages.Insert(LanguageRules(START,LanguageExpressions(1,WLL0)));
+	this->dest_languages.Insert(LanguageRules(START,LanguageExpressions(2,REMARK_WLL0,WLL0)));
+	//<wll0>--><translation>";"<spaces>==><wll0>--><translation>;
+	this->source_languages.Insert(LanguageRules(WLL0,LanguageExpressions(3,TRANSLATION,';',SPACES)));
+	this->dest_languages.Insert(LanguageRules(WLL0,LanguageExpressions(1,TRANSLATION)));
+	//<wll0>--><translation>";"<spaces><wll0>==><wll0>--><translation><wll0>;
+	this->source_languages.Insert(LanguageRules(WLL0,LanguageExpressions(4,TRANSLATION,';',SPACES,WLL0)));
+	this->dest_languages.Insert(LanguageRules(WLL0,LanguageExpressions(2,TRANSLATION,WLL0)));
+	//<translation>--><source_rule>"==>"<destination_rule>==><translation>--><source_rule><destination_rule>$TRANSLATION;
+	this->source_languages.Insert(LanguageRules(TRANSLATION,LanguageExpressions(5,SOURCE_RULE,'=','=','>',DESTINATION_RULE)));
+	this->dest_languages.Insert(LanguageRules(TRANSLATION,LanguageExpressions(3,SOURCE_RULE,DESTINATION_RULE,REMARK_TRANSLATION)));
+	//<source_rule>--><rule>==><source_rule>--><rule>$SOURCE-RULE;
+	this->source_languages.Insert(LanguageRules(SOURCE_RULE,LanguageExpressions(1,RULE)));
+	this->dest_languages.Insert(LanguageRules(SOURCE_RULE,LanguageExpressions(2,RULE,REMARK_SOURCE_RULE)));
+	//<destination_rule>--><rule>==><destination_rule>--><rule>$DESTINATION-RULE;
+	this->source_languages.Insert(LanguageRules(DESTINATION_RULE,LanguageExpressions(1,RULE)));
+	this->dest_languages.Insert(LanguageRules(DESTINATION_RULE,LanguageExpressions(2,RULE,REMARK_DESTINATION_RULE)));
+	//<rule>--><root>"-->"<expression>==><rule>--><root><expression>$EXPRESSION$RULE;
+	this->source_languages.Insert(LanguageRules(RULE,LanguageExpressions(5,ROOT,'-','-','>',EXPRESSION)));
+	this->dest_languages.Insert(LanguageRules(RULE,LanguageExpressions(4,ROOT,EXPRESSION,REMARK_EXPRESSION,REMARK_RULE)));
+	//<root>--><variable>==><root>--><variable>$ROOT-SYMBOL;
+	this->source_languages.Insert(LanguageRules(ROOT,LanguageExpressions(1,VARIABLE)));
+	this->dest_languages.Insert(LanguageRules(ROOT,LanguageExpressions(2,VARIABLE,REMARK_ROOT_SYMBOL)));
+	//<expression>--><symbol>==><expression>--><symbol>;
+	this->source_languages.Insert(LanguageRules(EXPRESSION,LanguageExpressions(1,SYMBOL)));
+	this->dest_languages.Insert(LanguageRules(EXPRESSION,LanguageExpressions(1,SYMBOL)));
+	//<expression>--><symbol><expression>==><expression>--><symbol><expression>;
+	this->source_languages.Insert(LanguageRules(EXPRESSION,LanguageExpressions(2,SYMBOL,EXPRESSION)));
+	this->dest_languages.Insert(LanguageRules(EXPRESSION,LanguageExpressions(2,SYMBOL,EXPRESSION)));
+	//<symbol>--><variable>==><symbol>--><variable>$SUB-SYMBOL;
+	this->source_languages.Insert(LanguageRules(SYMBOL,LanguageExpressions(1,VARIABLE)));
+	this->dest_languages.Insert(LanguageRules(SYMBOL,LanguageExpressions(2,VARIABLE,REMARK_SUB_SYMBOL)));
+	//<symbol>--><constant>==><symbol>--><constant>$SUB-SYMBOL;
+	this->source_languages.Insert(LanguageRules(SYMBOL,LanguageExpressions(1,CONSTANT)));
+	this->dest_languages.Insert(LanguageRules(SYMBOL,LanguageExpressions(2,CONSTANT,REMARK_SUB_SYMBOL)));
+	//<variable>-->"<"<identifier>">"==><variable>--><identifier>$VARIABLE;
+	this->source_languages.Insert(LanguageRules(VARIABLE,LanguageExpressions(3,'<',IDENTIFIER,'>')));
+	this->dest_languages.Insert(LanguageRules(VARIABLE,LanguageExpressions(2,IDENTIFIER,REMARK_VARIABLE)));
+	//<constant>-->"$"<remark>==><constant>-->$REMARK<remark>$CONSTANT;
+	this->source_languages.Insert(LanguageRules(CONSTANT,LanguageExpressions(2,'$',REMARK)));
+	this->dest_languages.Insert(LanguageRules(CONSTANT,LanguageExpressions(3,REMARK_REMARK,REMARK,REMARK_CONSTANT)));
+//	//<constant>-->"$"<remark>==><constant>--><remark>$CONSTANT;
+//	this->source_languages.Insert(LanguageRules(CONSTANT,LanguageExpressions(2,'$',REMARK)));
+//	this->dest_languages.Insert(LanguageRules(CONSTANT,LanguageExpressions(2,REMARK,REMARK_CONSTANT)));
+//-----------------------------------------------------------------------------
+	//<remark>-->"WLL0"==><remark>-->$WLL0;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(4,'W','L','L','0')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_WLL0)));
+	//<remark>-->"TRANSLATION"==><remark>-->$TRANSLATION;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(11,'T','R','A','N','S','L','A','T','I','O','N')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_TRANSLATION)));
+	//<remark>-->"SOURCE-RULE"==><remark>-->$SOURCE-RULE;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(11,'S','O','U','R','C','E','-','R','U','L','E')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_SOURCE_RULE)));
+	//<remark>-->"DESTINATION-RULE"==><remark>-->$DESTINATION-RULE;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(16,'D','E','S','T','I','N','A','T','I','O','N','-','R','U','L','E')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_DESTINATION_RULE)));
+	//<remark>-->"RULE"==><remark>-->$RULE;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(4,'R','U','L','E')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_RULE)));
+	//<remark>-->"ROOT-SYMBOL"==><remark>-->$ROOT-SYMBOL;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(11,'R','O','O','T','-','S','Y','M','B','O','L')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_ROOT_SYMBOL)));
+	//<remark>-->"EXPRESSION"==><remark>-->$EXPRESSION;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(10,'E','X','P','R','E','S','S','I','O','N')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_EXPRESSION)));
+	//<remark>-->"SUB-SYMBOL"==><remark>-->$SUB-SYMBOL;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(10,'S','U','B','-','S','Y','M','B','O','L')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_SUB_SYMBOL)));
+	//<remark>-->"VARIABLE"==><remark>-->$VARIABLE;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(8,'V','A','R','I','A','B','L','E')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_VARIABLE)));
+	//<remark>-->"CONSTANT"==><remark>-->$CONSTANT;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(8,'C','O','N','S','T','A','N','T')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_CONSTANT)));
+	//<remark>-->"REMARK"==><remark>-->$REMARK;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(6,'R','E','M','A','R','K')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_REMARK)));
+//-----------------------------------------------------------------------------
+	//<identifier>--><letter>==><identifier>--><letter>;
+	this->source_languages.Insert(LanguageRules(IDENTIFIER,LanguageExpressions(1,LETTER)));
+	this->dest_languages.Insert(LanguageRules(IDENTIFIER,LanguageExpressions(1,LETTER)));
+	//<identifier>--><letter><letter_digit_string>==><identifier>--><letter><letter_digit_string>;
+	this->source_languages.Insert(LanguageRules(IDENTIFIER,LanguageExpressions(2,LETTER,LETTER_DIGIT_STRING)));
+	this->dest_languages.Insert(LanguageRules(IDENTIFIER,LanguageExpressions(2,LETTER,LETTER_DIGIT_STRING)));
+	//<letter_digit_string>--><letter>==><letter_digit_string>--><letter>;
+	this->source_languages.Insert(LanguageRules(LETTER_DIGIT_STRING,LanguageExpressions(1,LETTER)));
+	this->dest_languages.Insert(LanguageRules(LETTER_DIGIT_STRING,LanguageExpressions(1,LETTER)));
+	//<letter_digit_string>--><digit>==><letter_digit_string>--><digit>;
+	this->source_languages.Insert(LanguageRules(LETTER_DIGIT_STRING,LanguageExpressions(1,DIGIT)));
+	this->dest_languages.Insert(LanguageRules(LETTER_DIGIT_STRING,LanguageExpressions(1,DIGIT)));
+	//<letter_digit_string>--><letter><letter_digit_string>==><letter_digit_string>--><letter><letter_digit_string>;
+	this->source_languages.Insert(LanguageRules(LETTER_DIGIT_STRING,LanguageExpressions(2,LETTER,LETTER_DIGIT_STRING)));
+	this->dest_languages.Insert(LanguageRules(LETTER_DIGIT_STRING,LanguageExpressions(2,LETTER,LETTER_DIGIT_STRING)));
+	//<letter_digit_string>--><digit><letter_digit_string>==><letter_digit_string>--><digit><letter_digit_string>;
+	this->source_languages.Insert(LanguageRules(LETTER_DIGIT_STRING,LanguageExpressions(2,DIGIT,LETTER_DIGIT_STRING)));
+	this->dest_languages.Insert(LanguageRules(LETTER_DIGIT_STRING,LanguageExpressions(2,DIGIT,LETTER_DIGIT_STRING)));
+	//<constant>-->"\""<string>"\""==><constant>--><string>$CONSTANT;
+	this->source_languages.Insert(LanguageRules(CONSTANT,LanguageExpressions(3,'\"',STRING,'\"')));
+	this->dest_languages.Insert(LanguageRules(CONSTANT,LanguageExpressions(2,STRING,REMARK_CONSTANT)));
+	//<string>--><character>==><string>--><character>;
+	//this->source_languages.Insert(LanguageRules(STRING,LanguageExpressions(1,CHARACTER)));
+	//this->dest_languages.Insert(LanguageRules(STRING,LanguageExpressions(1,CHARACTER)));
+	//<string>-->""==><string>-->"";
+	this->source_languages.Insert(LanguageRules(STRING,LanguageExpressions()));
+	this->dest_languages.Insert(LanguageRules(STRING,LanguageExpressions()));
+	//<string>--><character><string>==><string>--><character><string>;
+	this->source_languages.Insert(LanguageRules(STRING,LanguageExpressions(2,CHARACTER,STRING)));
+	this->dest_languages.Insert(LanguageRules(STRING,LanguageExpressions(2,CHARACTER,STRING)));
+	//<character>--><letter>==><character>--><letter>;
+	this->source_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,LETTER)));
+	this->dest_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,LETTER)));
+	//<character>--><digit>==><character>--><digit>;
+	this->source_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,DIGIT)));
+	this->dest_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,DIGIT)));
+	//<character>--><operator>==><character>--><operator>;
+	this->source_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,OPERATOR)));
+	this->dest_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,OPERATOR)));
+	//<character>--><spacial>==><character>--><spacial>;
+	this->source_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,SPACIAL)));
+	this->dest_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,SPACIAL)));
+	//<character>--><space>==><character>--><space>;
+	this->source_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,SPACE)));
+	this->dest_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,SPACE)));
+//-----------------------------------------------------------------------------
+	//<字母>::="a"-"z"|"A"-"Z"|"_" 
+	for(char letter='a'; letter<='z'; letter++)
+	{
+		this->source_languages.Insert(LanguageRules(LETTER,LanguageExpressions(1,letter)));
+		this->dest_languages.Insert(LanguageRules(LETTER,LanguageExpressions(1,letter)));
+	}
+	for(char letter='A'; letter<='Z'; letter++)
+	{
+		this->source_languages.Insert(LanguageRules(LETTER,LanguageExpressions(1,letter)));
+		this->dest_languages.Insert(LanguageRules(LETTER,LanguageExpressions(1,letter)));
+	}
+	this->source_languages.Insert(LanguageRules(LETTER,LanguageExpressions(1,'_')));
+	this->dest_languages.Insert(LanguageRules(LETTER,LanguageExpressions(1,'_')));
+	//<数字>::="0"-"9"
+	for(char digit='0'; digit<='9'; digit++)
+	{
+		this->source_languages.Insert(LanguageRules(DIGIT,LanguageExpressions(1,digit)));
+		this->dest_languages.Insert(LanguageRules(DIGIT,LanguageExpressions(1,digit)));
+	}
+//-----------------------------------------------------------------------------
+	//<界符>::=所有其他可打印字符
+	char operators[]={
+		'+','-','*','/','%','^',
+		'>','=','<','#',
+		',',':',';','.','?','!','\'',
+		'(',')','[',']','{','}',
+		'`','~','@','$','&','|'
+	};
+	for(int i=0; i<sizeof(operators)/sizeof(char); i++)
+	{	
+		this->source_languages.Insert(LanguageRules(OPERATOR,LanguageExpressions(1,operators[i])));
+		this->dest_languages.Insert(LanguageRules(OPERATOR,LanguageExpressions(1,operators[i])));
+	}
+//-----------------------------------------------------------------------------
+	//<space>-->"\t"==><space>-->"\t";
+	this->source_languages.Insert(LanguageRules(SPACE,LanguageExpressions(1,'\t')));
+	this->dest_languages.Insert(LanguageRules(SPACE,LanguageExpressions(1,'\t')));
+	//<space>-->"\n"==><space>-->"\n";
+	this->source_languages.Insert(LanguageRules(SPACE,LanguageExpressions(1,'\n')));
+	this->dest_languages.Insert(LanguageRules(SPACE,LanguageExpressions(1,'\n')));
+	//<space>-->"\r"==><space>-->"\r";
+	this->source_languages.Insert(LanguageRules(SPACE,LanguageExpressions(1,'\r')));
+	this->dest_languages.Insert(LanguageRules(SPACE,LanguageExpressions(1,'\r')));
+	//<space>-->" "==><space>-->" ";
+	this->source_languages.Insert(LanguageRules(SPACE,LanguageExpressions(1,' ')));
+	this->dest_languages.Insert(LanguageRules(SPACE,LanguageExpressions(1,' ')));
+//-----------------------------------------------------------------------------
+	//<spacial>-->"\\\""==><spacial>-->"\"";
+	this->source_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(2,'\\','\"')));
+	this->dest_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(1,'\"')));
+	//<spacial>-->"\\\\"==><spacial>-->"\\";
+	this->source_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(2,'\\','\\')));
+	this->dest_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(1,'\\')));
+	//<spacial>-->"\\t"==><spacial>-->"\t";
+	this->source_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(2,'\\','t')));
+	this->dest_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(1,'\t')));
+	//<spacial>-->"\\n"==><spacial>-->"\n";
+	this->source_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(2,'\\','n')));
+	this->dest_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(1,'\n')));
+	//<spacial>-->"\\r"==><spacial>-->"\r";
+	this->source_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(2,'\\','r')));
+	this->dest_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(1,'\r')));
+//-----------------------------------------------------------------------------
+	//这两条源语言规则没有对应的目标规则，只为跳过空格
+	this->source_languages.Insert(LanguageRules(SPACES,LanguageExpressions(1,SPACE)));
+	this->source_languages.Insert(LanguageRules(SPACES,LanguageExpressions(2,SPACE,SPACES)));  
+	this->dest_languages.Insert(LanguageRules(SPACES,LanguageExpressions(1,SPACE)));
+	this->dest_languages.Insert(LanguageRules(SPACES,LanguageExpressions(2,SPACE,SPACES)));
+//------------------------------------------------------------------------------
+
+	//load variable names
+	const char* variables[] = {
+		"START",
+		"WLL0",
+		"TRANSLATION",
+		"SPACES",
+		"SOURCE_RULE",
+		"DESTINATION_RULE",
+		"RULE",
+		"ROOT",
+		"EXPRESSION",
+		"VARIABLE",
+		"SYMBOL",
+		"CONSTANT",
+		"IDENTIFIER",
+		"REMARK",
+		"LETTER",
+		"LETTER_DIGIT_STRING",
+		"DIGIT",
+		"STRING",
+		"CHARACTER",
+		"OPERATOR",
+		"SPACIAL",
+		"SPACE" 
+	};
+	for(int i=0; i<sizeof(variables)/sizeof(const char*); i++)
+	{
+		String<Symbols> variable_name;
+		for(int j=0; j<strlen(variables[i]); j++)
+		{
+			variable_name.Insert(Symbols(variables[i][j]));
+		}
+		this->variable_names.Insert(variable_name);
+	}
+
+#ifdef	DEBUG
+	this->DisplayLanguage();	
+#endif	//DEBUG
+
+  return this->AnalyzeLanguage();
+ }
+
+//从文法模板加载语言
+bool LanguageParsers::LoadLanguage(istream& ins)
+{
+	return this->Process(ins,cout);
+}
+
+//加载输入流
+bool LanguageParsers::LoadInput(istream& ins)
+{
+	this->input_symbols.Clear();
+
+	char c=ins.get();
+	if(!ins.eof())
+	{
+		do
+		{
+			this->input_symbols.push_back(Symbols(c));
+			c=ins.get();
+		}while(!ins.eof());
+	}
+
+	return true;
+}
+
+void LanguageParsers::SetInput(const vector<Symbols>& input)
+{
+	this->input_symbols = input;
+}
+
+bool LanguageParsers::Parse()
+{
+	if(this->source_tree) 
+	{
+		DestroyTree(this->source_tree);
+		this->source_tree = NULL;
+	}
+	return this->ParseTree(this->input_symbols,this->source_tree,this->source_languages);
+}
+
+bool LanguageParsers::Translate()
+{
+	return this->Translate(cout);
+}
+
+bool LanguageParsers::Translate(vector<Symbols>& output)
+{
+	if(this->destination_tree) 
+	{
+		DestroyTree(this->destination_tree);
+		this->destination_tree = NULL;
+	}
+	//通过文法模板的分析树结构来构造规则库:源语言产生式,目标语言产生式,规则之间的对应.
+	if(!this->TranslateTree(this->source_tree,this->destination_tree,this->destination_languages)) return false;
+	//生成规则的内部表示
+	output.Clear();
+	DisplayTreeLeaves(output,this->destination_tree);
+	return true;
+}
+
+//实现文法模板结构的翻译
+bool LanguageParsers::Translate(ostream& outf)
+{
+	if(!this->Translate(this->output_symbols)) return false;
+	//解析内部表示，添加相应规则
+	if(this->IsXyzLanguage(this->output_symbols))
+		return this->SelfExplain(this->output_symbols,this->languages);
+	else
+		outf<<this->output_symbols;
+	return true;
+}
+
+bool LanguageParsers::Process(istream& inf,ostream& outf)
+{
+	if(!this->LoadInput(inf)) return false;
+	if(!this->Parse()) return false;
+	if(!this->Translate(outf)) return false;
+	return true;
+}
+
+bool LanguageParsers::IsXyzLanguage(const vector<Symbols>& symbols)
+{
+	//not check inner wll grammar now
+	return ( !symbols.empty() && symbols[0]==Symbols(REMARK_SYMBOL,"REMARK_WLL0"));
+}
+
+//calculate first sets of symbols
+bool LanguageParsers::AnalyzeLanguage()
+{
+	this->source_languages.clear();
+	this->destination_languages.clear();
+
+	for(vector<LanguageTranslations>::const_iterator i = this->languages.begin(); i != this->languages.end(); ++i)
+	{
+		this->source_languages.push_back(&i->source_rule);
+		this->destination_languages.push_back(&i->destination_rule);
+	}
+	this->CalculateAllFirstSet();
+
+	return true;
+}
+
+//依次使用规则来推导语法树
+bool LanguageParsers::Reduce(LanguageExpressions& expression,const vector<size_t>& rule_nos,const vector<LanguageRules*>& destination_languages);
+{
+	bool have_noused_rule = false;
+	for(vector<size_t>::const_iterator k = rule_nos.begin(); k != rule_nos.end(); ++k)
+	{
+		const LanguageRules& rule=*destination_languages[*k];
+
+		//在文法表达式中定位将要替代的文法符号(规则开始符号)
+		vector<Symbols>::iterator i=expression.symbols.find(rule.symbol);
+		if(i != expression.symbols.end())
+		{
+			//用规则中的文法表达式替代它
+			copy(rule.expression.symbols.begin(),rule.expression.symbols.end(),inserter(expression.symbols,i+1));
+			expression.symbols.erase(i);
+		}
+		else have_noused_rule = true;
+	}
+	return !have_noused_rule;
+}
+
+//根据依次调用的文法规则构造源语言文法分析树
+bool LanguageParsers::ConstructTreeByRules(vector<size_t>& rules_no,LanguageTree*& source_tree,const vector<LanguageRules*> source_languages);
+{
+	if(source_tree!=NULL)
+	{
+		DestroyTree(source_tree);
+		source_tree = NULL;
+	}
+	
+	if(rules_no.empty())
+	{
+		source_tree=NULL;
+		return true;
+	}
+	//先构造一棵以第一条文法规则的开始符号为结点树
+	source_tree = new LanguageTree();
+	source_tree->symbol = source_languages[rules_no[0]]->symbol;
+	//对每一条规则,插入其生成成分
+	vector<size_t>::const_iterator i = rules_no.begin();
+	for(++i; i != rules_no.end(); ++i)
+	{
+		LanguageRules* rule=source_languages[*i]; //规则
+		//根据规则左边符号查找语法分析树,用先根遍历的顺序找到第一个匹配的结点
+		LanguageTree *p=LeftFirstSearchTree(source_tree,rule->symbol);
+		if(p)
+		{
+			//根据规则插入语法成分
+			//设置规则号
+			p->rule_no=*i;
+			//为文法规则的表达式的每一个符号建立一个结点
+			for(vector<Symbols>::iterator j=rule->expression.symbols.begin(); j!=rule->expression.symbols.end(); ++j)
+			{
+				//为文法符号分配新结点
+				LanguageTree *q=new LanguageTree();
+				q->symbol=*j;
+				q->rule_no=-1;   //叶子结点无产生式规则
+				//链接该结点
+				p->symbols.push_back(q);
+			}
+		}
+		else
+		{
+			cout<<"Unknow Language Rule!"<<*rule<<endl;
+		}
+	}
+	return true;
+}
+
+ //通过源语言文法分析树建立目标语言文法分析树
+ void LanguageParsers::TranslateTree(LanguageTree* source,LanguageTree*& dest,const vector<LanguageRules*>& dest_languages)
+ {
+	//如果源语言树规则到目标语言树没有规则相对应,则把dest设置为空
+	//在这里目标规则总是和源语言规则的规则号相同(也就是总是存在)
+	//可以通过一个规则变换表来建立规则之间的对应关系,对于没有对应的规则可以返回一个0值表示对应的规则不存在
+
+	//要确保调用时,source不是叶子结点,也不为空
+	size_t rule_no=source->rule_no;
+	LanguageRules* rule=dest_languages[rule_no];
+
+	dest=new LanguageTree();
+	dest->symbol=rule->symbol;
+	dest->rule_no=rule_no;
+
+	for(vector<Symbols>::iterator i=rule->expression.symbols.begin(); i<=rule->expression.symbols.end(); ++i)
+	{
+		//查找对应源语言子树的序号
+		Symbols symbol=*i;
+		SIZE_TYPE j;
+		for(j=1; j<=source->symbols.Length(); j++)
+		{
+    			//找不是叶子结点的源语言对应的子树,跳过叶子结点
+			//null expression adjustment: ??????????????????????? throw exception after this change 11/27/2011
+			//<update>
+    			//if(!source->symbols[j]->symbols.IsEmpty())
+			//<as>
+			if(this->IsVariable(source->symbols[j]->symbol) && !source->symbols[j]->IsLeaf())
+			//</update>
+			{
+				SIZE_TYPE rule_no;
+				rule_no=source->symbols[j]->rule_no;
+				if(rule_no<=dest_languages.Length())
+				if(symbol==dest_languages[rule_no].symbol) break;	//同一条转换子树中不能有同名扩展标识符
+			}
+		}
+
+		//找到的对应源语言文法子树不为叶子结点
+		if(j<=source->symbols.Length())
+		{
+			LanguageTree *p;
+			TranslateTree(source->symbols[j],dest_languages,p);	//递归调用
+			dest->symbols.Insert(p);
+		}
+		else //没有找到从源语言转换过来的对应结构,或者源语言对应结构为叶子结点
+		{
+			//自己建立一个叶子结点
+			LanguageTree *p=new LanguageTree();
+			p->symbol=symbol;
+			p->rule_no=0;
+
+			dest->symbols.Insert(p);
+		}
+	}//end of for
+ }
+ //通过内部表示建立编译器的语言规则库
+//内部表示结构:(用wll文法表示)
+//<xyz>-->$WLL0<translation>
+//<translation>--><source_rule><destination_rule>$TRANSLATION
+//<source_rule>--><rule>$SOURCE-RULE
+//<destination_rule>--><rule>$DESTINATION-RULE
+//<rule>--><root_symbol><expression>$RULE
+//<root_symbol>--><variable>$ROOT-SYMBOL
+//<expression>--><sub_symbols>$EXPRESSION
+//<sub_symbols>--><sub_symbol><sub_symbols>
+//<sub_symbol>--><variable>$SUB-SYMBOL
+//<sub_symbol>--><constant>$SUB-SYMBOL
+//<variable>--><identifier>$VARIABLE
+//<constant>--><string>$CONSTANT
+//<string>--><character><string>
+//<string>-->$REMARK($REMARK)<string>
+ void LanguageParsers::ExplainTree(const List<Symbols>& symbols,List<LanguageRules>& source_language,List<LanguageRules>& dest_language,List<String<Symbols> >& variable_names)
+ {
+	//暂时不做语法检查
+	LanguageRules source_rule,dest_rule,rule;
+	Symbols root_symbol,variable;
+	LanguageExpressions expression,sub_expression;
+	String<Symbols> symbol_string;
+	//map<string,int> variable_table;		//List<string> variable_table;
+	
+	variable_names.Clear();
+	source_language.Clear();
+	dest_language.Clear();
+
+	for(int index=1; index<=symbols.Length(); index++)
+	{
+		Symbols symbol = symbols[index];
+		switch(symbol)
+		{
+		case REMARK_WLL0:
+			break;
+		case REMARK_TRANSLATION:
+			source_language.Insert(source_rule);
+			dest_language.Insert(dest_rule);
+			break;
+		case REMARK_SOURCE_RULE:
+			source_rule = rule;
+			break;
+		case REMARK_DESTINATION_RULE:
+			dest_rule = rule;
+			break;
+		case REMARK_RULE:
+			rule.symbol = root_symbol;
+			rule.expression = expression;
+			expression.symbols.Clear();
+			break;
+		case REMARK_ROOT_SYMBOL:
+			root_symbol = variable;
+			break;
+		case REMARK_EXPRESSION:
+			break;
+		case REMARK_SUB_SYMBOL:
+			expression = expression + sub_expression;
+			break;
+		case REMARK_VARIABLE:
+			{
+				SIZE_TYPE variable_index = variable_names.Locate(symbol_string);
+				if(variable_index==0)
+				{
+					variable_names.Insert(symbol_string);
+					variable = 1-variable_names.Length();
+				}
+				else
+					variable = 1-variable_index;
+
+				symbol_string.Clear();
+
+				sub_expression = LanguageExpressions(1, variable);
+			}
+			break;
+		case REMARK_CONSTANT:
+			sub_expression.symbols = symbol_string;
+			symbol_string.Clear();
+			break;
+		case REMARK_REMARK:
+			symbol = symbols[++index];
+			symbol_string.Insert(symbol);
+			break;
+		default:
+			symbol_string.Insert(symbol);
+			break;
+		}
+	}
+
+	//需要自解释机制,或者通过类似于重定向输出的技术
+	if(!this->AnalyzeLanguage()) return false;
+ }
+
+
+void LanguageParsers::DisplayLanguage()
+{
+	this->DisplayLanguage(cout);
+}
+
+void LanguageParsers::DisplayLanguage(ostream& o)
+{
+	assert(this->source_languages.Length()==this->dest_languages.Length());
+	SIZE_TYPE n=this->source_languages.Length();
+	for(SIZE_TYPE i=1; i<=n; i++)
+	{
+		this->DisplayLanguageRule(this->source_languages[i],o);
+		o<<"==>";
+		this->DisplayLanguageRule(this->dest_languages[i],o);
+		o<<endl;
+	}
+}
+
+void LanguageParsers::DisplayLanguageRule(const LanguageRules& rule)
+{
+	this->DisplayLanguageRule(rule,cout);
+}
+
+void LanguageParsers::DisplayLanguageRule(const LanguageRules& rule,ostream& o)
+{
+	this->DisplaySymbol(rule.symbol,o);
+	o<<"-->";
+	for(SIZE_TYPE i=1; i<=rule.expression.symbols.Length(); i++)
+	{
+		this->DisplaySymbol(rule.expression.symbols[i],o);
+	}
+}
+
+void LanguageParsers::DisplaySymbol(const Symbols symbol)
+{
+	this->DisplaySymbol(symbol,cout);
+}
+
+void LanguageParsers::DisplaySymbol(const Symbols symbol,ostream& o)
+{
+	if(symbol<=0)	//is a variable
+	{
+		String<Symbols>& variable = this->variable_names[1-symbol];
+		o<<"<";
+		SIZE_TYPE n = variable.Length();
+		for(SIZE_TYPE i=1; i<=n; i++)
+		{
+			o<<(char)(variable[i]);
+		}
+		o<<">";
+	}
+	else if(symbol>=10000)	//spacail remark constant
+	{
+		const char* remark_name = NULL;
+		switch(symbol)
+		{
+		case REMARK_WLL0:
+			remark_name = "WLL0";
+			break;
+		case REMARK_TRANSLATION:
+			remark_name = "TRANSLATION";
+			break;
+		case REMARK_SOURCE_RULE:
+			remark_name = "SOURCE-RULE";
+			break;
+		case REMARK_DESTINATION_RULE:
+			remark_name = "DESTINATION-RULE";
+			break;
+		case REMARK_RULE:
+			remark_name = "RULE";
+			break;
+		case REMARK_ROOT_SYMBOL:
+			remark_name = "ROOT-SYMBOL";
+			break;
+		case REMARK_EXPRESSION:
+			remark_name = "EXPRESSION";
+			break;
+		case REMARK_SUB_SYMBOL:
+			remark_name = "SUB-SYMBOL";
+			break;
+		case REMARK_VARIABLE:
+			remark_name = "VARIABLE";
+			break;
+		case REMARK_CONSTANT:
+			remark_name = "CONSTANT";
+			break;
+		case REMARK_REMARK:
+			remark_name = "REMARK";
+			break;
+		default:
+			remark_name = "UNKNOWN";
+			break;
+		}
+		o<<"$"<<remark_name;
+	}
+	else	// 0<symbol<10000 NORMAL terminate character
+	{
+		o<<(char)symbol;
+	}
+}
+
+
+

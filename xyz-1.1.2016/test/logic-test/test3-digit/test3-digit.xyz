@@ -1,0 +1,6 @@
+<input>--><number>"\n"==><output>--><number>;
+<number>--><number><digit>==><number>--><number><digit>;
+<number>--><digit>==><number>--><digit>;
+<digit>-->"0"==><digit>-->"0";
+<digit>-->"1"==><digit>-->"1";
+

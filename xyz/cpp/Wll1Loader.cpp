@@ -10,18 +10,15 @@
 #include <assert.h>
 #include "WllTrace.h"
 
-Wll1Loader::Wll1Loader()
-{
-	this->input_pos = 0;
-}
 
-Wll1Loader::Wll1Loader(const vector<Symbols>& input_symbols)
+Wll1Loader::Wll1Loader(const vector<Symbols>& input_symbols) : WllLoader(input_symbols)
 {
-	this->input_symbols = input_symbols;
+	this->grammar_file_name = "wll1.xyz";
 	this->input_pos = 0;
 	INFO("input_symbols="<<this->input_symbols);
 }
 
+/*
 void Wll1Loader::SetInputSymbols(const char* text)
 {
 	this->input_symbols.clear();
@@ -32,8 +29,9 @@ void Wll1Loader::SetInputSymbols(const char* text)
 	}
 	this->input_pos = 0;
 }
+*/
 
-bool Wll1Loader::LoadWll0(vector<LanguageTranslations>& translations)
+bool Wll1Loader::LoadWll(vector<LanguageTranslations>& translations)
 {
 	//<wll0>--><translation>";"<spaces>==><wll0>--><translation>;
 	//<wll0>--><translation>";"<spaces><wll0>==><wll0>--><translation><wll0>;
@@ -44,7 +42,7 @@ bool Wll1Loader::LoadWll0(vector<LanguageTranslations>& translations)
 		this->Accept(';') &&
 		this->SkipSpaces() &&
 		(translations.push_back(translation),true) &&
-		this->LoadWll0(translations);
+		this->LoadWll(translations);
 }
 
 bool Wll1Loader::LoadTranslation(LanguageTranslations& translation)

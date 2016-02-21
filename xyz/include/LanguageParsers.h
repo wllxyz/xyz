@@ -24,7 +24,7 @@ public:
 	//for debug display languages
 	virtual void DisplayLanguage();
 	virtual void DisplayStates();
-protected:
+public:
 	//input stream --> input symbols
 	virtual bool LoadInput(istream& ins);
 	//set symbols as input symbols

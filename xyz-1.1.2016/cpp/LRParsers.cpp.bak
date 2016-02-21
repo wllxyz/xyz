@@ -1,0 +1,353 @@
+﻿#include "LRParsers.h"
+#include <map>
+using namespace std;
+
+ostream& operator<< (ostream& o,const StateTransformEdges& e)
+{
+	e.write(o);
+	return o;
+}
+
+
+
+ //根据文法规则对输入符号流进行文法结构的分析,分析结果用文法分析树表示
+ bool LRParsers::ParseTree(const List<Symbols>& symbols,List<LanguageRules>& languages,LanguageTree*& tree)
+ {
+	//根据文法预测分析表分析文法,得到文法分析树
+  	return LRParse(symbols,this->state_transform_table,languages,tree);
+ }
+
+ //根据分析过程中依次规约的规则建立文法分析树(根据后根遍历顺序）
+ void LRParsers::ConstructTreeByRules(List<SIZE_TYPE>& rules,List<LanguageRules>& languages,LanguageTree*& source_tree)
+ {
+	if(rules.IsEmpty())
+	{
+		source_tree=NULL;
+		return;
+	}
+  //规约是对文法树的后根遍历（最右推导的反过程），而推导是对文法的先根遍历（对应最左推导）
+  //先构造一棵以第一条文法规则的开始符号为结点树
+  source_tree=new LanguageTree();
+  source_tree->symbol=languages[rules[rules.Length()]].symbol;
+  //对每一条规则,插入其生成成分
+  for(SIZE_TYPE i=rules.Length(); i>=1;  i--)
+  {
+   LanguageRules rule=languages[rules[i]];    //规则
+   SIZE_TYPE rule_no=rules[i];       //规则号
+   //根据规则左边符号查找语法分析树,用后根遍历的顺序找到第一个匹配的结点
+   LanguageTree *p=SearchTree(source_tree,rule.symbol);
+   if(p)
+   {
+    //根据规则插入语法成分
+    //设置规则号
+    p->rule_no=rule_no;
+    //为文法规则的表达式的每一个符号建立一个结点
+    for(SIZE_TYPE j=1; j<=rule.expression.symbols.Length(); j++)
+    {
+     //为文法符号分配新结点
+     LanguageTree *q=new LanguageTree();
+     q->symbol=rule.expression.symbols[j];
+     q->rule_no=0;   //叶子结点无产生式规则
+     //链接该结点
+     p->symbols.Insert(q);
+    }
+   }
+   else
+   {
+    cout<<"Unknow Language Rule!"<<endl;
+   }
+  }//END OF FOR
+  #ifdef DEBUG
+  cout<<"Source Tree:"<<endl;
+  TraverseTree(cout,source_tree,0);
+  cout<<endl;
+  cout<<"Source Tree leaves:"<<endl;
+  TraverseTreeLeaves(cout,source_tree);
+  cout<<endl;
+  #endif //DEBUG
+ }
+
+ //搜索树中与symbol匹配的叶子结点(搜索顺序：从右到左）
+ LanguageTree* LRParsers::SearchTree(LanguageTree* root,Symbols symbol)
+ {
+  //匹配叶子结点上的非终结符号
+  if(symbol==root->symbol && root->IsLeaf()) return root;
+  for(SIZE_TYPE i=root->symbols.Length(); i>=1;  i--)
+  {
+   LanguageTree *p;
+   if((p=SearchTree(root->symbols[i],symbol))!=0) return p;
+  }
+  return 0;
+ }
+
+//1.需要扩展文法S'->S（扩展文法开始符号S'内部代号为0(START),扩展文法规约fellow集合为(0--END))
+ //根据文法预测分析表分析文法,得到文法分析树(供LR1重载)
+bool LRParsers::LRParse(const List<Symbols>& symbols,List< List<StateTransformEdges> >& state_transform_table,List<LanguageRules>& languages,LanguageTree*& tree)
+ {
+	Stack<int> stack;  		//状态分析栈
+	int S;     			//当前分析状态号
+  	Symbols symbol; 		//当前分析符号
+  	bool read_flag=true; 		//从输入流中读符号标志
+  	SIZE_TYPE pos=1;  		//读指针
+  	List<SIZE_TYPE> used_rules; 	//用来记录依次使用的规则号
+	Stack<Symbols> analyzed_symbols;	//用来记录已经分析过的符号(辅助分析和错误定位)
+
+#ifdef	DEBUG
+	for(int i=1; i<=state_transform_table.Length(); i++)
+	{
+		cout<<"(";
+		for(int j=1; j<=state_transform_table[i].Length(); j++)
+		{
+			cout<<state_transform_table[i][j];
+			cout<<",";
+		}
+		cout<<")";
+		cout<<endl;
+	}
+#endif	//DEBUG
+
+  	//初始化
+	stack.Push(1); //第一个入口状态
+  
+	//分析循环
+	do
+	{
+		//获取当前分析状态
+		S=stack.GetTop();
+
+		//获取输入符号
+		if(read_flag)
+			//当读取指针指向末尾时，返回输入结束字符0
+			symbol=(1<=pos && pos<=symbols.Length())?symbols[pos]:0;
+		else
+			//自动设置下次从输入流中读取分析字符
+			read_flag=true;
+
+		//在状态转换表中查找目的状态
+	    	bool find=false;
+		for(SIZE_TYPE i=1; i<=state_transform_table[S].Length(); i++)
+		{
+			if(symbol==state_transform_table[S][i].symbol)
+			{
+				S=state_transform_table[S][i].state;
+				find=true;
+				break;
+			}
+		}
+		//若没有找到目的状态号
+		if(!find)
+		{
+			//定义出错位置信息
+			SIZE_TYPE line=0,column=0;
+			List<Symbols> current_line;
+
+			GetLineColumn(symbols,pos,line,column);
+			cerr<<endl;
+			cerr<<"current position : "<<pos<<"(line:"<<line<<",column:"<<column<<")"<<endl;
+
+			cerr<<"current_line:";
+			GetCurrentLine(symbols,pos,current_line);
+			for(SIZE_TYPE i=1; i<=current_line.Length(); i++)
+			{
+				if(i==column)
+				{
+					cerr<<"(";
+					this->DisplaySymbol(current_line[i],cerr);
+					cerr<<")";
+				}
+				else
+					this->DisplaySymbol(current_line[i],cerr);
+			}
+
+			cerr<<"current symbol : "<<symbol<<"("<<(char)symbol<<")"<<endl;
+			cerr<<"current state : "<<S<<endl;
+			for(SIZE_TYPE i=1; i<=state_transform_table[S].Length(); i++)
+				this->DisplayStateTransformEdge(state_transform_table[S][i], cerr);
+			cerr<<endl;
+
+			cerr<<"accpeted part:"<<endl;
+			//<update>
+			//LanguageTree* accepted_part = NULL;
+			//ConstructTreeByRules(used_rules,languages,accepted_part);
+			//TraverseTreeLeaves(cerr,accepted_part);
+			//if(accepted_part) DestroyTree(accepted_part);
+			//<as>
+			const Stack<Symbols>& accepted_symbols=analyzed_symbols;
+			for(SIZE_TYPE i=1; i<=accepted_symbols.Length(); i++)
+			{
+				this->DisplaySymbol(accepted_symbols[i],cerr);
+			}
+			cerr<<endl;
+			//</update>
+
+			cerr<<"used rules :"<<endl;
+			for(SIZE_TYPE i=1; i<=used_rules.Length(); i++)
+			{
+				//cerr<<used_rules[i]<<endl;
+				this->DisplayLanguageRule(this->source_languages[used_rules[i]],cerr);
+				cerr<<endl;
+			}
+
+			//出错处理,句法分析失败结束
+			return false;
+		}
+
+		//找到目标状态号,进行移进和规约处理
+		if(S>0) //移进（状态转换）
+		{
+			//状态压栈
+			stack.Push(S);
+			//对于规约的非终结符号移进，已经读取的输入终结符号保留
+			if(symbol>0)
+			{
+				//读取指针前移
+				if(pos<=symbols.Length()) ++pos;
+			}
+			analyzed_symbols.Push(symbol);
+		}
+
+		else if(S<0) //规约
+		{
+			//记录使用的规则号,以便在分析成功时生成文法分析树
+			used_rules.Insert(-S);
+			//弹出这条规则的移进状态(回退到调用这条规则的状态)
+			for(SIZE_TYPE i=1; i<=languages[-S].expression.symbols.Length(); i++)
+			{
+				int unused=0;
+				stack.Pop(unused);
+				Symbols unused_symbol;
+				analyzed_symbols.Pop(unused_symbol);
+			}
+			//把规约后的文法符号(非终结符号)作为下一次的文法符号输入
+			//把向前扫描的一个符号回退	//???(对前一个symbol是终结符的情形成立，对前一个symbol是非终结符号的情形则不应该回退symbols终结符输入指针)
+
+			symbol=languages[-S].symbol;
+			read_flag=false;
+			//analyzed_symbols.Push(symbol);  //don't push here, for it will push in the above branch (S>0 : march[移进])
+			//<Insert>
+
+			if(symbol==0 && pos>symbols.Length())//规约的规则是扩展文法的开始符号
+			{
+			    	//文法分析成功
+			    	//根据分析过程中依次规约的规则建立文法分析树
+			   	ConstructTreeByRules(used_rules,languages,tree);
+			   	return true;
+			}
+
+			//</Insert>
+		}
+	}while(S && !stack.IsEmpty()); //这两个条件正常情况下永远成立
+
+	return false;
+ }//LRPARSE
+
+bool GetLineColumn(const List<Symbols>& symbols,SIZE_TYPE position,SIZE_TYPE& line,SIZE_TYPE& column)
+{
+	if(position==0 || symbols.Length()<position) return false;
+	
+	line = 0;
+	column = 0;
+	bool newline_flag = true;
+	for(SIZE_TYPE i=1; i<=position; i++)
+	{
+		if(newline_flag) 
+		{
+			line++;
+			column=0;
+			newline_flag = false;
+		}
+
+		if(symbols[i]=='\n')
+		{
+			newline_flag = true;
+		}
+		column++;
+	}
+	return true;
+}
+
+bool GetCurrentLine(const List<Symbols>& symbols, SIZE_TYPE position, List<Symbols>& current_line)
+{
+	if(position==0 || symbols.Length()<position) return false;
+
+	current_line.Clear();
+
+	//seek to the last line end
+	SIZE_TYPE last_line_end=position-1;
+	for(; last_line_end>0; last_line_end--)
+	{
+		if(symbols[last_line_end]=='\n') break;
+	}
+
+	//copy current line content
+	for(SIZE_TYPE i=last_line_end+1; i<=symbols.Length(); i++)
+	{
+		Symbols symbol = symbols[i];
+		current_line.Insert(symbol);
+		if(symbol=='\n') break;
+	}
+
+	return true;
+}
+
+//判定文法是否存在移近规约冲突（文法二义性判断）
+bool LRParsers::IsAmbiguous(const List< List<StateTransformEdges> >& state_transform_table)
+{
+	bool flag = false;
+	for(SIZE_TYPE i=1; i<=state_transform_table.Length(); i++)
+	{
+		map<Symbols,int> stat_map;
+		for(SIZE_TYPE j=1; j<=state_transform_table[i].Length(); j++)
+		{
+			Symbols symbol = state_transform_table[i][j].symbol;
+			if(stat_map.find(symbol)==stat_map.end())
+				stat_map[symbol]=1;
+			else
+				stat_map[symbol]++;
+		}
+		
+		//check & output conflict
+		if(stat_map.size()!=state_transform_table[i].Length()) 
+		{
+			flag = true;
+			//#ifdef	DEBUG
+			cerr<<"conflict in state transform table (state line = "<<i<<") :"<<endl;
+
+			for(map<Symbols,int>::iterator it = stat_map.begin(); it != stat_map.end(); ++it)
+			{
+				if(it->second > 1)	//conflict item
+				{
+					for(SIZE_TYPE j=1; j<=state_transform_table[i].Length(); j++)
+					{
+						const StateTransformEdges& edge = state_transform_table[i][j];
+						if(edge.symbol == it->first)
+						{
+							this->DisplayStateTransformEdge(edge,cerr);
+							cerr<<endl;
+						}
+					}
+				}
+			}
+			//#endif	//DEBUG 
+		}
+	}
+	return flag;
+}
+
+void LRParsers::DisplayStateTransformEdge(const StateTransformEdges& edge,ostream& oo)
+{
+	oo<<"(";
+	this->DisplaySymbol(edge.symbol,oo);
+	oo<<",";
+	if(edge.state<0)
+	{
+		this->DisplayLanguageRule(this->source_languages[-edge.state],oo);
+	}
+	else
+	{
+		oo<<edge.state;
+	}
+	oo<<")";
+}
+
+

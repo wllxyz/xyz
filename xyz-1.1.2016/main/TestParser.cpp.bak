@@ -1,0 +1,342 @@
+#define protected public
+#include "TopDownParsers.h"
+#include "LR0Parsers.h"
+#include "LR1Parsers.h"
+#include <fstream>
+using namespace std;
+
+ enum {
+  UNKNOW=0,      //ÎŽÖª·ûºÅ,
+  START=0,      //Ò²ÊÇÎÄ·š¿ªÊŒ·ûºÅS'
+  //USED FOR THIS INSTANCE
+  WLL0=-1,         //WLL0ÓïÑÔ
+  TRANSLATION=-2,    //×ª»»±íŽïÊœ
+  SPACES=-3,
+  SOURCE_RULE=-4,    //ÔŽ¹æÔò
+  DESTINATION_RULE=-5,   //Ä¿±ê¹æÔò
+  RULE=-6,      //ÎÄ·š¶šÒå¹æÔò
+  ROOT=-7,      //ÎÄ·š²úÉú·ûºÅ
+  EXPRESSION=-8,     //ÎÄ·š±íŽïÊœ
+  VARIABLE=-9,     //ÎÄ·š±äÁ¿ 
+  SYMBOL=-10,      //ÎÄ·š·ûºÅ
+  CONSTANT=-11,     //ÎÄ·š³£Á¿
+  IDENTIFIER=-12,     //±êÊ¶·û
+  REMARK=-13,      //ÎÄ·š±êŒÇ
+  LETTER=-14,      //×ÖÄž
+  LETTER_DIGIT_STRING=-15,  //×ÖÄžÊý×ÖŽ®
+  DIGIT=-16,      //Êý×Ö
+  STRING=-17,      //×Ö·ûŽ®
+  CHARACTER=-18,     //×Ö·û
+  OPERATOR=-19,     //œç·ûºÍ²Ù×÷·ûºÅ
+  SPACIAL=-20,        //ÌØÊâµÄ×ªÒå×Ö·û
+  SPACE=-21,      //¿Õžñ×Ö·û
+
+  //REMARKS(SPACIAL)
+  REMARK_WLL0=10001,     //WLL0±êŒÇ
+  REMARK_TRANSLATION=10002,   //TRANSLATION±êŒÇ
+  REMARK_SOURCE_RULE=10003,   //SOURCE-RULE±êŒÇ
+  REMARK_DESTINATION_RULE=10004,  //DESTINATION-RULE±êŒÇ
+  REMARK_RULE=10005,     //RULE±êŒÇ
+  REMARK_ROOT_SYMBOL=10006,   //ROOT-SYMBOL±êŒÇ
+  REMARK_EXPRESSION=10007,   //EXPRESSION±êŒÇ
+  REMARK_SUB_SYMBOL=10008,   //SUB-SYMBOL±êŒÇ
+  REMARK_VARIABLE=10009,    //VARIABLE±êŒÇ
+  REMARK_CONSTANT=10010,   //CONSTANT±êŒÇ
+  REMARK_REMARK=10000    //REMARK±êŒÇ
+ };
+
+template <typename PARSER_TYPE>
+class TestParsers : public PARSER_TYPE
+{
+//调试ParseTree方法的数据桩
+public:
+	virtual bool LoadLanguage()
+	{
+	this->source_languages.Insert(LanguageRules(0,LanguageExpressions(2,-1,'\n')));
+	this->dest_languages.Insert(LanguageRules(0,LanguageExpressions(1,-1)));
+	this->source_languages.Insert(LanguageRules(-1,LanguageExpressions()));
+	this->dest_languages.Insert(LanguageRules(-1,LanguageExpressions()));
+	this->source_languages.Insert(LanguageRules(-1,LanguageExpressions(2,'0',-1)));
+	this->dest_languages.Insert(LanguageRules(-1,LanguageExpressions(2,'1',-1)));
+	this->source_languages.Insert(LanguageRules(-1,LanguageExpressions(3,'1','1',-1)));
+	this->dest_languages.Insert(LanguageRules(-1,LanguageExpressions(2,'1',-1)));
+	}
+public:
+virtual bool LoadLanguage_T()
+{
+	//扩展文法(need to be auto add)
+	//源语言和目标语言可以用相同的文法变量，它们默认互不影响,相同文法变量共享相同的内部id
+	//<start>--><wll0>==><start>-->$WLL0<wll0>;
+	this->source_languages.Insert(LanguageRules(START,LanguageExpressions(1,WLL0)));
+	this->dest_languages.Insert(LanguageRules(START,LanguageExpressions(2,REMARK_WLL0,WLL0)));
+	//<wll0>--><translation>";"<spaces>==><wll0>--><translation>;
+	this->source_languages.Insert(LanguageRules(WLL0,LanguageExpressions(3,TRANSLATION,';',SPACES)));
+	this->dest_languages.Insert(LanguageRules(WLL0,LanguageExpressions(1,TRANSLATION)));
+	//<wll0>--><translation>";"<spaces><wll0>==><wll0>--><translation><wll0>;
+	this->source_languages.Insert(LanguageRules(WLL0,LanguageExpressions(4,TRANSLATION,';',SPACES,WLL0)));
+	this->dest_languages.Insert(LanguageRules(WLL0,LanguageExpressions(2,TRANSLATION,WLL0)));
+	//<translation>--><source_rule>"==>"<destination_rule>==><translation>--><source_rule><destination_rule>$TRANSLATION;
+	this->source_languages.Insert(LanguageRules(TRANSLATION,LanguageExpressions(5,SOURCE_RULE,'=','=','>',DESTINATION_RULE)));
+	this->dest_languages.Insert(LanguageRules(TRANSLATION,LanguageExpressions(3,SOURCE_RULE,DESTINATION_RULE,REMARK_TRANSLATION)));
+	//<source_rule>--><rule>==><source_rule>--><rule>$SOURCE-RULE;
+	this->source_languages.Insert(LanguageRules(SOURCE_RULE,LanguageExpressions(1,RULE)));
+	this->dest_languages.Insert(LanguageRules(SOURCE_RULE,LanguageExpressions(2,RULE,REMARK_SOURCE_RULE)));
+	//<destination_rule>--><rule>==><destination_rule>--><rule>$DESTINATION-RULE;
+	this->source_languages.Insert(LanguageRules(DESTINATION_RULE,LanguageExpressions(1,RULE)));
+	this->dest_languages.Insert(LanguageRules(DESTINATION_RULE,LanguageExpressions(2,RULE,REMARK_DESTINATION_RULE)));
+	//<rule>--><root>"-->"<expression>==><rule>--><root><expression>$EXPRESSION$RULE;
+	this->source_languages.Insert(LanguageRules(RULE,LanguageExpressions(5,ROOT,'-','-','>',EXPRESSION)));
+	this->dest_languages.Insert(LanguageRules(RULE,LanguageExpressions(4,ROOT,EXPRESSION,REMARK_EXPRESSION,REMARK_RULE)));
+	//<root>--><variable>==><root>--><variable>$ROOT-SYMBOL;
+	this->source_languages.Insert(LanguageRules(ROOT,LanguageExpressions(1,VARIABLE)));
+	this->dest_languages.Insert(LanguageRules(ROOT,LanguageExpressions(2,VARIABLE,REMARK_ROOT_SYMBOL)));
+	//<expression>--><symbol>==><expression>--><symbol>;
+	this->source_languages.Insert(LanguageRules(EXPRESSION,LanguageExpressions(1,SYMBOL)));
+	this->dest_languages.Insert(LanguageRules(EXPRESSION,LanguageExpressions(1,SYMBOL)));
+	//<expression>--><symbol><expression>==><expression>--><symbol><expression>;
+	this->source_languages.Insert(LanguageRules(EXPRESSION,LanguageExpressions(2,SYMBOL,EXPRESSION)));
+	this->dest_languages.Insert(LanguageRules(EXPRESSION,LanguageExpressions(2,SYMBOL,EXPRESSION)));
+	//<symbol>--><variable>==><symbol>--><variable>$SUB-SYMBOL;
+	this->source_languages.Insert(LanguageRules(SYMBOL,LanguageExpressions(1,VARIABLE)));
+	this->dest_languages.Insert(LanguageRules(SYMBOL,LanguageExpressions(2,VARIABLE,REMARK_SUB_SYMBOL)));
+	//<symbol>--><constant>==><symbol>--><constant>$SUB-SYMBOL;
+	this->source_languages.Insert(LanguageRules(SYMBOL,LanguageExpressions(1,CONSTANT)));
+	this->dest_languages.Insert(LanguageRules(SYMBOL,LanguageExpressions(2,CONSTANT,REMARK_SUB_SYMBOL)));
+	//<variable>-->"<"<identifier>">"==><variable>--><identifier>$VARIABLE;
+	this->source_languages.Insert(LanguageRules(VARIABLE,LanguageExpressions(3,'<',IDENTIFIER,'>')));
+	this->dest_languages.Insert(LanguageRules(VARIABLE,LanguageExpressions(2,IDENTIFIER,REMARK_VARIABLE)));
+	//<constant>-->"$"<remark>==><constant>-->$REMARK<remark>$CONSTANT;
+	this->source_languages.Insert(LanguageRules(CONSTANT,LanguageExpressions(2,'$',REMARK)));
+	this->dest_languages.Insert(LanguageRules(CONSTANT,LanguageExpressions(3,REMARK_REMARK,REMARK,REMARK_CONSTANT)));
+//	//<constant>-->"$"<remark>==><constant>--><remark>$CONSTANT;
+//	this->source_languages.Insert(LanguageRules(CONSTANT,LanguageExpressions(2,'$',REMARK)));
+//	this->dest_languages.Insert(LanguageRules(CONSTANT,LanguageExpressions(2,REMARK,REMARK_CONSTANT)));
+//-----------------------------------------------------------------------------
+	//<remark>-->"WLL0"==><remark>-->$WLL0;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(4,'W','L','L','0')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_WLL0)));
+	//<remark>-->"TRANSLATION"==><remark>-->$TRANSLATION;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(11,'T','R','A','N','S','L','A','T','I','O','N')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_TRANSLATION)));
+	//<remark>-->"SOURCE-RULE"==><remark>-->$SOURCE-RULE;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(11,'S','O','U','R','C','E','-','R','U','L','E')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_SOURCE_RULE)));
+	//<remark>-->"DESTINATION-RULE"==><remark>-->$DESTINATION-RULE;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(16,'D','E','S','T','I','N','A','T','I','O','N','-','R','U','L','E')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_DESTINATION_RULE)));
+	//<remark>-->"RULE"==><remark>-->$RULE;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(4,'R','U','L','E')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_RULE)));
+	//<remark>-->"ROOT-SYMBOL"==><remark>-->$ROOT-SYMBOL;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(11,'R','O','O','T','-','S','Y','M','B','O','L')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_ROOT_SYMBOL)));
+	//<remark>-->"EXPRESSION"==><remark>-->$EXPRESSION;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(10,'E','X','P','R','E','S','S','I','O','N')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_EXPRESSION)));
+	//<remark>-->"SUB-SYMBOL"==><remark>-->$SUB-SYMBOL;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(10,'S','U','B','-','S','Y','M','B','O','L')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_SUB_SYMBOL)));
+	//<remark>-->"VARIABLE"==><remark>-->$VARIABLE;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(8,'V','A','R','I','A','B','L','E')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_VARIABLE)));
+	//<remark>-->"CONSTANT"==><remark>-->$CONSTANT;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(8,'C','O','N','S','T','A','N','T')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_CONSTANT)));
+	//<remark>-->"REMARK"==><remark>-->$REMARK;
+	this->source_languages.Insert(LanguageRules(REMARK,LanguageExpressions(6,'R','E','M','A','R','K')));
+	this->dest_languages.Insert(LanguageRules(REMARK,LanguageExpressions(1,REMARK_REMARK)));
+//-----------------------------------------------------------------------------
+	//<identifier>--><letter>==><identifier>--><letter>;
+	this->source_languages.Insert(LanguageRules(IDENTIFIER,LanguageExpressions(1,LETTER)));
+	this->dest_languages.Insert(LanguageRules(IDENTIFIER,LanguageExpressions(1,LETTER)));
+	//<identifier>--><letter><letter_digit_string>==><identifier>--><letter><letter_digit_string>;
+	this->source_languages.Insert(LanguageRules(IDENTIFIER,LanguageExpressions(2,LETTER,LETTER_DIGIT_STRING)));
+	this->dest_languages.Insert(LanguageRules(IDENTIFIER,LanguageExpressions(2,LETTER,LETTER_DIGIT_STRING)));
+	//<letter_digit_string>--><letter>==><letter_digit_string>--><letter>;
+	this->source_languages.Insert(LanguageRules(LETTER_DIGIT_STRING,LanguageExpressions(1,LETTER)));
+	this->dest_languages.Insert(LanguageRules(LETTER_DIGIT_STRING,LanguageExpressions(1,LETTER)));
+	//<letter_digit_string>--><digit>==><letter_digit_string>--><digit>;
+	this->source_languages.Insert(LanguageRules(LETTER_DIGIT_STRING,LanguageExpressions(1,DIGIT)));
+	this->dest_languages.Insert(LanguageRules(LETTER_DIGIT_STRING,LanguageExpressions(1,DIGIT)));
+	//<letter_digit_string>--><letter><letter_digit_string>==><letter_digit_string>--><letter><letter_digit_string>;
+	this->source_languages.Insert(LanguageRules(LETTER_DIGIT_STRING,LanguageExpressions(2,LETTER,LETTER_DIGIT_STRING)));
+	this->dest_languages.Insert(LanguageRules(LETTER_DIGIT_STRING,LanguageExpressions(2,LETTER,LETTER_DIGIT_STRING)));
+	//<letter_digit_string>--><digit><letter_digit_string>==><letter_digit_string>--><digit><letter_digit_string>;
+	this->source_languages.Insert(LanguageRules(LETTER_DIGIT_STRING,LanguageExpressions(2,DIGIT,LETTER_DIGIT_STRING)));
+	this->dest_languages.Insert(LanguageRules(LETTER_DIGIT_STRING,LanguageExpressions(2,DIGIT,LETTER_DIGIT_STRING)));
+	//<constant>-->"\""<string>"\""==><constant>--><string>$CONSTANT;
+	this->source_languages.Insert(LanguageRules(CONSTANT,LanguageExpressions(3,'\"',STRING,'\"')));
+	this->dest_languages.Insert(LanguageRules(CONSTANT,LanguageExpressions(2,STRING,REMARK_CONSTANT)));
+	//<string>--><character>==><string>--><character>;
+	this->source_languages.Insert(LanguageRules(STRING,LanguageExpressions(1,CHARACTER)));
+	this->dest_languages.Insert(LanguageRules(STRING,LanguageExpressions(1,CHARACTER)));
+	//<string>--><character><string>==><string>--><character><string>;
+	this->source_languages.Insert(LanguageRules(STRING,LanguageExpressions(2,CHARACTER,STRING)));
+	this->dest_languages.Insert(LanguageRules(STRING,LanguageExpressions(2,CHARACTER,STRING)));
+	//<character>--><letter>==><character>--><letter>;
+	this->source_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,LETTER)));
+	this->dest_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,LETTER)));
+	//<character>--><digit>==><character>--><digit>;
+	this->source_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,DIGIT)));
+	this->dest_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,DIGIT)));
+	//<character>--><operator>==><character>--><operator>;
+	this->source_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,OPERATOR)));
+	this->dest_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,OPERATOR)));
+	//<character>--><spacial>==><character>--><spacial>;
+	this->source_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,SPACIAL)));
+	this->dest_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,SPACIAL)));
+	//<character>--><space>==><character>--><space>;
+	this->source_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,SPACE)));
+	this->dest_languages.Insert(LanguageRules(CHARACTER,LanguageExpressions(1,SPACE)));
+//-----------------------------------------------------------------------------
+	//<字母>::="a"-"z"|"A"-"Z"|"_" 
+	for(char letter='a'; letter<='z'; letter++)
+	{
+		this->source_languages.Insert(LanguageRules(LETTER,LanguageExpressions(1,letter)));
+		this->dest_languages.Insert(LanguageRules(LETTER,LanguageExpressions(1,letter)));
+	}
+	for(char letter='A'; letter<='Z'; letter++)
+	{
+		this->source_languages.Insert(LanguageRules(LETTER,LanguageExpressions(1,letter)));
+		this->dest_languages.Insert(LanguageRules(LETTER,LanguageExpressions(1,letter)));
+	}
+	this->source_languages.Insert(LanguageRules(LETTER,LanguageExpressions(1,'_')));
+	this->dest_languages.Insert(LanguageRules(LETTER,LanguageExpressions(1,'_')));
+	//<数字>::="0"-"9"
+	for(char digit='0'; digit<='9'; digit++)
+	{
+		this->source_languages.Insert(LanguageRules(DIGIT,LanguageExpressions(1,digit)));
+		this->dest_languages.Insert(LanguageRules(DIGIT,LanguageExpressions(1,digit)));
+	}
+//-----------------------------------------------------------------------------
+	//<界符>::=所有其他可打印字符
+	char operators[]={
+		'+','-','*','/','%','^',
+		'>','=','<','#',
+		',',':',';','.','?','!','\'',
+		'(',')','[',']','{','}',
+		'`','~','@','$','&','|'
+	};
+	for(int i=0; i<sizeof(operators)/sizeof(char); i++)
+	{	
+		this->source_languages.Insert(LanguageRules(OPERATOR,LanguageExpressions(1,operators[i])));
+		this->dest_languages.Insert(LanguageRules(OPERATOR,LanguageExpressions(1,operators[i])));
+	}
+//-----------------------------------------------------------------------------
+	//<space>-->"\t"==><space>-->"\t";
+	this->source_languages.Insert(LanguageRules(SPACE,LanguageExpressions(1,'\t')));
+	this->dest_languages.Insert(LanguageRules(SPACE,LanguageExpressions(1,'\t')));
+	//<space>-->"\n"==><space>-->"\n";
+	this->source_languages.Insert(LanguageRules(SPACE,LanguageExpressions(1,'\n')));
+	this->dest_languages.Insert(LanguageRules(SPACE,LanguageExpressions(1,'\n')));
+	//<space>-->"\r"==><space>-->"\r";
+	this->source_languages.Insert(LanguageRules(SPACE,LanguageExpressions(1,'\r')));
+	this->dest_languages.Insert(LanguageRules(SPACE,LanguageExpressions(1,'\r')));
+	//<space>-->" "==><space>-->" ";
+	this->source_languages.Insert(LanguageRules(SPACE,LanguageExpressions(1,' ')));
+	this->dest_languages.Insert(LanguageRules(SPACE,LanguageExpressions(1,' ')));
+//-----------------------------------------------------------------------------
+	//<spacial>-->"\\\""==><spacial>-->"\"";
+	this->source_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(2,'\\','\"')));
+	this->dest_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(1,'\"')));
+	//<spacial>-->"\\\\"==><spacial>-->"\\";
+	this->source_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(2,'\\','\\')));
+	this->dest_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(1,'\\')));
+	//<spacial>-->"\\t"==><spacial>-->"\t";
+	this->source_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(2,'\\','t')));
+	this->dest_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(1,'\t')));
+	//<spacial>-->"\\n"==><spacial>-->"\n";
+	this->source_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(2,'\\','n')));
+	this->dest_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(1,'\n')));
+	//<spacial>-->"\\r"==><spacial>-->"\r";
+	this->source_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(2,'\\','r')));
+	this->dest_languages.Insert(LanguageRules(SPACIAL,LanguageExpressions(1,'\r')));
+//-----------------------------------------------------------------------------
+	//这两条源语言规则没有对应的目标规则，只为跳过空格
+	this->source_languages.Insert(LanguageRules(SPACES,LanguageExpressions(1,SPACE)));
+	this->source_languages.Insert(LanguageRules(SPACES,LanguageExpressions(2,SPACE,SPACES)));  
+	this->dest_languages.Insert(LanguageRules(SPACES,LanguageExpressions(1,SPACE)));
+	this->dest_languages.Insert(LanguageRules(SPACES,LanguageExpressions(2,SPACE,SPACES)));
+//------------------------------------------------------------------------------
+
+  	return true;
+ }
+
+void PrintRules(ostream& oo)
+{
+        oo<<"Source Language Rules:"<<endl;
+        for(SIZE_TYPE i=1; i<=this->source_languages.Length(); i++)
+            	oo<<i<<" : "<<this->source_languages[i]<<endl;
+
+	oo<<"Destinate Language Rules:"<<endl;
+	for(SIZE_TYPE i=1; i<=this->dest_languages.Length(); i++)
+		oo<<i<<" : "<<this->dest_languages[i]<<endl;
+
+}
+
+};//end of template class TestParsers
+
+template <typename PARSER_TYPE>
+void RunTest(const char* grammar_filename,const char* input_filename)
+{
+	ofstream rule_0("rule.0");
+	ofstream rule_1("rule.1");
+
+	TestParsers<PARSER_TYPE> parser;
+	parser.LoadLanguage();
+	parser.PrintRules(rule_0);
+
+	ifstream input(grammar_filename);
+	parser.LoadInput(input);
+
+	if(parser.Parse())
+	{
+		//cout<<"accept"<<endl;
+		//parser.Translate(cout);
+		//cout<<"===================================================="<<endl;
+		parser.Translate();
+		cout<<"loading grammar success"<<endl;
+		parser.PrintRules(rule_1);
+
+
+		ifstream input2(input_filename);
+		parser.LoadInput(input2);
+		if(parser.Parse())
+		{
+			parser.Translate(cout);
+			cout<<"SUCCESS"<<endl;
+		}
+		else
+		{
+			cout<<"FAILED"<<endl;
+		}
+
+	}
+	else
+		cout<<"reject"<<endl;
+	
+}
+
+int main(int argc,char**argv)
+{
+	if(argc!=3)
+	{
+		cout<<argv[0]<<"<grammar_file> <input file>"<<endl;
+		return -1;
+	}
+//	cout<<"========================================="<<endl;
+//	RunTest<LR0Parsers>();
+//	cout<<"========================================="<<endl;
+//	RunTest<LR1Parsers>();	
+	cout<<"========================================="<<endl;
+	RunTest<LR1Parsers>(argv[1],argv[2]);
+//	char c;
+//	cin>>c;
+//	cout<<"========================================="<<endl;
+//	RunTest<TopDownParsers>();
+//	cout<<"========================================="<<endl;
+//	RunTest<TopDownParsers>();
+	return 0;
+	
+}
+

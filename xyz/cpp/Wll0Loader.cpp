@@ -14,7 +14,7 @@ using namespace std;
 
 Wll0Loader::Wll0Loader(const std::vector<Symbols>& input_symbols) : WllLoader(input_symbols)
 {
-
+	grammar_file_name = "wll0.xyz";
 }
 
 bool Wll0Loader::LoadWll(std::vector<LanguageTranslations>& translations)

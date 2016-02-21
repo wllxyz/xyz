@@ -1,0 +1,5 @@
+<i>--><nAnBnC>"\n"==><o>--><nABC>"\n";
+<nAnBnC>--><nAnB><nAnBnC>"C"==><nABC>--><nABC><nAB>"C";
+<nAnBnC>--><nAnB>"C"==><nABC>--><nAB>"C";
+<nAnB>-->"A"<nAnB>"B"==><nAB>-->"AB"<nAB>;
+<nAnB>-->"AB"==><nAB>-->"AB";

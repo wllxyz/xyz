@@ -44,7 +44,7 @@ struct SearchStates
 
 class TopDownParsers: public LanguageParsers
 {
-protected:
+public:
 	//调用算法分析句法
 	virtual bool Parse();
 };

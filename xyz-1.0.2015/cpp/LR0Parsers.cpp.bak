@@ -1,0 +1,73 @@
+﻿#include "LR0Parsers.h"
+
+ //根据文法自动生成文法预测分析表(供LR1文法分析器重载)
+void LR0Parsers::GenerateStateTransformTable(List<LanguageRules>& languages,List< List<StateTransformEdges> >& state_transform_table)
+ {
+#ifdef DEBUG
+	//非终结符编号
+	//S -1
+	//A -2
+	//B -3
+	//文法规则
+	//(1) S'->S
+	//(2) S->aAcBe
+	//(3) A->b
+	//(4) A->Ab
+	//(5) B->d
+
+	//供调试LRParse方法做的数据桩
+	List<StateTransformEdges> line;
+
+	//状态1
+	line.Clear();
+	line.Insert(StateTransformEdges('a',2));
+	line.Insert(StateTransformEdges(-1,6));
+	state_transform_table.Insert(line);
+	//状态2
+	line.Clear();
+	line.Insert(StateTransformEdges('b',7));
+	line.Insert(StateTransformEdges(-2,3));
+	state_transform_table.Insert(line);
+	//状态3
+	line.Clear();
+	line.Insert(StateTransformEdges('c',4));
+	line.Insert(StateTransformEdges('b',8));
+	state_transform_table.Insert(line);
+	//状态4
+	line.Clear();
+	line.Insert(StateTransformEdges('d',9));
+	line.Insert(StateTransformEdges(-3,5));
+	state_transform_table.Insert(line);
+	//状态5
+	line.Clear();
+	line.Insert(StateTransformEdges('e',10));
+	state_transform_table.Insert(line);
+	//状态6
+	line.Clear();
+	line.Insert(StateTransformEdges(0,-1));
+	state_transform_table.Insert(line);
+	//7
+	line.Clear();
+	line.Insert(StateTransformEdges('b',-3));
+	line.Insert(StateTransformEdges('c',-3));
+	state_transform_table.Insert(line);
+	//8
+	line.Clear();
+	line.Insert(StateTransformEdges('b',-4));
+	line.Insert(StateTransformEdges('c',-4));
+	state_transform_table.Insert(line);
+	//9
+	line.Clear();
+	line.Insert(StateTransformEdges('e',-5));
+	state_transform_table.Insert(line);
+	//10
+	line.Clear();
+	line.Insert(StateTransformEdges(0,-2));
+	state_transform_table.Insert(line);
+
+#else //DEBUG
+  //已知状态集列表
+  //List<StateSets> state_sets; 
+#endif //DEBUG
+ }
+

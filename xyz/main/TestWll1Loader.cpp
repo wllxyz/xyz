@@ -4,199 +4,174 @@
  *  Created on: 2013-12-14
  *      Author: wangliliang
  */
-
+#define protected public
 #define private public
 #include "Wll1Loader.h"
+#include "gtest/gtest.h"
 #include <cassert>
 #include <iostream>
 using namespace std;
 
-class TestWll1Loader : public Wll1Loader
+
+GTEST_API_ int main(int argc, char **argv) {
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}
+
+
+TEST(Wll1LoaderTest,LoadWll0)
 {
-public:
-	void TestLoadWll0()
-	{
-		this->SetInputSymbols("<source_rule>--><rule>==><source_rule>--><rule>$SOURCE_RULE;");
-		vector<LanguageTranslations> translations;
-		assert(this->LoadWll0(translations));
-	}
+	Wll1Loader loader(LanguageExpressions("<source_rule>--><rule>==><source_rule>--><rule>$SOURCE_RULE;").symbols);
+	vector<LanguageTranslations> translations;
+	EXPECT_TRUE(loader.LoadWll(translations));
+}
 
-	void TestLoadTranslation()
-	{
-		this->SetInputSymbols("<a>-->\"abc\"==><a>-->\"bcd\";\n");
-		LanguageTranslations translation;
-		assert(this->LoadTranslation(translation));
-		cout<<translation<<endl;
-	}
-
-	void TestLoadSourceRule()
-	{
-		this->SetInputSymbols("<abc>-->\"ab\"<b><bcd>");
-		LanguageRules rule;
-		assert(this->LoadSourceRule(rule));
-	}
-
-	void TestLoadDestinationRule()
-	{
-		this->SetInputSymbols("<abc>-->\"ab\"<b><bcd>");
-		LanguageRules rule;
-		assert(this->LoadDestinationRule(rule));
-	}
-
-	void TestLoadRule()
-	{
-		this->SetInputSymbols("<abc>-->\"ab\"<b><bcd>");
-		LanguageRules rule;
-		assert(this->LoadRule(rule));
-	}
-
-	void TestLoadRootSymbol()
-	{
-		this->SetInputSymbols("<abc>");
-		Symbols symbol;
-		assert(this->LoadRootSymbol(symbol));
-	}
-
-	void TestLoadExpression()
-	{
-		this->SetInputSymbols("<abc>\"dkjfdlf\"<bd>");
-		LanguageExpressions expression;
-		assert(this->LoadExpression(expression));
-	}
-
-	void TestLoadSymbol()
-	{
-		this->SetInputSymbols("<abc>");
-		LanguageExpressions symbol;
-		assert(this->LoadSymbol(symbol));
-	}
-
-	void TestLoadVariable()
-	{
-		this->SetInputSymbols("<abc>");
-		Symbols symbol;
-		assert(this->LoadVariable(symbol));
-	}
-
-	void TestLoadConstant()
-	{
-		this->SetInputSymbols("\"abcde\"");
-		LanguageExpressions constant;
-		assert(this->LoadConstant(constant));
-	}
-
-	void TestLoadRemark()
-	{
-		this->SetInputSymbols("$REMARK");
-		Symbols remark;
-		assert(this->LoadRemark(remark));
-	}
-
-	void TestLoadIdent()
-	{
-		this->SetInputSymbols("abce_2d");
-		string ident;
-		assert(this->LoadIdent(ident));
-	}
-
-	void TestLoadString()
-	{
-		this->SetInputSymbols("dfkeife(*&*3\">><");
-		LanguageExpressions str;
-		assert(this->LoadString(str));
-	}
-
-	void TestExpectLetter()
-	{
-		this->SetInputSymbols("B");
-		char c;
-		assert(this->ExpectLetter(c));
-		assert(c=='B');
-	}
-
-	void TestExpectDigit()
-	{
-		this->SetInputSymbols("8");
-		char c;
-		assert(this->ExpectDigit(c));
-		assert(c=='8');
-	}
-
-	void TestExpectCharacter()
-	{
-		this->SetInputSymbols("&");
-		Symbols c;
-		assert(this->ExpectCharacter(c));
-		assert(c=='&');
-	}
-
-	void TestExpectSpace()
-	{
-		this->SetInputSymbols("\n");
-		char c;
-		assert(this->ExpectSpace(c));
-		assert(c=='\n');
-	}
-
-	void TestSkipSpaces()
-	{
-		this->SetInputSymbols("\n\n \t");
-		assert(this->SkipSpaces());
-	}
-
-	void TestAcceptSymbol()
-	{
-		this->SetInputSymbols("^");
-		Symbols symbol('^');
-		assert(this->Accept(symbol));
-	}
-
-	void TestAcceptExpression()
-	{
-		this->SetInputSymbols("abckdle");
-		LanguageExpressions expression("abckdle");
-		assert(this->Accept(expression));
-	}
-
-	void TestEncount()
-	{
-		this->SetInputSymbols("^");
-		assert(this->Encount('^'));
-	}
-
-	void TestGetSymbol()
-	{
-		this->SetInputSymbols("c");
-		assert(this->GetSymbol()=='c');
-	}
-
-};
-
-int main()
+TEST(Wll1LoaderTest,LoadTranslation)
 {
-	TestWll1Loader test;
-	test.TestGetSymbol();
-	test.TestEncount();
-	test.TestAcceptExpression();
-	test.TestExpectCharacter();
-	test.TestExpectDigit();
-	test.TestExpectLetter();
-	test.TestExpectSpace();
-	test.TestLoadIdent();
-	test.TestLoadString();
-	test.TestLoadVariable();
-	test.TestLoadConstant();
-	test.TestLoadRemark();
-	test.TestLoadSymbol();
-	test.TestLoadRootSymbol();
-	test.TestLoadExpression();
-	test.TestLoadRule();
-	test.TestLoadSourceRule();
-	test.TestLoadDestinationRule();
-	test.TestLoadTranslation();
-	test.TestLoadWll0();
+	Wll1Loader loader(LanguageExpressions("<a>-->\"abc\"==><a>-->\"bcd\";\n").symbols);
+	LanguageTranslations translation;
+	EXPECT_TRUE(loader.LoadTranslation(translation));
+	cout<<translation<<endl;
+}
 
-	cout<<"PASS"<<endl;
-	return 0;
+TEST(Wll1LoaderTest,LoadSourceRule)
+{
+	Wll1Loader loader(LanguageExpressions("<abc>-->\"ab\"<b><bcd>").symbols);
+	LanguageRules rule;
+	EXPECT_TRUE(loader.LoadSourceRule(rule));
+}
+
+TEST(Wll1LoaderTest,LoadDestinationRule)
+{
+	Wll1Loader loader(LanguageExpressions("<abc>-->\"ab\"<b><bcd>").symbols);
+	LanguageRules rule;
+	EXPECT_TRUE(loader.LoadDestinationRule(rule));
+}
+
+TEST(Wll1LoaderTest,LoadRule)
+{
+	Wll1Loader loader(LanguageExpressions("<abc>-->\"ab\"<b><bcd>").symbols);
+	LanguageRules rule;
+	EXPECT_TRUE(loader.LoadRule(rule));
+}
+
+TEST(Wll1LoaderTest,LoadRootSymbol)
+{
+	Wll1Loader loader(LanguageExpressions("<abc>").symbols);
+	Symbols symbol;
+	EXPECT_TRUE(loader.LoadRootSymbol(symbol));
+}
+
+TEST(Wll1LoaderTest,LoadExpression)
+{
+	Wll1Loader loader(LanguageExpressions("<abc>\"dkjfdlf\"<bd>").symbols);
+	LanguageExpressions expression;
+	EXPECT_TRUE(loader.LoadExpression(expression));
+}
+
+TEST(Wll1LoaderTest,LoadSymbol)
+{
+	Wll1Loader loader(LanguageExpressions("<abc>").symbols);
+	LanguageExpressions symbol;
+	EXPECT_TRUE(loader.LoadSymbol(symbol));
+}
+
+TEST(Wll1LoaderTest,LoadVariable)
+{
+	Wll1Loader loader(LanguageExpressions("<abc>").symbols);
+	Symbols symbol;
+	EXPECT_TRUE(loader.LoadVariable(symbol));
+}
+
+TEST(Wll1LoaderTest,LoadConstant)
+{
+	Wll1Loader loader(LanguageExpressions("\"abcde\"").symbols);
+	LanguageExpressions constant;
+	EXPECT_TRUE(loader.LoadConstant(constant));
+}
+
+TEST(Wll1LoaderTest,LoadRemark)
+{
+	Wll1Loader loader(LanguageExpressions("$REMARK").symbols);
+	Symbols remark;
+	EXPECT_TRUE(loader.LoadRemark(remark));
+}
+
+TEST(Wll1LoaderTest,LoadIdent)
+{
+	Wll1Loader loader(LanguageExpressions("abce_2d").symbols);
+	string ident;
+	EXPECT_TRUE(loader.LoadIdent(ident));
+}
+
+TEST(Wll1LoaderTest,LoadString)
+{
+	Wll1Loader loader(LanguageExpressions("dfkeife(*&*3\">><").symbols);
+	LanguageExpressions str;
+	EXPECT_TRUE(loader.LoadString(str));
+}
+
+TEST(Wll1LoaderTest,ExpectLetter)
+{
+	Wll1Loader loader(LanguageExpressions("B").symbols);
+	char c;
+	EXPECT_TRUE(loader.ExpectLetter(c));
+	EXPECT_TRUE(c=='B');
+}
+
+TEST(Wll1LoaderTest,ExpectDigit)
+{
+	Wll1Loader loader(LanguageExpressions("8").symbols);
+	char c;
+	EXPECT_TRUE(loader.ExpectDigit(c));
+	EXPECT_TRUE(c=='8');
+}
+
+TEST(Wll1LoaderTest,ExpectCharacter)
+{
+	Wll1Loader loader(LanguageExpressions("&").symbols);
+	Symbols c;
+	EXPECT_TRUE(loader.ExpectCharacter(c));
+	EXPECT_TRUE(c=='&');
+}
+
+TEST(Wll1LoaderTest,ExpectSpace)
+{
+	Wll1Loader loader(LanguageExpressions("\n").symbols);
+	char c;
+	EXPECT_TRUE(loader.ExpectSpace(c));
+	EXPECT_TRUE(c=='\n');
+}
+
+TEST(Wll1LoaderTest,SkipSpaces)
+{
+	Wll1Loader loader(LanguageExpressions("\n\n \t").symbols);
+	EXPECT_TRUE(loader.SkipSpaces());
+}
+
+TEST(Wll1LoaderTest,AcceptSymbol)
+{
+	Wll1Loader loader(LanguageExpressions("^").symbols);
+	Symbols symbol('^');
+	EXPECT_TRUE(loader.Accept(symbol));
+}
+
+TEST(Wll1LoaderTest,AcceptExpression)
+{
+	Wll1Loader loader(LanguageExpressions("abckdle").symbols);
+	LanguageExpressions expression("abckdle");
+	EXPECT_TRUE(loader.Accept(expression));
+}
+
+TEST(Wll1LoaderTest,Encount)
+{
+	Wll1Loader loader(LanguageExpressions("^").symbols);
+	EXPECT_TRUE(loader.Encount('^'));
+}
+
+TEST(Wll1LoaderTest,GetSymbol)
+{
+	Wll1Loader loader(LanguageExpressions("c").symbols);
+	EXPECT_TRUE(loader.GetSymbol()=='c');
 }
 

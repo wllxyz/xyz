@@ -151,34 +151,7 @@ bool LoadTranslationsCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
 	this->translations->clear();
-	if( !this->parameters[1].empty() && this->parameters[1].front()==Symbols::REMARK_WLL0 )
-	{
-		INFO("wll0loader="<<this->parameters[1]);
-		Wll0Loader loader(this->parameters[1]);
-		if(!loader.LoadWll(*(this->translations)))
-		{
-			loader.ShowErrorMessage();
-			return false;
-		}
-		else
-		{
-			return true;
-		}
-	}
-	else
-	{
-		INFO("wll1loader="<<this->parameters[1]);
-		Wll1Loader loader(this->parameters[1]);
-		if(!loader.LoadWll0(*(this->translations)))
-		{
-			loader.ShowErrorMessage();
-			return false;
-		}
-		else
-		{
-			return true;
-		}
-	}
+	return AddTranslations(this->parameters[1],*(this->translations));
 }
 
 AddTranslationsCommand::AddTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
@@ -190,33 +163,8 @@ AddTranslationsCommand::AddTranslationsCommand(Symbols cmd, std::vector< std::ve
 bool AddTranslationsCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
-	//this->intepreter->GetTranslations().clear();
-	if( !this->parameters[1].empty() && this->parameters[1].front()==Symbols::REMARK_WLL0 )
-	{
-		Wll0Loader loader(this->parameters[1]);
-		if(!loader.LoadWll(*(this->translations)))
-		{
-			loader.ShowErrorMessage();
-			return false;
-		}
-		else
-		{
-			return true;
-		}
-	}
-	else
-	{
-		Wll1Loader loader(this->parameters[1]);
-		if(!loader.LoadWll0(*(this->translations)))
-		{
-			loader.ShowErrorMessage();
-			return false;
-		}
-		else
-		{
-			return true;
-		}
-	}
+	//this->translations->clear();
+	return AddTranslations(this->parameters[1],*(this->translations));
 }
 
 CondCommand::CondCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
@@ -363,6 +311,26 @@ bool ShellCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
+DefCommand::DefCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
+: WllCommand(cmd,parameter_fields,intepreter,translations)
+{
+
+}
+
+bool DefCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size() == 3);
+	vector<VariableTable>* variable_table_stack = Singleton<vector<VariableTable> >::GetInstance();
+	assert(!variable_table_stack->empty());
+
+	string variable_name;
+	ToString(variable_name, this->parameters[1]);
+
+	VariableTable& variable_table = variable_table_stack->back();
+	variable_table[variable_name] = this->parameters[2];
+	return true;
+}
+
 SetCommand::SetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
 : WllCommand(cmd,parameter_fields,intepreter,translations)
 {
@@ -374,9 +342,19 @@ bool SetCommand::Intepret(std::vector<Symbols>& result)
 	assert(this->parameters.size() == 3);
 	vector<VariableTable>* variable_table_stack = Singleton<vector<VariableTable> >::GetInstance();
 	assert(!variable_table_stack->empty());
-	VariableTable& variable_table = variable_table_stack->back();
+
 	string variable_name;
 	ToString(variable_name, this->parameters[1]);
+	for(vector<VariableTable>::reverse_iterator i = variable_table_stack->rbegin(); i != variable_table_stack->rend(); ++i)
+	{
+		if(i->Has(variable_name.substr(0,variable_name.find('.'))))
+		{
+			((*i)[variable_name]) = this->parameters[2];
+			return true;
+		}
+	}
+
+	VariableTable& variable_table = variable_table_stack->back();
 	variable_table[variable_name] = this->parameters[2];
 	return true;
 }
@@ -405,8 +383,8 @@ bool GetCommand::Intepret(std::vector<Symbols>& result)
 		}
 	}
 
-	TERM_ERROR("GetCommand failed! variable_name["<<variable_name<<"] not find in variable table stack");
-	return false;
+	INFO("variable_name["<<variable_name<<"] not find in variable table stack, return empty");
+	return true;
 }
 
 PushDataCommand::PushDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
@@ -434,6 +412,71 @@ bool PopDataCommand::Intepret(std::vector<Symbols>& result)
 	assert(this->parameters.size() == 1);
 	vector<VariableTable>* variable_table_stack = Singleton<vector<VariableTable> >::GetInstance();
 	variable_table_stack->pop_back();
+	return true;
+}
+
+
+PushCommand::PushCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
+: WllCommand(cmd,parameter_fields,intepreter,translations)
+{
+
+}
+
+bool PushCommand::Intepret(std::vector<Symbols>& result)
+{
+	vector<vector<Symbols> >*parameter_stack = Singleton<vector<vector<Symbols> > >::GetInstance();
+	for(int i=1; i<this->parameters.size(); i++)
+	{
+		parameter_stack->push_back(this->parameters[i]);
+	}
+	return true;
+}
+
+
+PopCommand::PopCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
+: WllCommand(cmd,parameter_fields,intepreter,translations)
+{
+
+}
+
+bool PopCommand::Intepret(std::vector<Symbols>& result)
+{
+	vector<vector<Symbols> >*parameter_stack = Singleton<vector<vector<Symbols> > >::GetInstance();
+	vector<VariableTable>* variable_table_stack = Singleton<vector<VariableTable> >::GetInstance();
+	assert(!variable_table_stack->empty());
+	VariableTable& variable_table = variable_table_stack->back();
+	for(int i = this->parameters.size()-1; i != 0; --i)
+	{
+		if(!parameter_stack->empty())
+		{
+			VariableNode::KeyType variable_name;
+			ToString(variable_name, this->parameters[i]);
+
+			bool found = false;
+			for(vector<VariableTable>::reverse_iterator i = variable_table_stack->rbegin(); i != variable_table_stack->rend(); ++i)
+			{
+				if(i->Has(variable_name.substr(0,variable_name.find('.'))))
+				{
+					((*i)[variable_name]) = parameter_stack->back();
+					parameter_stack->pop_back();
+					found = true;
+					break;
+				}
+			}
+
+			if(!found)
+			{
+				VariableTable& variable_table = variable_table_stack->back();
+				variable_table[variable_name] = parameter_stack->back();
+				parameter_stack->pop_back();
+			}
+		}
+		else
+		{
+			ERROR("PopCommand Intepret error: pop when parameter_stack is empty");
+			return false;
+		}
+	}
 	return true;
 }
 
@@ -516,6 +559,10 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	{
 		command = new ShellCommand(cmd,parameter_fields,intepreter,translations);
 	}
+	else if(cmd == Symbols::DEF)
+	{
+		command = new DefCommand(cmd,parameter_fields,intepreter,translations);
+	}
 	else if(cmd == Symbols::SET)
 	{
 		command = new SetCommand(cmd,parameter_fields,intepreter,translations);
@@ -532,6 +579,14 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	{
 		command = new PopDataCommand(cmd,parameter_fields,intepreter,translations);
 	}
+	else if(cmd == Symbols::PUSH)
+	{
+		command = new PushCommand(cmd,parameter_fields,intepreter,translations);
+	}
+	else if(cmd == Symbols::POP)
+	{
+		command = new PopCommand(cmd,parameter_fields,intepreter,translations);
+	}
 	else if(cmd == Symbols::EVAL)
 	{
 		command = new EvalCommand(cmd,parameter_fields,intepreter,translations);
@@ -539,3 +594,36 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 
 	return command;
 }
+
+bool AddTranslations(const std::vector<Symbols>& input_symbols, std::vector<LanguageTranslations>& translations)
+{
+	WllLoader* loader = WllLoaderFactory::CreateWllLoader(input_symbols);
+	if(loader == NULL) return false;
+
+	bool retval = true;
+	try
+	{
+		INFO("wllloader="<<input_symbols);
+
+		if(!loader->TestLanguage())
+		{
+			ERROR("Test WLL language grammar failed!!!");
+			throw -1;
+		}
+		INFO("Test WLL language grammar PASSED!!!");
+
+		if(!loader->LoadWll(translations))
+		{
+			loader->ShowErrorMessage();
+			throw -2;
+		}
+		INFO("LOAD WLL language grammar SUCCESS!!!");
+	}
+	catch(int error_code)
+	{
+		retval = false;
+	}
+	delete loader;
+	return retval;
+}
+

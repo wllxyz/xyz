@@ -4,6 +4,10 @@ using namespace std;
 
 StringTable Symbols::variable_table;
 StringTable Symbols::remark_table;
+//支持文法解析
+const Symbols Symbols::NULL_SYMBOL(REMARK_SYMBOL,"$NULL");
+const Symbols Symbols::END_SYMBOL(REMARK_SYMBOL,"$END");
+//支持WLL0文法自解释
 const Symbols Symbols::REMARK_WLL0(REMARK_SYMBOL,"$WLL0");
 const Symbols Symbols::REMARK_TRANSLATION(REMARK_SYMBOL,"$TRANSLATION");
 const Symbols Symbols::REMARK_SOURCE_RULE(REMARK_SYMBOL,"$SOURCE_RULE");
@@ -16,15 +20,14 @@ const Symbols Symbols::REMARK_VARIABLE(REMARK_SYMBOL,"$VARIABLE");
 const Symbols Symbols::REMARK_CONSTANT(REMARK_SYMBOL,"$CONSTANT");
 const Symbols Symbols::REMARK_REMARK(REMARK_SYMBOL,"$REMARK");
 const Symbols Symbols::REMARK_IGNORE(REMARK_SYMBOL,"$IGNORE");
-const Symbols Symbols::NULL_SYMBOL(REMARK_SYMBOL,"$NULL");
-const Symbols Symbols::END_SYMBOL(REMARK_SYMBOL,"$END");
-
+//支持S表达式求解(WLL1文法自解释)
+const Symbols Symbols::EVAL(REMARK_SYMBOL,"$EVAL");
 const Symbols Symbols::LEFT_QUOTE(REMARK_SYMBOL,"$LEFT_QUOTE");
 const Symbols Symbols::RIGHT_QUOTE(REMARK_SYMBOL,"$RIGHT_QUOTE");
 const Symbols Symbols::SEPERATOR(REMARK_SYMBOL,"$SEPERATOR");
 const Symbols Symbols::LOAD_TRANSLATIONS(REMARK_SYMBOL,"$LOAD_TRANSLATIONS");
 const Symbols Symbols::ADD_TRANSLATIONS(REMARK_SYMBOL,"$ADD_TRANSLATIONS");
-
+//支持运算控制
 const Symbols Symbols::ADD(REMARK_SYMBOL,"$ADD");
 const Symbols Symbols::SUB(REMARK_SYMBOL,"$SUB");
 const Symbols Symbols::MUL(REMARK_SYMBOL,"$MUL");
@@ -39,11 +42,15 @@ const Symbols Symbols::AND(REMARK_SYMBOL,"$AND");
 const Symbols Symbols::OR(REMARK_SYMBOL,"$OR");
 const Symbols Symbols::NOT(REMARK_SYMBOL,"$NOT");
 const Symbols Symbols::SHELL(REMARK_SYMBOL,"$SHELL");
+//支持变量存储
+const Symbols Symbols::DEF(REMARK_SYMBOL,"$DEF");
 const Symbols Symbols::SET(REMARK_SYMBOL,"$SET");
 const Symbols Symbols::GET(REMARK_SYMBOL,"$GET");
 const Symbols Symbols::PUSH_DATA(REMARK_SYMBOL,"$PUSH_DATA");
 const Symbols Symbols::POP_DATA(REMARK_SYMBOL,"$POP_DATA");
-const Symbols Symbols::EVAL(REMARK_SYMBOL,"$EVAL");
+const Symbols Symbols::PUSH(REMARK_SYMBOL,"$PUSH");
+const Symbols Symbols::POP(REMARK_SYMBOL,"$POP");
+
 
 Symbols::Symbols()
 {

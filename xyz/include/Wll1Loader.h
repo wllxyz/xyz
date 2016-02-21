@@ -13,14 +13,12 @@
 #include <vector>
 using namespace std;
 
-class Wll1Loader
+class Wll1Loader : public WllLoader
 {
 public:
-	Wll1Loader();
 	Wll1Loader(const vector<Symbols>& input_symbols);
-	void SetInputSymbols(const char* text);
-	bool LoadWll0(vector<LanguageTranslations>& translations);
-	void ShowErrorMessage();
+	virtual bool LoadWll(vector<LanguageTranslations>& translations);
+	virtual void ShowErrorMessage();
 protected:
 	//Load* 函数一般都含有比较复杂的语法成分,当匹配输入的符号串时返回true,不匹配返回false; 不匹配时不消耗输入符号
 	bool LoadTranslation(LanguageTranslations& translation);
@@ -51,7 +49,6 @@ protected:
 	bool Encount(const Symbols& symbol);
 	const Symbols& GetSymbol();
 protected:
-	vector<Symbols> input_symbols;
 	int input_pos;
 };
 

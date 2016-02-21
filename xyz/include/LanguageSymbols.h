@@ -41,6 +41,10 @@ public:
 public:
 	static StringTable variable_table;
 	static StringTable remark_table;
+	//支持文法解析
+	static const Symbols NULL_SYMBOL;	//在文法表示中用空expression表示
+	static const Symbols END_SYMBOL;
+	//支持WLL0文法自解释
 	static const Symbols REMARK_WLL0;
 	static const Symbols REMARK_TRANSLATION;
 	static const Symbols REMARK_SOURCE_RULE;
@@ -52,35 +56,37 @@ public:
 	static const Symbols REMARK_VARIABLE;
 	static const Symbols REMARK_CONSTANT;
 	static const Symbols REMARK_REMARK;
-	static const Symbols REMARK_IGNORE;	//
-	static const Symbols NULL_SYMBOL;	//在文法表示中用空expression表示
-	static const Symbols END_SYMBOL;
+	//支持S表达式求解(WLL1文法自解释)
+	static const Symbols REMARK_IGNORE;		//忽略$IGNORE$LEFT_QUOTE...$RIGHT_QUOTE括号内的符号的求值
+	static const Symbols EVAL;				//执行求值动作
 	static const Symbols LEFT_QUOTE;		//S表达式的左括号,用来界定前缀表达式
 	static const Symbols RIGHT_QUOTE;		//S表达式的右括号,用来界定前缀表达式
 	static const Symbols SEPERATOR;			//S表达式的参数分隔符号,用来分隔前缀表达式参数
 	static const Symbols LOAD_TRANSLATIONS;	//调用Wll0Loader加载文法规则
 	static const Symbols ADD_TRANSLATIONS;	//调用Wll0Loader加载文法规则,和LOAD_TRANSLATIONS的区别是ADD_TRANSLATIONS不会清空之前的文法规则
-
-	static const Symbols ADD;
-	static const Symbols SUB;
-	static const Symbols MUL;
-	static const Symbols DIV;
-	static const Symbols TRUE;
-	static const Symbols FALSE;
-	static const Symbols COND;
-	static const Symbols LOOP;
-	static const Symbols EQ;	
-	static const Symbols LT;
-	static const Symbols AND;
-	static const Symbols OR;
-	static const Symbols NOT;
-	static const Symbols SHELL;
+	//支持运算控制
+	static const Symbols ADD;				//整数加,1..n个参数
+	static const Symbols SUB;				//整数减,1..n个参数
+	static const Symbols MUL;				//整数乘,1..n个参数
+	static const Symbols DIV;				//整数除,1..n个参数
+	static const Symbols TRUE;				//逻辑真
+	static const Symbols FALSE;				//逻辑假
+	static const Symbols COND;				//条件控制
+	static const Symbols LOOP;				//循环控制
+	static const Symbols EQ;				//等于
+	static const Symbols LT;				//小于(字典序)
+	static const Symbols AND;				//与
+	static const Symbols OR;				//或
+	static const Symbols NOT;				//非
+	static const Symbols SHELL;				//执行shell命令
 	//支持变量存储
-	static const Symbols SET;
-	static const Symbols GET;
-	static const Symbols PUSH_DATA;
-	static const Symbols POP_DATA;
-	static const Symbols EVAL;
+    static const Symbols DEF;				//变量定义
+	static const Symbols SET;				//变量赋值,如果变量之前没有定义则自动定义
+	static const Symbols GET;				//变量引用,如果变量没有定义,返回空值
+	static const Symbols PUSH_DATA;			//初始化变量空间并压栈
+	static const Symbols POP_DATA;			//销毁本层变量空间并出栈
+	static const Symbols PUSH;				//表达式值压入参数栈顶
+	static const Symbols POP;				//参数栈顶值出栈到变量
 };
 
 ostream& operator<< (ostream& o, const Symbols& symbol);
