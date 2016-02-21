@@ -41,6 +41,7 @@ void PrintDebugLog(const char* msg);
 #define ERROR(msg) LOG(Wll::Tool::LogInnerTypes::ERROR_TRACE, "[ERROR] "<<msg)
 #define WARNING(msg) LOG(Wll::Tool::LogInnerTypes::WARNING_TRACE, "[WARNING] "<<msg)
 #define INFO(msg) LOG(Wll::Tool::LogInnerTypes::INFO_TRACE, "[INFO] "<<msg)
+#define FOOT() struct FootKeeper{ const char* fn; FootKeeper(const char* fname):fn(fname){INFO(">>>"<<"start "<<fn<<"<<<");} ~FootKeeper(){INFO("<<<"<<"end "<<fn<<">>>");} }function_name##auto_foot_keeper(__FUNCTION__)
 
 #define REMOTE_LOG(mask,msg) REMOTE_TRACE(mask,"["<<__FILE__<<":"<<__LINE__<<":"<<__FUNCTION__<<"] "<<msg)
 #define REMOTE_ERROR(msg) REMOTE_LOG(Wll::Tool::LogInnerTypes::ERROR_TRACE, "[ERROR] "<<msg)
