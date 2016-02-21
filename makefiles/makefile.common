@@ -147,8 +147,8 @@ release:
 install:
 	@if [ $(recurse) != 0 ]; then for dir in $(DEPEND_MODULES); do make -C $$dir install install_dir=$(install_dir); done; fi
 	mkdir -p $(install_dir)
-	@if [ -e bin ]; then mkdir -p $(install_dir)/bin; cp -r bin/ $(install_dir); fi
-	@if [ -e data ]; then mkdir -p $(install_dir)/data; cp -r data/ $(install_dir); fi
+	if [ -e bin ]; then mkdir -p $(install_dir)/bin; cp -r bin/ $(install_dir); fi
+	if [ -e data ]; then mkdir -p $(install_dir)/data; cp -r data/ $(install_dir); fi
 	mkdir -p $(install_dir)/lib; cp -r lib/ $(install_dir) 
 	mkdir -p $(install_dir)/include; cp -r include/ $(install_dir)
 #	export PATH=$(PATH):`cd $(install_dir)/bin/ && pwd`
