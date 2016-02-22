@@ -19,8 +19,14 @@ after compile:
 安装完成后:
 make install install_dir=<path/to/install>
 make install install_dir=<你想要安装的路径>
+add <path/to/install> to PATH
+把xyz的安装路径添加到PATH变量中去
 
 4. How to run xyz?
 4. 怎样运行xyz?
 
+the most normal case, Run:
+最普通的应用场景,运行:
+
+wll <grammar-file> <input-file>
 
