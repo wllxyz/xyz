@@ -1,6 +1,7 @@
 # xyz -- a language designed for AI and compile task. like lisp and yacc.
 xyz是为人工智能和编译目标设计的脚本语言和工具,结合了lisp和yacc的一些特性.
 
+<code>
 1. How to get xyz?
 1. 如何获取xyz?
 
@@ -29,4 +30,5 @@ the most normal case, Run:
 最普通的应用场景,运行:
 
 wll <grammar-file> <input-file>
+</code>
 
