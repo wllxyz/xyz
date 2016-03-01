@@ -97,7 +97,7 @@ __文法标记__是由$符号开头的标识符.
 	如<e>--><e>"+"<t>==><e>--><e><t>"+";  
 	表示将中缀表达式的加法表达式转换为后缀表达式形式.  
 
-完整的xyz文法请参考[xyz/data/grammar](xyz/data/grammar)  
+最新的xyz完整文法请参考[xyz/data/grammar](xyz/data/wll1/grammar.wll1-TopDown)  
 
 #6. wll和xyz的关系?
 	
