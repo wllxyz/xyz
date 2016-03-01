@@ -29,7 +29,7 @@ xyz是为人工智能和编译目标设计的脚本语言和工具,结合了lisp
 如果你只想了解xyz语言长什么样?能干嘛?那么你可以通过简单的使用示例来学习如何编写xyz脚本来完成你的工作.  
 xyz语言的文法很简单,如果你熟悉文法范式,最核心的xyz自解释文法不过十几条而已.  
 
-以下是WLL1解析器能够识别的xyz文法定义:  
+以下是WLL1解析器能够识别的xyz文法定义(核心语法):  
 	
 	<start>--><wll0>==><start>-->$LEFT_QUOTE$LOAD_TRANSLATIONS$SEPERATOR$IGNORE$LEFT_QUOTE<wll0>$RIGHT_QUOTE$RIGHT_QUOTE;
 	<wll0>--><translation>";\n"==><wll0>--><translation>";\n";
@@ -96,6 +96,8 @@ __文法标记__是由$符号开头的标识符.
 
 	如<e>--><e>"+"<t>==><e>--><e><t>"+";  
 	表示将中缀表达式的加法表达式转换为后缀表达式形式.  
+
+完整的xyz文法请参考[xyz/data/grammar](xyz/data/grammar)  
 
 #6. wll和xyz的关系?
 	
