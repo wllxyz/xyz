@@ -25,12 +25,14 @@ protected:
 	std::vector<LanguageTranslations>* translations;
 	WllIntepreter* intepreter;
 	int input_pos;
-	//<e>--><i><e>
-	//<i>--><s>
-	//<i>--><a>
-	//<s>-->(<el>)
-	//<el>--><e>
-	//<el>--><e> <el>
+	//<expression>--><sub-expression><expression>
+	//<sub-expression>--><ignore-expression>
+	//<sub-expression>--><quote-expression>
+	//<sub-expression>--><symbol>
+	//<ignore-expression>-->$IGNORE$LEFT_QUOTE...$RIGHT_QUOTE
+	//<quote-expression>-->$LEFT_QUOTE<expression-list>$RIGHT_QUOTE
+	//<expression-list>--><expression>
+	//<expression-list>--><expression>$SEPERATOR<expression-list>
 	bool IntepretExpression(std::vector<Symbols>& result);
 	bool IntepretSExpression(std::vector<Symbols>& result);
 	bool Accept(const Symbols& symbol);

@@ -47,8 +47,10 @@ CPP_DEPENDS = $(CPP_OBJS:.o=.d)
 C_DEPENDS = $(C_OBJS:.o=.d)
 MAIN_FILES = $(wildcard main/*.cpp)
 MAIN_C_FILES = $(wildcard main/*.c)
+MAIN_JAVA_FILES = $(wildcard main/*.java)
 MAIN_OBJS = $(foreach FILE, $(MAIN_FILES:.cpp=.o),tmp/$(FILE))
 MAIN_C_OBJS = $(foreach FILE, $(MAIN_C_FILES:.c=.o),tmp/$(FILE))
+MAIN_JAVA_OBJS = $(foreach FILE, $(MAIN_JAVA_FILES:.java=.class),tmp/$(FILE))
 MAIN_DEPENDS = $(MAIN_OBJS:.o=.d) 
 MAIN_C_DEPENDS = $(MAIN_C_OBJS:.o=.d)
 MAIN_BINS = $(foreach FILE, $(notdir $(MAIN_FILES:.cpp=.bin)), bin/$(FILE))
@@ -121,6 +123,10 @@ $(LOCAL_CLASS):$(JAVA_OBJS)
 	$(PACK_CLASS)
 #--------------------------------------
 $(JAVA_OBJS):tmp/%.class:%.java
+	mkdir -p `dirname $@`
+	javac -d `dirname $@` $<
+#--------------------------------------
+$(MAIN_JAVA_OBJS):tmp/%.class:%.java
 	mkdir -p `dirname $@`
 	javac -d `dirname $@` $<
 #--------------------------------------

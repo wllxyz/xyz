@@ -19,6 +19,7 @@ Wll2IntepreterLL1Impl::Wll2IntepreterLL1Impl(const std::vector<Symbols>& input_s
 	this->input_pos = 0;
 }
 
+//<input>--><expression>
 bool Wll2IntepreterLL1Impl::IntepretWll()
 {
 	INFO("symbols="<<this->input_symbols);
@@ -37,6 +38,9 @@ bool Wll2IntepreterLL1Impl::IntepretExpression(std::vector<Symbols>& result)
 
 	if(this->Encount(Symbols::REMARK_IGNORE))
 	{
+		//<expression>--><sub-expression><expression>
+		//<sub-expression>--><ignore-expression>
+		//<ignore-expression>-->$IGNORE$LEFT_QUOTE...$RIGHT_QUOTE
 		//$IGNORE$LEFT_QUOTE...$RIGHT_QUOTE : 对括号内的符号不进行求值,原样输出
 		this->Accept(Symbols::REMARK_IGNORE);
 		if(!this->Accept(Symbols::LEFT_QUOTE)) return false;
@@ -54,10 +58,14 @@ bool Wll2IntepreterLL1Impl::IntepretExpression(std::vector<Symbols>& result)
 	}
 	else if(this->Encount(Symbols::LEFT_QUOTE))
 	{
+		//<expression>--><sub-expression><expression>
+		//<sub-expression>--><quote-expression>
 		return this->IntepretSExpression(result) && this->IntepretExpression(result);
 	}
 	else
 	{
+		//<expression>--><sub-expression><expression>
+		//<sub-expression>--><symbol>
 		result.push_back(this->GetSymbol());
 		this->input_pos++;
 		return this->IntepretExpression(result);
@@ -66,6 +74,7 @@ bool Wll2IntepreterLL1Impl::IntepretExpression(std::vector<Symbols>& result)
 	return true;
 }
 
+//<quote-expression>-->$LEFT_QUOTE<expression-list>$RIGHT_QUOTE
 bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 {
 	if(!this->Accept(Symbols::LEFT_QUOTE)) return false;
@@ -80,6 +89,7 @@ bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 		vector<vector<Symbols> >parameter_fields;
 		parameter_fields.push_back(cmd);
 
+		//<expression-list>--><expression>$SEPERATOR<expression-list>
 		while(this->Encount(Symbols::SEPERATOR))
 		{
 			this->Accept(Symbols::SEPERATOR);
