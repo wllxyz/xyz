@@ -170,7 +170,7 @@ int main()
 	symbols.push_back(Symbols::REMARK_DESTINATION_RULE);
 	symbols.push_back(Symbols::REMARK_TRANSLATION);	
 	
-	assert(SelfExplain(symbols,languages));
+	assert(SelfExplain(symbols,languages,cout));
 	stringstream lang_str;
 	for(vector<LanguageTranslations>::iterator i = languages.begin(); i != languages.end(); ++i)
 	{

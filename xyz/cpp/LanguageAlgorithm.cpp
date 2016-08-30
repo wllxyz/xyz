@@ -321,7 +321,7 @@ bool TranslateTree(LanguageTree* source,LanguageTree*& dest,const vector<Languag
 //<variable>-->"<"<identifier>">"==><variable>--><identifier>$VARIABLE;
 //<constant>-->"\""<string>"\""==><constant>--><string>$CONSTANT;
 //<remark>-->"$"<identifier>==><remark>--><identifier>$REMARK;
-bool SelfExplain(const vector<Symbols>& input_symbols,vector<LanguageTranslations>& languages)
+bool SelfExplain(const vector<Symbols>& input_symbols,vector<LanguageTranslations>& languages, ostream& outf)
 {
 	vector<Symbols> output_symbols;
 #ifndef	WLL1LOADER
@@ -331,7 +331,7 @@ bool SelfExplain(const vector<Symbols>& input_symbols,vector<LanguageTranslation
 	//Wll2Intepreter intepreter();
 #endif
 	bool retval = intepreter.IntepretWll(input_symbols, output_symbols, &languages);
-	cout<<output_symbols;
+	outf<<output_symbols;
 	return retval;
 }
 

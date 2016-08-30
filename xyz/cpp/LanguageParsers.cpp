@@ -118,7 +118,7 @@ bool LanguageParsers::Process(istream& inf,ostream& outf)
 	}
 
 	INFO("output_symbols="<<this->output_symbols);
-	if(!SelfExplain(this->output_symbols,this->languages.translation_rules))
+	if(!SelfExplain(this->output_symbols,this->languages.translation_rules, outf))
 	{
 		cerr<<"SelfExplain failed"<<endl;
 		return false;

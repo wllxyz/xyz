@@ -410,9 +410,8 @@ PopDataCommand::PopDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >&
 bool PopDataCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size() == 1);
-	if(variable_table_stack->empty())		return false;
-
 	vector<VariableTable>* variable_table_stack = Singleton<vector<VariableTable> >::GetInstance();
+	if(variable_table_stack->empty())		return false;
 	variable_table_stack->pop_back();
 	return true;
 }
