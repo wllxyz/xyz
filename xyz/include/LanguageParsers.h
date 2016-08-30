@@ -21,6 +21,7 @@ public:
 public:
 	//input istream --> output ostream
 	virtual bool Process(istream& inf,ostream& outf);
+	virtual bool Process(const vector<Symbols>& input_symbols, vector<Symbols>& output_symbols, Symbols start_symbol);
 	//for debug display languages
 	virtual void DisplayLanguage();
 	virtual void DisplayStates();
@@ -29,6 +30,8 @@ public:
 	virtual bool LoadInput(istream& ins);
 	//set symbols as input symbols
 	virtual void SetInput(const vector<Symbols>& symbols);
+	//设置文法开始符号
+	virtual void SetStartSymbol(Symbols start_symbol);
 	//input symbols --> source parse grammar tree
 	virtual bool Parse()=0;
 	//source parse grammar tree --> destination parse grammar tree --> stand output ostream

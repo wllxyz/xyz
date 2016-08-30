@@ -169,8 +169,9 @@ int main()
 	symbols.push_back(Symbols::REMARK_RULE);
 	symbols.push_back(Symbols::REMARK_DESTINATION_RULE);
 	symbols.push_back(Symbols::REMARK_TRANSLATION);	
-	
-	assert(SelfExplain(symbols,languages,cout));
+
+	vector<Symbols> temp_result;	
+	assert(SelfExplain(symbols,languages,temp_result));
 	stringstream lang_str;
 	for(vector<LanguageTranslations>::iterator i = languages.begin(); i != languages.end(); ++i)
 	{

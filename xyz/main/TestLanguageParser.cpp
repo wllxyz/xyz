@@ -1,58 +1,76 @@
-#define TOPDOWN_PARSER  0
-#define LR0_PARSER  1
-#define LR1_PARSER  2
-
-#define PARSER  LR1_PARSER
-
-#if PARSER==LR0_PARSER
-#include "LR0Parsers.h"
-#elif   PARSER==TOPDOWN_PARSER
 #include "TopDownParsers.h"
-#elif   PARSER==LR1_PARSER
+//#include "LR0Parsers.h"
 #include "LR1Parsers.h"
-#endif  //PARSER
-
 #include <fstream>
 #include <iostream>
 using namespace std;
+#include <gtest/gtest.h>
 
-int main(int argc,char** argv)
-{
-#if PARSER==LR0_PARSER
-	LR0Parsers parser;
-#elif   PARSER==TOPDOWN_PARSER
-	TopDownParsers parser;
-#elif   PARSER==LR1_PARSER
-	LR1Parsers parser;
-#endif  //PARSER
-
-	if(argc != 3)
-	{
-		cout<<"Usage : "<<argv[0]<<" <grammar_file> <input_file> "<<endl;
-		return -1;
-	}
-	
-	ifstream grammar_file(argv[1]);
-	if(grammar_file.fail())
-	{
-		cout<<"open grammar file ["<<argv[1]<<"] failed"<<endl;
-		return -1;
-	}
-	parser.LoadLanguage(grammar_file);
-
-	ifstream input_file(argv[2]);
-	if(input_file.fail())
-	{
-		cout<<"open input file ["<<argv[2]<<"] failed"<<endl;
-		return -1;	
-	}
-
-	if(!parser.Process(input_file,cout))
-	{
-		cout<<"process file ["<<argv[2]<<"] failed!"<<endl;
-		return -1;
-	}	
-
-	return 0;
+GTEST_API_ int main(int argc, char **argv) {
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
 
+TEST(TopDownParser, Process)
+{
+	TopDownParsers parser;
+	ifstream grammar_file("data/grammar");
+	parser.LoadLanguage(grammar_file);
+	vector<Symbols> input_symbols, output_symbols;
+	Symbols start_symbol;
+	input_symbols.push_back('<');
+	input_symbols.push_back('t');
+	input_symbols.push_back('e');
+	input_symbols.push_back('s');
+	input_symbols.push_back('t');
+	input_symbols.push_back('>');
+	start_symbol = Symbols("<variable>");
+	EXPECT_TRUE(parser.Process(input_symbols, output_symbols, start_symbol));
+	cout<<output_symbols<<endl;
+
+	input_symbols.push_back('-');
+	input_symbols.push_back('-');
+	input_symbols.push_back('>');
+	input_symbols.push_back('"');
+	input_symbols.push_back('a');
+	input_symbols.push_back('b');
+	input_symbols.push_back('c');
+	input_symbols.push_back('"');
+	cout<<input_symbols<<endl;
+	start_symbol = Symbols("<source_rule>");
+	output_symbols.clear();
+	EXPECT_TRUE(parser.Process(input_symbols, output_symbols, start_symbol));
+	cout<<output_symbols<<endl;
+}
+
+TEST(LR1Parser, Process)
+{
+	LR1Parsers parser;
+	ifstream grammar_file("data/grammar");
+	parser.LoadLanguage(grammar_file);
+	vector<Symbols> input_symbols, output_symbols;
+	Symbols start_symbol;
+	input_symbols.push_back('<');
+	input_symbols.push_back('t');
+	input_symbols.push_back('e');
+	input_symbols.push_back('s');
+	input_symbols.push_back('t');
+	input_symbols.push_back('>');
+	start_symbol = Symbols("<variable>");
+	EXPECT_TRUE(parser.Process(input_symbols, output_symbols, start_symbol));
+	cout<<output_symbols<<endl;
+
+	input_symbols.push_back('-');
+	input_symbols.push_back('-');
+	input_symbols.push_back('>');
+	input_symbols.push_back('"');
+	input_symbols.push_back('a');
+	input_symbols.push_back('b');
+	input_symbols.push_back('c');
+	input_symbols.push_back('"');
+	cout<<input_symbols<<endl;
+	start_symbol = Symbols("<source_rule>");
+	output_symbols.clear();
+	EXPECT_TRUE(parser.Process(input_symbols, output_symbols, start_symbol));
+	cout<<output_symbols<<endl;
+}

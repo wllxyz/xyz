@@ -1,17 +1,19 @@
+#define private public
 #include "StringTable.h"
-#include <cassert>
-#include <string>
-#include <iostream>
-using namespace Wll;
-using namespace std;
+#include <gtest/gtest.h>
 
-int main()
+TEST(StringTable,  GetIndexByName_GetNameByIndex)
 {
-	StringTable st;
-	assert(st.GetIndexByName("test1")==0);
-	assert(st.GetIndexByName("test2")==1);
-	assert(st.GetIndexByName("test1")==0);
-	assert(st.GetNameByIndex(1)=="test2");
-	cout<<"PASS"<<endl;
+	Wll::StringTable st;
+	EXPECT_TRUE(st.GetIndexByName("test1")==0);
+	EXPECT_TRUE(st.GetIndexByName("test2")==1);
+	EXPECT_TRUE(st.GetIndexByName("test1")==0);
+	EXPECT_TRUE(st.GetNameByIndex(1)=="test2");
 }
 
+
+
+GTEST_API_ int main(int argc, char **argv) {
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}

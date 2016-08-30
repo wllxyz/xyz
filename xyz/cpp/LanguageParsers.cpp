@@ -68,6 +68,11 @@ void LanguageParsers::SetInput(const vector<Symbols>& symbols)
 	this->input_symbols = symbols;
 }
 
+void LanguageParsers::SetStartSymbol(Symbols start_symbol)
+{
+	this->start_symbol = start_symbol;
+}
+
 bool LanguageParsers::Translate()
 {
 	FOOT();
@@ -95,7 +100,9 @@ bool LanguageParsers::ParseAndTranslate()
 
 bool LanguageParsers::Process(istream& inf,ostream& outf)
 {
-	FOOT();
+	assert(!this->languages.source_rules.rules.empty());
+	this->SetStartSymbol(this->languages.source_rules.rules.front()->symbol);
+
 	if(!this->is_analyzed)
 	{
 		if(this->AnalyzeLanguage())
@@ -106,6 +113,7 @@ bool LanguageParsers::Process(istream& inf,ostream& outf)
 			return false;
 		}
 	}
+
 	if(!this->LoadInput(inf)) 
 	{
 		cerr<<"LoadInput failed"<<endl;
@@ -118,7 +126,43 @@ bool LanguageParsers::Process(istream& inf,ostream& outf)
 	}
 
 	INFO("output_symbols="<<this->output_symbols);
-	if(!SelfExplain(this->output_symbols,this->languages.translation_rules, outf))
+	vector<Symbols> result;
+	if(!SelfExplain(this->output_symbols,this->languages.translation_rules, result))
+	{
+		cerr<<"SelfExplain failed"<<endl;
+		return false;
+	}
+	outf<<result;
+	//当文法没有加载时不需要重新分析(加载文法后,调用文法分析)
+	this->is_analyzed = false;
+
+	return true;
+}
+
+bool LanguageParsers::Process(const vector<Symbols>& input_symbols, vector<Symbols>& output_symbols, Symbols start_symbol)
+{
+	this->SetStartSymbol(start_symbol);
+
+	if(!this->is_analyzed)
+	{
+		if(this->AnalyzeLanguage())
+			this->is_analyzed = true;
+		else
+		{
+			cerr<<"analyzed language failed"<<endl;
+			return false;
+		}
+	}
+	this->SetInput(input_symbols);
+	if(!this->ParseAndTranslate())
+	{
+		cerr<<"ParseAndTranslate failed"<<endl;
+		return false;
+	}
+
+	INFO("output_symbols="<<this->output_symbols);
+
+	if(!SelfExplain(this->output_symbols,this->languages.translation_rules, output_symbols))
 	{
 		cerr<<"SelfExplain failed"<<endl;
 		return false;
@@ -140,8 +184,7 @@ bool LanguageParsers::AnalyzeLanguage()
 {
 	this->languages.Initialize();
 	this->first_calculator.Initialize();
-	assert(!this->languages.source_rules.rules.empty());
-	this->start_symbol = this->languages.source_rules.rules.front()->symbol;
+
 	return true;
 }
 
