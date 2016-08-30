@@ -185,7 +185,7 @@ int main()
 	vector< vector<TransformEdge> > state_transform_table;
 	vector< StateSets<LR1States> > state_sets;
 	StateTransformTable table;
-	GenerateStateTransformTable(lg.source_rules,state_transform_table,state_sets);
+	GenerateStateTransformTable(lg.source_rules,state_transform_table,state_sets,lg.source_rules.rules[0]->symbol);
 	int state = 0;
 	for(vector<vector<TransformEdge> >::const_iterator i = state_transform_table.begin(); i != state_transform_table.end(); ++i)
 	{
@@ -226,7 +226,7 @@ int main()
 	}
 
 	LanguageTree* source_tree = NULL;
-	assert(LRParse(input_symbols, source_tree, table, lg.source_rules.rules, state_sets));
+	assert(LRParse(input_symbols, source_tree, table, lg.source_rules.rules, state_sets,lg.source_rules.rules[0]->symbol));
 
 	stringstream output;
 	output<<source_tree;
@@ -238,11 +238,11 @@ int main()
 	LoadExpression2(lg);
 	cout<<"Expression2 Language:"<<endl;
 	cout<<lg<<endl;
-	GenerateStateTransformTable(lg.source_rules,state_transform_table,state_sets);
+	GenerateStateTransformTable(lg.source_rules,state_transform_table,state_sets,lg.source_rules.rules[0]->symbol);
 	ConvertStateTransformTable(state_transform_table, table);
 	cout<<"state_transfrom_table:"<<endl;
 	cout<<table<<endl;
-	LRParse(input_symbols, source_tree, table, lg.source_rules.rules, state_sets);
+	LRParse(input_symbols, source_tree, table, lg.source_rules.rules, state_sets,lg.source_rules.rules[0]->symbol);
 	stringstream output2;
 	output2<<source_tree;
 	cout<<"analyze source tree:"<<endl;
@@ -253,11 +253,11 @@ int main()
 	LoadExpression3(lg);
 	cout<<"Expression3 Language:"<<endl;
 	cout<<lg<<endl;
-	GenerateStateTransformTable(lg.source_rules,state_transform_table,state_sets);
+	GenerateStateTransformTable(lg.source_rules,state_transform_table,state_sets,lg.source_rules.rules[0]->symbol);
 	ConvertStateTransformTable(state_transform_table, table);
 	cout<<"state_transfrom_table:"<<endl;
 	cout<<table<<endl;
-	LRParse(input_symbols, source_tree, table, lg.source_rules.rules, state_sets);
+	LRParse(input_symbols, source_tree, table, lg.source_rules.rules, state_sets,lg.source_rules.rules[0]->symbol);
 	stringstream output3;
 	output3<<source_tree;
 	cout<<"analyze source tree:"<<endl;

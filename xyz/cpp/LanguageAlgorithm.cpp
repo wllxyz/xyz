@@ -391,7 +391,7 @@ bool SelfExplain(const vector<Symbols>& input_symbols,vector<LanguageTranslation
 //</预测分析表的自动生成算法>
 
 //根据文法自动生成文法预测分析表(供LR1文法分析器重载)
-void GenerateStateTransformTable(const LanguageIndex& languages,vector< vector<TransformEdge> >& state_transform_table, vector< StateSets<LR1States> >& state_sets)
+void GenerateStateTransformTable(const LanguageIndex& languages,vector< vector<TransformEdge> >& state_transform_table, vector< StateSets<LR1States> >& state_sets, Symbols start_symbol)
 {
 	state_transform_table.clear();
 	state_sets.clear();
@@ -406,7 +406,7 @@ void GenerateStateTransformTable(const LanguageIndex& languages,vector< vector<T
 //初始化:   I={[S'->S,#]} {((0,0),0)}     //S'->S这条规则永远不会得到规约
 	set<Symbols> symbol_set;
 	symbol_set.insert(Symbols::END_SYMBOL);
-	Symbols start_symbol = languages.rules[0]->symbol;
+	//Symbols start_symbol = languages.rules[0]->symbol;
 	vector<size_t> start_rules;
 	languages.GetRuleNosBySymbol(start_symbol, start_rules);
 	for(vector<size_t>::const_iterator i = start_rules.begin(); i != start_rules.end(); ++i)
@@ -711,7 +711,7 @@ void ConvertStateTransformTable(const vector< vector<TransformEdge> >& state_tra
 }
 
 //根据文法预测分析表分析文法,得到文法分析树(供LR1重载)
-bool LRParse(const vector<Symbols>& symbols,LanguageTree*& tree,const StateTransformTable& state_transform_table,const vector<LanguageRules*>& languages, const vector< StateSets<LR1States> >& state_sets)
+bool LRParse(const vector<Symbols>& symbols,LanguageTree*& tree,const StateTransformTable& state_transform_table,const vector<LanguageRules*>& languages, const vector< StateSets<LR1States> >& state_sets, Symbols start_symbol)
 {
 	stack<size_t> state_stack;  		//状态分析栈
 	size_t S;     						//当前分析状态号
@@ -721,7 +721,7 @@ bool LRParse(const vector<Symbols>& symbols,LanguageTree*& tree,const StateTrans
   	size_t pos=0;  						//读指针
   	vector<size_t> used_rules; 			//用来记录依次使用的规则号
 	vector<LanguageTree*> analyzed_symbols;		//用来记录已经分析过的符号(辅助分析和错误定位) 
-	Symbols start_symbol = languages[0]->symbol;	//文法开始符号
+	//Symbols start_symbol = languages[0]->symbol;	//文法开始符号
 
   	//初始化
 	state_stack.push(0); //第一个入口状态

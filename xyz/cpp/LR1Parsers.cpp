@@ -76,7 +76,7 @@ bool LR1Parsers::AnalyzeLanguage()
 	LanguageParsers::AnalyzeLanguage();
   	//根据文法自动生成文法预测分析表
 	vector< vector<TransformEdge> > state_transform_table;
-	GenerateStateTransformTable(this->languages.source_rules,state_transform_table,this->state_sets);
+	GenerateStateTransformTable(this->languages.source_rules,state_transform_table,this->state_sets, this->start_symbol);
   	if(this->IsAmbiguous(state_transform_table, this->state_sets)) return false;
 
 	this->state_transform_table.clear();
@@ -89,7 +89,7 @@ bool LR1Parsers::AnalyzeLanguage()
 bool LR1Parsers::Parse()
 {
 	//根据文法预测分析表分析文法,得到文法分析树
-  	return this->is_analyzed && LRParse(this->input_symbols,this->source_tree, this->state_transform_table,this->languages.source_rules.rules, this->state_sets);
+  	return this->is_analyzed && LRParse(this->input_symbols,this->source_tree, this->state_transform_table,this->languages.source_rules.rules, this->state_sets, this->start_symbol);
 }
 
 bool LR1Parsers::IsXyzLanguage(const vector<Symbols>& symbols)

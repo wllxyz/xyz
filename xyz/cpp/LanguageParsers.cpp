@@ -142,18 +142,14 @@ bool LanguageParsers::Process(istream& inf,ostream& outf)
 bool LanguageParsers::Process(const vector<Symbols>& input_symbols, vector<Symbols>& output_symbols, Symbols start_symbol)
 {
 	this->SetStartSymbol(start_symbol);
+	this->SetInput(input_symbols);
 
-	if(!this->is_analyzed)
+	if(!this->AnalyzeLanguage())
 	{
-		if(this->AnalyzeLanguage())
-			this->is_analyzed = true;
-		else
-		{
 			cerr<<"analyzed language failed"<<endl;
 			return false;
-		}
 	}
-	this->SetInput(input_symbols);
+
 	if(!this->ParseAndTranslate())
 	{
 		cerr<<"ParseAndTranslate failed"<<endl;
@@ -167,8 +163,6 @@ bool LanguageParsers::Process(const vector<Symbols>& input_symbols, vector<Symbo
 		cerr<<"SelfExplain failed"<<endl;
 		return false;
 	}
-	//当文法没有加载时不需要重新分析(加载文法后,调用文法分析)
-	this->is_analyzed = false;
 
 	return true;
 }
