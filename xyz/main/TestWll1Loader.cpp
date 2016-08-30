@@ -21,14 +21,16 @@ GTEST_API_ int main(int argc, char **argv) {
 
 TEST(Wll1LoaderTest,LoadWll0)
 {
-	Wll1Loader loader(LanguageExpressions("<source_rule>--><rule>==><source_rule>--><rule>$SOURCE_RULE;").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("<source_rule>--><rule>==><source_rule>--><rule>$SOURCE_RULE;").symbols;
+	Wll1Loader loader(input_symbols);
 	vector<LanguageTranslations> translations;
 	EXPECT_TRUE(loader.LoadWll(translations));
 }
 
 TEST(Wll1LoaderTest,LoadTranslation)
 {
-	Wll1Loader loader(LanguageExpressions("<a>-->\"abc\"==><a>-->\"bcd\";\n").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("<a>-->\"abc\"==><a>-->\"bcd\";\n").symbols;
+	Wll1Loader loader(input_symbols);
 	LanguageTranslations translation;
 	EXPECT_TRUE(loader.LoadTranslation(translation));
 	cout<<translation<<endl;
@@ -36,84 +38,96 @@ TEST(Wll1LoaderTest,LoadTranslation)
 
 TEST(Wll1LoaderTest,LoadSourceRule)
 {
-	Wll1Loader loader(LanguageExpressions("<abc>-->\"ab\"<b><bcd>").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("<abc>-->\"ab\"<b><bcd>").symbols;
+	Wll1Loader loader(input_symbols);
 	LanguageRules rule;
 	EXPECT_TRUE(loader.LoadSourceRule(rule));
 }
 
 TEST(Wll1LoaderTest,LoadDestinationRule)
 {
-	Wll1Loader loader(LanguageExpressions("<abc>-->\"ab\"<b><bcd>").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("<abc>-->\"ab\"<b><bcd>").symbols;
+	Wll1Loader loader(input_symbols);
 	LanguageRules rule;
 	EXPECT_TRUE(loader.LoadDestinationRule(rule));
 }
 
 TEST(Wll1LoaderTest,LoadRule)
 {
-	Wll1Loader loader(LanguageExpressions("<abc>-->\"ab\"<b><bcd>").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("<abc>-->\"ab\"<b><bcd>").symbols;
+	Wll1Loader loader(input_symbols);
 	LanguageRules rule;
 	EXPECT_TRUE(loader.LoadRule(rule));
 }
 
 TEST(Wll1LoaderTest,LoadRootSymbol)
 {
-	Wll1Loader loader(LanguageExpressions("<abc>").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("<abc>").symbols;
+	Wll1Loader loader(input_symbols);
 	Symbols symbol;
 	EXPECT_TRUE(loader.LoadRootSymbol(symbol));
 }
 
 TEST(Wll1LoaderTest,LoadExpression)
 {
-	Wll1Loader loader(LanguageExpressions("<abc>\"dkjfdlf\"<bd>").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("<abc>\"dkjfdlf\"<bd>").symbols;
+	Wll1Loader loader(input_symbols);
 	LanguageExpressions expression;
 	EXPECT_TRUE(loader.LoadExpression(expression));
 }
 
 TEST(Wll1LoaderTest,LoadSymbol)
 {
-	Wll1Loader loader(LanguageExpressions("<abc>").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("<abc>").symbols;
+	Wll1Loader loader(input_symbols);
 	LanguageExpressions symbol;
 	EXPECT_TRUE(loader.LoadSymbol(symbol));
 }
 
 TEST(Wll1LoaderTest,LoadVariable)
 {
-	Wll1Loader loader(LanguageExpressions("<abc>").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("<abc>").symbols;
+	Wll1Loader loader(input_symbols);
 	Symbols symbol;
 	EXPECT_TRUE(loader.LoadVariable(symbol));
 }
 
 TEST(Wll1LoaderTest,LoadConstant)
 {
-	Wll1Loader loader(LanguageExpressions("\"abcde\"").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("\"abcde\"").symbols;
+	Wll1Loader loader(input_symbols);
 	LanguageExpressions constant;
 	EXPECT_TRUE(loader.LoadConstant(constant));
 }
 
 TEST(Wll1LoaderTest,LoadRemark)
 {
-	Wll1Loader loader(LanguageExpressions("$REMARK").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("$REMARK").symbols;
+	Wll1Loader loader(input_symbols);
 	Symbols remark;
 	EXPECT_TRUE(loader.LoadRemark(remark));
 }
 
 TEST(Wll1LoaderTest,LoadIdent)
 {
-	Wll1Loader loader(LanguageExpressions("abce_2d").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("abce_2d").symbols;
+	Wll1Loader loader(input_symbols);
 	string ident;
 	EXPECT_TRUE(loader.LoadIdent(ident));
 }
 
 TEST(Wll1LoaderTest,LoadString)
 {
-	Wll1Loader loader(LanguageExpressions("dfkeife(*&*3\">><").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("dfkeife(*&*3\">><").symbols;
+	Wll1Loader loader(input_symbols);
 	LanguageExpressions str;
 	EXPECT_TRUE(loader.LoadString(str));
 }
 
 TEST(Wll1LoaderTest,ExpectLetter)
 {
-	Wll1Loader loader(LanguageExpressions("B").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("B").symbols;
+	Wll1Loader loader(input_symbols);
 	char c;
 	EXPECT_TRUE(loader.ExpectLetter(c));
 	EXPECT_TRUE(c=='B');
@@ -121,7 +135,8 @@ TEST(Wll1LoaderTest,ExpectLetter)
 
 TEST(Wll1LoaderTest,ExpectDigit)
 {
-	Wll1Loader loader(LanguageExpressions("8").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("8").symbols;
+	Wll1Loader loader(input_symbols);
 	char c;
 	EXPECT_TRUE(loader.ExpectDigit(c));
 	EXPECT_TRUE(c=='8');
@@ -129,7 +144,8 @@ TEST(Wll1LoaderTest,ExpectDigit)
 
 TEST(Wll1LoaderTest,ExpectCharacter)
 {
-	Wll1Loader loader(LanguageExpressions("&").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("&").symbols;
+	Wll1Loader loader(input_symbols);
 	Symbols c;
 	EXPECT_TRUE(loader.ExpectCharacter(c));
 	EXPECT_TRUE(c=='&');
@@ -137,7 +153,8 @@ TEST(Wll1LoaderTest,ExpectCharacter)
 
 TEST(Wll1LoaderTest,ExpectSpace)
 {
-	Wll1Loader loader(LanguageExpressions("\n").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("\n").symbols;
+	Wll1Loader loader(input_symbols);
 	char c;
 	EXPECT_TRUE(loader.ExpectSpace(c));
 	EXPECT_TRUE(c=='\n');
@@ -145,33 +162,38 @@ TEST(Wll1LoaderTest,ExpectSpace)
 
 TEST(Wll1LoaderTest,SkipSpaces)
 {
-	Wll1Loader loader(LanguageExpressions("\n\n \t").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("\n\n \t").symbols;
+	Wll1Loader loader(input_symbols);
 	EXPECT_TRUE(loader.SkipSpaces());
 }
 
 TEST(Wll1LoaderTest,AcceptSymbol)
 {
-	Wll1Loader loader(LanguageExpressions("^").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("^").symbols;
+	Wll1Loader loader(input_symbols);
 	Symbols symbol('^');
 	EXPECT_TRUE(loader.Accept(symbol));
 }
 
 TEST(Wll1LoaderTest,AcceptExpression)
 {
-	Wll1Loader loader(LanguageExpressions("abckdle").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("abckdle").symbols;
+	Wll1Loader loader(input_symbols);
 	LanguageExpressions expression("abckdle");
 	EXPECT_TRUE(loader.Accept(expression));
 }
 
 TEST(Wll1LoaderTest,Encount)
 {
-	Wll1Loader loader(LanguageExpressions("^").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("^").symbols;
+	Wll1Loader loader(input_symbols);
 	EXPECT_TRUE(loader.Encount('^'));
 }
 
 TEST(Wll1LoaderTest,GetSymbol)
 {
-	Wll1Loader loader(LanguageExpressions("c").symbols);
+	vector<Symbols> input_symbols = LanguageExpressions("c").symbols;
+	Wll1Loader loader(input_symbols);
 	EXPECT_TRUE(loader.GetSymbol()=='c');
 }
 
