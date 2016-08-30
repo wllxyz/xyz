@@ -27,7 +27,7 @@ public:
 	virtual void DisplayStates();
 public:
 	//input stream --> input symbols
-	virtual bool LoadInput(istream& ins);
+	virtual bool LoadInput(istream& ins, vector<Symbols>& input_symbols);
 	//set symbols as input symbols
 	virtual void SetInput(const vector<Symbols>& symbols);
 	//设置文法开始符号

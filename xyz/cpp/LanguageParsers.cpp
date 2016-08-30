@@ -41,21 +41,21 @@ LanguageParsers::~LanguageParsers()
 }
 
 //加载输入流
-bool LanguageParsers::LoadInput(istream& ins)
+bool LanguageParsers::LoadInput(istream& ins, vector<Symbols>& input_symbols)
 {
 	if(ins.fail())
 	{
 		return false;
 	}
 
-	this->input_symbols.clear();
+	input_symbols.clear();
 
 	char c=ins.get();
 	if(!ins.eof())
 	{
 		do
 		{
-			this->input_symbols.push_back(Symbols(c));
+			input_symbols.push_back(Symbols(c));
 			c=ins.get();
 		}while(!ins.eof());
 	}
@@ -101,42 +101,12 @@ bool LanguageParsers::ParseAndTranslate()
 bool LanguageParsers::Process(istream& inf,ostream& outf)
 {
 	assert(!this->languages.source_rules.rules.empty());
-	this->SetStartSymbol(this->languages.source_rules.rules.front()->symbol);
+	vector<Symbols> input_symbols, output_symbols;
+	this->LoadInput(inf, input_symbols);
+	bool retval = this->Process(input_symbols, output_symbols, this->languages.source_rules.rules.front()->symbol);
+	outf<<output_symbols;
 
-	if(!this->is_analyzed)
-	{
-		if(this->AnalyzeLanguage())
-			this->is_analyzed = true;
-		else
-		{
-			cerr<<"analyzed language failed"<<endl;
-			return false;
-		}
-	}
-
-	if(!this->LoadInput(inf)) 
-	{
-		cerr<<"LoadInput failed"<<endl;
-		return false;
-	}
-	if(!this->ParseAndTranslate()) 
-	{
-		cerr<<"ParseAndTranslate failed"<<endl;
-		return false;
-	}
-
-	INFO("output_symbols="<<this->output_symbols);
-	vector<Symbols> result;
-	if(!SelfExplain(this->output_symbols,this->languages.translation_rules, result))
-	{
-		cerr<<"SelfExplain failed"<<endl;
-		return false;
-	}
-	outf<<result;
-	//当文法没有加载时不需要重新分析(加载文法后,调用文法分析)
-	this->is_analyzed = false;
-
-	return true;
+	return retval;
 }
 
 bool LanguageParsers::Process(const vector<Symbols>& input_symbols, vector<Symbols>& output_symbols, Symbols start_symbol)
@@ -186,7 +156,7 @@ bool LanguageParsers::AnalyzeLanguage()
 //从文法模板加载语言
 bool LanguageParsers::LoadLanguage(istream& ins)
 {
-	if(!this->LoadInput(ins))
+	if(!this->LoadInput(ins,this->input_symbols))
 	{
 		cerr<<"load input failed"<<endl;
 		return false;
