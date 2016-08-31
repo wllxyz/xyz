@@ -32,6 +32,8 @@ public:
 	virtual void SetInput(const vector<Symbols>& symbols);
 	//设置文法开始符号
 	virtual void SetStartSymbol(Symbols start_symbol);
+	//获得默认文法开始符号(第一条文法的root_symbol)
+	virtual Symbols GetDefaultStartSymbol();
 	//input symbols --> source parse grammar tree
 	virtual bool Parse()=0;
 	//source parse grammar tree --> destination parse grammar tree --> stand output ostream

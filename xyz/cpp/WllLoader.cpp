@@ -48,6 +48,8 @@ bool WllLoader::TestLanguage()
 	}
 
 	wll_xyz.SetInput(this->input_symbols);
+	wll_xyz.SetStartSymbol(wll_xyz.GetDefaultStartSymbol());
+
 	if(!wll_xyz.Parse())
 	{
 		ERROR("Test WLL language failed");

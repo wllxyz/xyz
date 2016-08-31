@@ -73,6 +73,15 @@ void LanguageParsers::SetStartSymbol(Symbols start_symbol)
 	this->start_symbol = start_symbol;
 }
 
+Symbols LanguageParsers::GetDefaultStartSymbol()
+{
+	if(this->languages.translation_rules.empty())
+	{
+		return Symbols::NULL_SYMBOL;
+	}
+	return this->languages.translation_rules.front().source_rule.symbol;
+}
+
 bool LanguageParsers::Translate()
 {
 	FOOT();
@@ -100,10 +109,11 @@ bool LanguageParsers::ParseAndTranslate()
 
 bool LanguageParsers::Process(istream& inf,ostream& outf)
 {
-	assert(!this->languages.source_rules.rules.empty());
+	Symbols start_symbol = this->GetDefaultStartSymbol();
+	assert(!(start_symbol == Symbols::NULL_SYMBOL));
 	vector<Symbols> input_symbols, output_symbols;
 	this->LoadInput(inf, input_symbols);
-	bool retval = this->Process(input_symbols, output_symbols, this->languages.source_rules.rules.front()->symbol);
+	bool retval = this->Process(input_symbols, output_symbols, start_symbol);
 	outf<<output_symbols;
 
 	return retval;
@@ -170,12 +180,6 @@ bool LanguageParsers::LoadLanguage(istream& ins)
 		return false;
 	}
 
-	if(!this->AnalyzeLanguage())
-	{
-		cerr<<"analyze language failed"<<endl;
-		return false;
-	}
-	this->is_analyzed = true;
 	return true;
 }
 

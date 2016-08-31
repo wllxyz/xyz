@@ -21,7 +21,6 @@ protected:
 
 //重载(继承)数据结构
 protected:
-	virtual bool AnalyzeLanguage();
 	virtual bool IsXyzLanguage(const vector<Symbols>& symbols);
 
 private:

@@ -71,9 +71,15 @@ bool LR1Parsers::IsAmbiguous(const vector< vector< TransformEdge > >& state_tran
 	return flag;
 }
 
-bool LR1Parsers::AnalyzeLanguage()
+//根据文法规则对输入符号流进行文法结构的分析,分析结果用文法分析树表示
+bool LR1Parsers::Parse()
 {
-	LanguageParsers::AnalyzeLanguage();
+	if(!this->AnalyzeLanguage())
+	{
+		cerr<<"analyze language failed"<<endl;
+		return false;
+	}
+
   	//根据文法自动生成文法预测分析表
 	vector< vector<TransformEdge> > state_transform_table;
 	GenerateStateTransformTable(this->languages.source_rules,state_transform_table,this->state_sets, this->start_symbol);
@@ -82,14 +88,9 @@ bool LR1Parsers::AnalyzeLanguage()
 	this->state_transform_table.clear();
 	ConvertStateTransformTable(state_transform_table,this->state_transform_table);
 	DEBUG_LOG("state_transform_table=\n"<<this->state_transform_table);
-	return true;
-}
 
-//根据文法规则对输入符号流进行文法结构的分析,分析结果用文法分析树表示
-bool LR1Parsers::Parse()
-{
 	//根据文法预测分析表分析文法,得到文法分析树
-  	return this->is_analyzed && LRParse(this->input_symbols,this->source_tree, this->state_transform_table,this->languages.source_rules.rules, this->state_sets, this->start_symbol);
+  	return LRParse(this->input_symbols,this->source_tree, this->state_transform_table,this->languages.source_rules.rules, this->state_sets, this->start_symbol);
 }
 
 bool LR1Parsers::IsXyzLanguage(const vector<Symbols>& symbols)
@@ -128,6 +129,8 @@ bool LR1Parsers::IsXyzLanguage(const vector<Symbols>& symbols)
 	}
 
 	wll_xyz.SetInput(symbols);
+	wll_xyz.SetStartSymbol(wll_xyz.GetDefaultStartSymbol());
+
 	return wll_xyz.Parse();
 #else
 	return LanguageParsers::IsXyzLanguage(symbols);
