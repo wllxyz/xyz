@@ -1,7 +1,7 @@
 #ifndef FIRST_SET_H
 #define FIRST_SET_H
 
-#include "LanguageGrammar.h"
+#include "LanguageIndex.h"
 #include <set>
 #include <map>
 using namespace std;
