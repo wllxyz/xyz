@@ -30,7 +30,7 @@ struct States
 	}
 	virtual bool operator< (const States& that) const
 	{
-		return (this->rule_no<that.rule_no || this->rule_no==that.rule_no && this->position<that.position);
+		return (this->rule_no<that.rule_no || (this->rule_no==that.rule_no && this->position<that.position));
 	}
 
 	bool IsReduceState() const

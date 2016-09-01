@@ -21,8 +21,13 @@ ostream& operator<< (ostream& o,const SearchStates& s)
 }
 
 //调用算法分析句法
-bool TopDownParsers::Parse()
+bool TopDownParsers::Parse(const std::vector<Symbols>& input_symbols, LanguageTree*& source_tree, Symbols start_symbol)
 {
+	if(!this->AnalyzeLanguage())
+	{
+		cerr<<"analyze language failed"<<endl;
+		return false;
+	}
 //输入字符流==>查阅词典==>单词流==>句法分析器的输入
 //<句法分析算法>
 //	构建词典
@@ -46,7 +51,7 @@ bool TopDownParsers::Parse()
 	INFO("start top-down parse");
 	vector<SearchStates> success_states;
 	stack<SearchStates> state_stack;					//状态栈
-	SearchStates state(LanguageExpressions(this->start_symbol),0);		//当前状态
+	SearchStates state(LanguageExpressions(start_symbol),0);		//当前状态
 	bool flag=false;							//成功匹配标志
 	unsigned long int steps=0;						//记录分析的步数
 	int max_matched_length=0;						//for error analyze
@@ -63,7 +68,7 @@ bool TopDownParsers::Parse()
 		steps++;
 
 //		如果当前状态C是一个空符号链表,而且当前词语的位置恰好处于句子末尾,那么算法成功返回
-		if(state.position==this->input_symbols.size() && state.expression.symbols.empty())
+		if(state.position==input_symbols.size() && state.expression.symbols.empty())
 		{
 			//成功匹配！
 			success_states.push_back(state);
@@ -77,9 +82,9 @@ bool TopDownParsers::Parse()
 //		如果当前状态C是一个空符号链表,但是当前词语的位置不是处于句子末尾
 //		或者当前状态C不是一个空符号链表,当前词语的位置已经处于句子末尾
 //		则跳过这次循环,(抛弃这个状态)分析下一个状态
-		if(state.expression.symbols.empty() || state.position==this->input_symbols.size()) continue;
+		if(state.expression.symbols.empty() || state.position==input_symbols.size()) continue;
 		Symbols current_symbol = state.expression.symbols.front();
-		Symbols current_input_symbol = this->input_symbols[state.position];
+		Symbols current_input_symbol = input_symbols[state.position];
 //		如果C中符号表的第一个符号和输入符号匹配
 		if(current_input_symbol == current_symbol)
 		{
@@ -166,10 +171,10 @@ bool TopDownParsers::Parse()
 			{
 				cout<<"solution "<<i<<endl;
 				cout<<success_states[i]<<endl;
-				ConstructTreeByRules(this->source_tree,success_states[i].rules,this->languages.source_rules.rules,LEFT_REDUCE);
-				DisplayTree(cout,this->source_tree,0);
+				ConstructTreeByRules(source_tree,success_states[i].rules,this->languages.source_rules.rules,LEFT_REDUCE);
+				DisplayTree(cout,source_tree,0);
 				cout<<endl;
-				cout<<this->source_tree<<endl;
+				cout<<source_tree<<endl;
 			}
 			int choose;
 			cout<<"please choose a solution:";
@@ -179,7 +184,7 @@ bool TopDownParsers::Parse()
 		}
 		//根据使用的规则构造文法分析树
 		INFO(">>>ConstructTreeByRules");
-		ConstructTreeByRules(this->source_tree,state.rules,this->languages.source_rules.rules,LEFT_REDUCE);
+		ConstructTreeByRules(source_tree,state.rules,this->languages.source_rules.rules,LEFT_REDUCE);
 		INFO("<<<ConstructTreeByRules");
 	}
 	else
@@ -188,16 +193,16 @@ bool TopDownParsers::Parse()
 		cout<<"parse failed"<<endl;
 		cout<<"the max matched state:"<<endl;
 		cout<<max_matched_state<<endl;
-		cout<<"the current input symbol = "<<this->input_symbols[max_matched_state.position]<<endl;
-		for(size_t i=0; i<this->input_symbols.size(); i++)
+		cout<<"the current input symbol = "<<input_symbols[max_matched_state.position]<<endl;
+		for(size_t i=0; i<input_symbols.size(); i++)
 		{
 			if(i==max_matched_state.position)
 			{
-				cout<<"["<<this->input_symbols[i]<<"]";
+				cout<<"["<<input_symbols[i]<<"]";
 			}
 			else
 			{
-				cout<<this->input_symbols[i];
+				cout<<input_symbols[i];
 			}
 		}
 		cout<<endl;

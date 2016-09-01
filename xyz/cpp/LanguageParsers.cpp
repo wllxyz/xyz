@@ -12,8 +12,6 @@ using namespace std;
 LanguageParsers::LanguageParsers()
 : first_calculator(languages.source_rules)
 {
-        this->source_tree=this->destination_tree=0;
-	this->is_analyzed = false;
 	//加载默认的WLL0分析器规则
 	//this->LoadLanguage();
 }
@@ -22,22 +20,13 @@ LanguageParsers::LanguageParsers(const LanguageParsers& that)
 : languages(that.languages), 
 first_calculator(languages.source_rules)
 {
-	this->source_tree=this->destination_tree=0;
-	this->is_analyzed = false;
+
 }
 
 //析构函数
 LanguageParsers::~LanguageParsers()
 {
-	//销毁源语言文法分析树
-	if(this->source_tree)
-	    DestroyTree(this->source_tree);
-	this->source_tree=0;
 
-	//销毁目标语言文法分析树
-	if(this->destination_tree)
-		DestroyTree(this->destination_tree);
-	this->destination_tree=0;
 }
 
 //加载输入流
@@ -63,16 +52,6 @@ bool LanguageParsers::LoadInput(istream& ins, vector<Symbols>& input_symbols)
 	return true;
 }
 
-void LanguageParsers::SetInput(const vector<Symbols>& symbols)
-{
-	this->input_symbols = symbols;
-}
-
-void LanguageParsers::SetStartSymbol(Symbols start_symbol)
-{
-	this->start_symbol = start_symbol;
-}
-
 Symbols LanguageParsers::GetDefaultStartSymbol()
 {
 	if(this->languages.translation_rules.empty())
@@ -82,37 +61,12 @@ Symbols LanguageParsers::GetDefaultStartSymbol()
 	return this->languages.translation_rules.front().source_rule.symbol;
 }
 
-bool LanguageParsers::Translate()
-{
-	FOOT();
-	if(this->destination_tree) 
-	{
-		DestroyTree(this->destination_tree);
-		this->destination_tree = NULL;
-	}
-	//通过文法模板的分析树结构来构造规则库:源语言产生式,目标语言产生式,规则之间的对应.
-	if(!TranslateTree(this->source_tree,this->destination_tree,this->languages.destination_rules.rules)) return false;
-	//生成规则的内部表示
-	this->output_symbols.clear();
-	DisplayTreeLeaves(this->output_symbols,this->destination_tree);
-	return true;
-}
-
-//实现文法模板结构的翻译
-bool LanguageParsers::ParseAndTranslate()
-{
-	FOOT();
-	if(!this->Parse()) return false;
-	if(!this->Translate()) return false;
-	return true;
-}
-
 bool LanguageParsers::Process(istream& inf,ostream& outf)
 {
 	Symbols start_symbol = this->GetDefaultStartSymbol();
 	assert(!(start_symbol == Symbols::NULL_SYMBOL));
 	vector<Symbols> input_symbols, output_symbols;
-	this->LoadInput(inf, input_symbols);
+	inf >> input_symbols;
 	bool retval = this->Process(input_symbols, output_symbols, start_symbol);
 	outf<<output_symbols;
 
@@ -121,28 +75,36 @@ bool LanguageParsers::Process(istream& inf,ostream& outf)
 
 bool LanguageParsers::Process(const vector<Symbols>& input_symbols, vector<Symbols>& output_symbols, Symbols start_symbol)
 {
-	this->SetStartSymbol(start_symbol);
-	this->SetInput(input_symbols);
+	LanguageTree* source_tree = NULL;
+	LanguageTree* destination_tree = NULL;
 
-	if(!this->AnalyzeLanguage())
+	if(!this->Parse(input_symbols, source_tree, start_symbol))
 	{
-			cerr<<"analyzed language failed"<<endl;
-			return false;
-	}
-
-	if(!this->ParseAndTranslate())
-	{
-		cerr<<"ParseAndTranslate failed"<<endl;
+		DestroyTree(source_tree);
+		//DestroyTree(destination_tree);
 		return false;
 	}
 
-	INFO("output_symbols="<<this->output_symbols);
+	if(!TranslateTree(source_tree, destination_tree, this->languages.destination_rules.rules))
+	{
+		DestroyTree(source_tree);
+		DestroyTree(destination_tree);
+		return false;
+	}
 
-	if(!SelfExplain(this->output_symbols,this->languages.translation_rules, output_symbols))
+	vector<Symbols> translate_output_symbols;
+	DisplayTreeLeaves(translate_output_symbols, destination_tree);
+
+	INFO("translate_output_symbols="<<translate_output_symbols);
+
+	if(!SelfExplain(translate_output_symbols, this->languages.translation_rules, output_symbols))
 	{
 		cerr<<"SelfExplain failed"<<endl;
 		return false;
 	}
+
+	DestroyTree(source_tree);
+	DestroyTree(destination_tree);
 
 	return true;
 }
@@ -160,13 +122,11 @@ bool LanguageParsers::AnalyzeLanguage()
 //从文法模板加载语言
 bool LanguageParsers::LoadLanguage(istream& ins)
 {
-	if(!this->LoadInput(ins,this->input_symbols))
-	{
-		cerr<<"load input failed"<<endl;
-		return false;
-	}
+	vector<Symbols> input_symbols;
 
-	Wll1Loader loader(this->input_symbols);
+	ins >> input_symbols;
+
+	Wll1Loader loader(input_symbols);
 	if(!loader.LoadWll(this->languages.translation_rules))
 	{
 		cerr<<"LL(1) parser load language failed"<<endl;

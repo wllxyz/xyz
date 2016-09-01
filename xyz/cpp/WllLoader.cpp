@@ -47,10 +47,8 @@ bool WllLoader::TestLanguage()
 		is_wll_xyz_loaded = true;
 	}
 
-	wll_xyz.SetInput(this->input_symbols);
-	wll_xyz.SetStartSymbol(wll_xyz.GetDefaultStartSymbol());
-
-	if(!wll_xyz.Parse())
+	LanguageTree* source_tree = NULL;
+	if(!wll_xyz.Parse(this->input_symbols, source_tree, wll_xyz.GetDefaultStartSymbol()))
 	{
 		ERROR("Test WLL language failed");
 		TERM_ERROR("Test WLL language failed");
