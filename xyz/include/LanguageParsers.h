@@ -26,8 +26,6 @@ public:
 	virtual void DisplayLanguage();
 	virtual void DisplayStates();
 public:
-	//input stream --> input symbols
-	virtual bool LoadInput(istream& ins, vector<Symbols>& input_symbols);
 	//获得默认文法开始符号(第一条文法的root_symbol)
 	virtual Symbols GetDefaultStartSymbol();
 	//input symbols --> source parse grammar tree

@@ -29,29 +29,6 @@ LanguageParsers::~LanguageParsers()
 
 }
 
-//加载输入流
-bool LanguageParsers::LoadInput(istream& ins, vector<Symbols>& input_symbols)
-{
-	if(ins.fail())
-	{
-		return false;
-	}
-
-	input_symbols.clear();
-
-	char c=ins.get();
-	if(!ins.eof())
-	{
-		do
-		{
-			input_symbols.push_back(Symbols(c));
-			c=ins.get();
-		}while(!ins.eof());
-	}
-
-	return true;
-}
-
 Symbols LanguageParsers::GetDefaultStartSymbol()
 {
 	if(this->languages.translation_rules.empty())
