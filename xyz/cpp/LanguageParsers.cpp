@@ -10,15 +10,13 @@ using namespace std;
 
 //LanguageParsers
 LanguageParsers::LanguageParsers()
-: first_calculator(languages.source_rules)
 {
 	//加载默认的WLL0分析器规则
 	//this->LoadLanguage();
 }
 
 LanguageParsers::LanguageParsers(const LanguageParsers& that)
-: languages(that.languages), 
-first_calculator(languages.source_rules)
+: languages(that.languages)
 {
 
 }
@@ -90,7 +88,6 @@ bool LanguageParsers::Process(const vector<Symbols>& input_symbols, vector<Symbo
 bool LanguageParsers::AnalyzeLanguage()
 {
 	this->languages.Initialize();
-	this->first_calculator.Initialize();
 
 	return true;
 }

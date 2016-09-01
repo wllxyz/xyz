@@ -101,7 +101,7 @@ bool TopDownParsers::Parse(const std::vector<Symbols>& input_symbols, LanguageTr
 //			否则,抛弃这个状态,分析下一个状态.(什么也不做)
 
 			//下一个输入符号应该在当前扩展的变量的first集合中,否则跳过(终止)这个分析状态
-			if(this->first_calculator.Select(current_symbol, current_input_symbol))
+			if(this->languages.first_calculator.Select(current_symbol, current_input_symbol))
 			{
 				vector<size_t> rule_nos;
 				if(this->languages.source_rules.GetRuleNosBySymbol(current_symbol, rule_nos))
@@ -124,7 +124,7 @@ bool TopDownParsers::Parse(const std::vector<Symbols>& input_symbols, LanguageTr
 						{
 							Symbols entend_first_symbol = entend_expression.symbols.front();
 
-							if(this->first_calculator.Select(entend_first_symbol, current_input_symbol))
+							if(this->languages.first_calculator.Select(entend_first_symbol, current_input_symbol))
 							{
 								SearchStates new_state;
 								new_state.expression=entend_expression+state.expression;

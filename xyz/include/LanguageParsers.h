@@ -41,7 +41,6 @@ public:
 	virtual bool LoadLanguage(istream& ins);
 protected:
 	LanguageGrammar languages;
-	FirstCalculator first_calculator;
 };//end of LanguageParsers
 
 #endif //LANGUAGE_PARSERS_H

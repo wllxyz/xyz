@@ -16,6 +16,7 @@ void LanguageGrammar::Initialize()
 		this->destination_rules.rule_index.insert(pair<Symbols,size_t>(it->destination_rule.symbol, i));
 		++i;
 	}
+	this->first_calculator.Initialize();
 }
 
 ostream& operator<< (ostream& o, const LanguageGrammar& lg)
