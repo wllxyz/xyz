@@ -93,50 +93,6 @@ bool LR1Parsers::Parse()
   	return LRParse(this->input_symbols,this->source_tree, this->state_transform_table,this->languages.source_rules.rules, this->state_sets, this->start_symbol);
 }
 
-bool LR1Parsers::IsXyzLanguage(const vector<Symbols>& symbols)
-{
-#ifdef	LR1WLLXYZ
-	static LR1Parsers wll_xyz;
-	static bool is_wll_xyz_loaded = false;
-
-	//avoid dead loop of recurse call itself
-	if(this==&wll_xyz)
-	{
-		//cerr<<"wll_xyz call IsXyzLanguage ..."<<endl;
-		return LanguageParsers::IsXyzLanguage(symbols);
-	}
-
-	if(is_wll_xyz_loaded == false)
-	{
-		char xll_xyz_grammar_filename[Wll::Tool::LogInnerTypes::MAX_FILE_NAME_LENGTH];
-		GetProcessDir(xll_xyz_grammar_filename,sizeof(xll_xyz_grammar_filename));
-		strcat(xll_xyz_grammar_filename,"/../data/wll.xyz");
-
-		ifstream xll_xyz_grammar_file(xll_xyz_grammar_filename);
-		if(xll_xyz_grammar_file.fail())
-		{
-			cerr<<"open grammar file "<<xll_xyz_grammar_filename<<" failed"<<endl;
-			return false;
-		}
-
-		if( !wll_xyz.LoadLanguage(xll_xyz_grammar_file) )
-		{
-			cerr<<"load "<<xll_xyz_grammar_filename<<" failed"<<endl;
-			return false;
-		}
-
-		is_wll_xyz_loaded = true;
-	}
-
-	wll_xyz.SetInput(symbols);
-	wll_xyz.SetStartSymbol(wll_xyz.GetDefaultStartSymbol());
-
-	return wll_xyz.Parse();
-#else
-	return LanguageParsers::IsXyzLanguage(symbols);
-#endif	//LR1WLLXYZ
-}
-
 void LR1Parsers::DisplayStates()
 {
 	int n = 0;

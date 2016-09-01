@@ -41,7 +41,6 @@ public:
 	//input symbols --> output symbols
 	virtual bool ParseAndTranslate();
 protected:
-	virtual bool IsXyzLanguage(const vector<Symbols>& symbols);
 	//calculate first sets of symbols
 	virtual bool AnalyzeLanguage();
 public:

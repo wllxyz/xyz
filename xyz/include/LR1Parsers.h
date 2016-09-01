@@ -19,10 +19,6 @@ protected:
 	//判定文法是否存在移近规约冲突（文法二义性判断）
 	virtual bool IsAmbiguous(const vector< vector< TransformEdge > >& state_transform_table, const vector< StateSets<LR1States> >& state_sets);
 
-//重载(继承)数据结构
-protected:
-	virtual bool IsXyzLanguage(const vector<Symbols>& symbols);
-
 private:
 	StateTransformTable state_transform_table;
 	vector< StateSets<LR1States> > state_sets;

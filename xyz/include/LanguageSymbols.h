@@ -2,7 +2,7 @@
 #define	LANGUAGE_SYMBOLS_H
 
 #include "StringTable.h"
-#include <ostream>
+#include <iostream>
 #include <vector>
 using namespace std;
 using namespace Wll;
@@ -89,6 +89,7 @@ public:
 	static const Symbols POP;				//参数栈顶值出栈到变量
 };
 
+istream& operator>> (istream& i,  vector<Symbols>& symbols);
 ostream& operator<< (ostream& o, const Symbols& symbol);
 ostream& operator<< (ostream& o, const vector<Symbols>& symbols);
 int Split(const vector<Symbols>&symbols, Symbols seperator, vector< vector<Symbols> >& fields);

@@ -147,12 +147,6 @@ bool LanguageParsers::Process(const vector<Symbols>& input_symbols, vector<Symbo
 	return true;
 }
 
-bool LanguageParsers::IsXyzLanguage(const vector<Symbols>& symbols)
-{
-	//not check inner wll grammar now
-	return ( !symbols.empty() && symbols.front()==Symbols::REMARK_WLL0 );
-}
-
 //calculate first sets of symbols
 bool LanguageParsers::AnalyzeLanguage()
 {

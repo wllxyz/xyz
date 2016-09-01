@@ -161,6 +161,23 @@ void Symbols::Dump(ostream& o) const
 	}
 }
 
+istream& operator>> (istream&ins, vector<Symbols>& symbols)
+{
+	symbols.clear();
+
+	char c=ins.get();
+	if(!ins.eof())
+	{
+		do
+		{
+			symbols.push_back(Symbols(c));
+			c=ins.get();
+		}while(!ins.eof());
+	}
+
+	return ins;
+}
+
 ostream& operator<< (ostream& o, const Symbols& symbol)
 {
 	symbol.Display(o);
