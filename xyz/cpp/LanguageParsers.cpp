@@ -84,15 +84,6 @@ bool LanguageParsers::Process(const vector<Symbols>& input_symbols, vector<Symbo
 	return true;
 }
 
-//calculate first sets of symbols
-bool LanguageParsers::AnalyzeLanguage()
-{
-	this->languages.Initialize();
-
-	return true;
-}
-
-
 //从文法模板加载语言
 bool LanguageParsers::LoadLanguage(istream& ins)
 {
@@ -107,6 +98,8 @@ bool LanguageParsers::LoadLanguage(istream& ins)
 		loader.ShowErrorMessage();
 		return false;
 	}
+
+	this->languages.Initialize();
 
 	return true;
 }

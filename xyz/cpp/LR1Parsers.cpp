@@ -74,12 +74,6 @@ bool LR1Parsers::IsAmbiguous(const vector< vector< TransformEdge > >& state_tran
 //根据文法规则对输入符号流进行文法结构的分析,分析结果用文法分析树表示
 bool LR1Parsers::Parse(const std::vector<Symbols>& input_symbols, LanguageTree*& source_tree, Symbols start_symbol)
 {
-	if(!this->AnalyzeLanguage())
-	{
-		cerr<<"analyze language failed"<<endl;
-		return false;
-	}
-
   	//根据文法自动生成文法预测分析表
 	vector< vector<TransformEdge> > state_transform_table;
 	GenerateStateTransformTable(this->languages.source_rules,state_transform_table,this->state_sets, start_symbol);

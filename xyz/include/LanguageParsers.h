@@ -31,9 +31,6 @@ public:
 	//input symbols --> source parse grammar tree
 	virtual bool Parse(const std::vector<Symbols>& input_symbols, LanguageTree*& source_tree, Symbols start_symbol) = 0;
 	//source parse grammar tree --> destination parse grammar tree --> stand output ostream
-protected:
-	//calculate first sets of symbols
-	virtual bool AnalyzeLanguage();
 public:
 	//load default wll0 language
 	virtual bool LoadLanguage();
