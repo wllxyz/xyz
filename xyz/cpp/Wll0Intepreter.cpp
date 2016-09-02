@@ -8,7 +8,7 @@
 
 #include "Wll0Intepreter.h"
 #include "Wll0Loader.h"
-#include "WllSingleton.h"
+#include "LanguageAlgorithm.h"
 #include <stack>
 #include <queue>
 #include "WllTrace.h"
@@ -18,17 +18,7 @@ bool Wll0Intepreter::IntepretWll(const std::vector<Symbols>& input_symbols, std:
 {
 	if( !input_symbols.empty() && input_symbols.front()==Symbols::REMARK_WLL0 )
 	{
-		this->compiler->languages.translation_rules.clear();
-		Wll0Loader loader(input_symbols);
-		if(!loader.Load( this->compiler->languages))
-		{
-			loader.ShowErrorMessage();
-			return false;
-		}
-		else
-		{
-			return true;
-		}
+		return LoadLanguage(input_symbols, this->compiler->languages);
 	}
 	else
 	{

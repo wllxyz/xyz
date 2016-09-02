@@ -16,6 +16,7 @@
 #include <iostream>
 #include <cstring>
 #include "Wll1Intepreter.h"
+#include "Wll0Intepreter.h"
 using namespace std;
 
 int main(int argc,char** argv)
