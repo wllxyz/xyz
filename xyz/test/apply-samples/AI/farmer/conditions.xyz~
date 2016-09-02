@@ -1,0 +1,16 @@
+<filter>-->"FWSC"==><filter>-->"FWSC";
+<filter>-->"FWSc"==><filter>-->"FWSc";
+<filter>-->"FWsC"==><filter>-->"FWsC";
+<filter>-->"FWsc"==><filter>-->"";
+<filter>-->"FwSC"==><filter>-->"FwSC";
+<filter>-->"FwSc"==><filter>-->"FwSc";
+<filter>-->"FwsC"==><filter>-->"";
+<filter>-->"Fwsc"==><filter>-->"Fwsc";
+<filter>-->"fWSC"==><filter>-->"fWSC";
+<filter>-->"fWSc"==><filter>-->"";
+<filter>-->"fWsC"==><filter>-->"fWsC";
+<filter>-->"fWsc"==><filter>-->"";
+<filter>-->"fwSC"==><filter>-->"";
+<filter>-->"fwSc"==><filter>-->"fwSc";
+<filter>-->"fwsC"==><filter>-->"";
+<filter>-->"fwsc"==><filter>-->"fwsc";
