@@ -120,3 +120,10 @@ void Wll0Loader::ShowErrorMessage()
 
 }
 
+bool Wll0Loader::TestLanguage()
+{
+	static LanguageGrammar wll_xyz_languages;
+	static bool is_wll_xyz_loaded = false;
+
+	return WllLoader::TestLanguage(wll_xyz_languages, is_wll_xyz_loaded);
+}

@@ -16,6 +16,8 @@ public:
 	Wll0Loader(const std::vector<Symbols>& input_symbols);
 	virtual bool LoadWll(std::vector<LanguageTranslations>& translations);
 	virtual void ShowErrorMessage();
+	//Wll0Loader和Wll1Loader的TestLanguage的实现完全一样，但是静态变量缓存的文法不同
+	virtual bool TestLanguage();
 };
 
 #endif /* WLL0LOADER_H_ */

@@ -19,6 +19,8 @@ public:
 	Wll1Loader(const vector<Symbols>& input_symbols);
 	virtual bool LoadWll(vector<LanguageTranslations>& translations);
 	virtual void ShowErrorMessage();
+	//Wll0Loader和Wll1Loader的TestLanguage的实现完全一样，但是静态变量缓存的文法不同
+	virtual bool TestLanguage();
 protected:
 	//Load* 函数一般都含有比较复杂的语法成分,当匹配输入的符号串时返回true,不匹配返回false; 不匹配时不消耗输入符号
 	bool LoadTranslation(LanguageTranslations& translation);

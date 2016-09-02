@@ -27,11 +27,8 @@ bool WllLoader::Load(LanguageGrammar& languages)
 	return true;
 }
 
-bool WllLoader::TestLanguage()
+bool WllLoader::TestLanguage(LanguageGrammar& wll_xyz_languages, bool& is_wll_xyz_loaded)
 {
-	static LanguageGrammar wll_xyz_languages;
-	static bool is_wll_xyz_loaded = false;
-
 	if(is_wll_xyz_loaded == false)
 	{
 		char dir[Wll::Tool::LogInnerTypes::MAX_FILE_NAME_LENGTH];
@@ -39,7 +36,11 @@ bool WllLoader::TestLanguage()
 		string wll_xyz_grammar_filename = string(dir) + "/../data/" + this->grammar_file_name;
 
 		//LanguageParser instance will call Wll1Loader.LoadWll to LoadLanguage, it must NOT call TestLanguage()
-		LoadLanguage(wll_xyz_grammar_filename.c_str(), wll_xyz_languages, false, false);
+		if(!LoadLanguage(wll_xyz_grammar_filename.c_str(), wll_xyz_languages, false, false))
+		{
+			ERROR("Load wll_xyz_grammar_filename["<<wll_xyz_grammar_filename<<"] failed");
+			return false;
+		}
 
 		is_wll_xyz_loaded = true;
 	}
@@ -52,6 +53,7 @@ bool WllLoader::TestLanguage()
 		TERM_ERROR("Test WLL language failed");
 		return false;
 	}
+	DestroyTree(source_tree);
 	return true;
 }
 

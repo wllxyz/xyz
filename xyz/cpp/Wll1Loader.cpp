@@ -460,3 +460,11 @@ void Wll1Loader::ShowErrorMessage()
 			cerr<<this->input_symbols[i];
 	}
 }
+
+bool Wll1Loader::TestLanguage()
+{
+	static LanguageGrammar wll_xyz_languages;
+	static bool is_wll_xyz_loaded = false;
+
+	return WllLoader::TestLanguage(wll_xyz_languages, is_wll_xyz_loaded);
+}
