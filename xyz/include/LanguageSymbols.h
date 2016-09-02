@@ -79,6 +79,7 @@ public:
 	static const Symbols OR;				//或
 	static const Symbols NOT;				//非
 	static const Symbols SHELL;				//执行shell命令
+	static const Symbols CALL;			//执行call命令
 	//支持变量存储
     static const Symbols DEF;				//变量定义
 	static const Symbols SET;				//变量赋值,如果变量之前没有定义则自动定义

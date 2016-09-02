@@ -42,6 +42,7 @@ const Symbols Symbols::AND(REMARK_SYMBOL,"$AND");
 const Symbols Symbols::OR(REMARK_SYMBOL,"$OR");
 const Symbols Symbols::NOT(REMARK_SYMBOL,"$NOT");
 const Symbols Symbols::SHELL(REMARK_SYMBOL,"$SHELL");
+const Symbols Symbols::CALL(REMARK_SYMBOL,"$CALL");
 //支持变量存储
 const Symbols Symbols::DEF(REMARK_SYMBOL,"$DEF");
 const Symbols Symbols::SET(REMARK_SYMBOL,"$SET");

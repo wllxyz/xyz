@@ -492,6 +492,21 @@ bool EvalCommand::Intepret(std::vector<Symbols>& result)
 	return this->intepreter->IntepretWll(this->parameters[1], result);
 }
 
+CallCommand::CallCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool CallCommand::Intepret(std::vector<Symbols>& result)
+{
+	//($CALL <function_name> <parameter>)
+	assert(this->parameters.size()==3);
+	assert(this->parameters[1].size()==1);
+	assert(this->parameters[1][0].IsVariable());
+
+	return this->intepreter->compiler->Process(this->parameters[2], result,this->parameters[1][0]);
+}
 
 WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 {
@@ -590,6 +605,10 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	else if(cmd == Symbols::EVAL)
 	{
 		command = new EvalCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::CALL)
+	{
+		command = new CallCommand(cmd,parameter_fields,intepreter);
 	}
 
 	return command;
