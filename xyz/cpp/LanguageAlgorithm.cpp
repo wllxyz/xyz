@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <stack>
 #include <queue>
+#include <fstream>
 #include "WllTrace.h"
 #include "Wll0Intepreter.h"
 #include "Wll1Intepreter.h"
@@ -903,4 +904,23 @@ bool LoadLanguage(const std::vector<Symbols>& input_symbols, LanguageGrammar& la
 	return retval;
 }
 
+bool LoadLanguage(std::istream& input_stream, LanguageGrammar& languages)
+{
+	vector<Symbols> input_symbols;
+	input_stream >> input_symbols;
 
+	return LoadLanguage(input_symbols, languages);
+}
+
+bool LoadLanguage(const char* grammar_filename, LanguageGrammar& languages)
+{
+	ifstream grammar_file(grammar_filename);
+	if(grammar_file.fail())
+	{
+		cerr<<"open grammar file["<<grammar_filename<<"] failed"<<endl;
+		return false;
+	}
+
+	INFO("Loading grammar file["<<grammar_filename<<"]");
+	return LoadLanguage(grammar_file, languages);
+}

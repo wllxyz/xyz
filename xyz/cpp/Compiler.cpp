@@ -32,43 +32,18 @@ bool Compiler::LoadLanguage()
 	strcat(grammar_filename,"/../");
 	strcat(grammar_filename, GRAMMAR_FILE_NAME);
 
-	return this->LoadLanguage(grammar_filename);
+	return ::LoadLanguage(grammar_filename, this->languages);
 }
 
 bool Compiler::LoadLanguage(const char* grammar_filename)
 {
-	ifstream grammar_file(grammar_filename);
-	if(grammar_file.fail())
-	{
-		cerr<<"open grammar file["<<grammar_filename<<"] failed"<<endl;
-		return false;
-	}
-
-	return this->LoadLanguage(grammar_file);
+	return ::LoadLanguage(grammar_filename, this->languages);
 }
 
 bool Compiler::LoadLanguage(std::istream& input_stream)
 {
-	vector<Symbols> input_symbols;
-	input_stream >> input_symbols;
-
-	return this->LoadLanguage(input_symbols);
+	return  ::LoadLanguage(input_stream, this->languages);
 }
-
-bool Compiler::LoadLanguage(const vector<Symbols>& input_symbols)
-{
-	this->languages.translation_rules.clear();
-	Wll1Loader loader(input_symbols);
-	if(!loader.Load(this->languages))
-	{
-		cerr<<"LL(1) parser load language failed"<<endl;
-		loader.ShowErrorMessage();
-		return false;
-	}
-
-	return true;
-}
-
 
 bool Compiler::Process(istream& inf,ostream& outf)
 {

@@ -27,9 +27,8 @@ public:
 public:
 	//加载wll语言文法
 	virtual bool LoadLanguage();
-	virtual bool LoadLanguage(const char* input_filename);
+	virtual bool LoadLanguage(const char* grammar_file);
 	virtual bool LoadLanguage(std::istream& input_stream);
-	virtual bool LoadLanguage(const std::vector<Symbols>& input_symbols);
 public:
 	virtual bool Process(std::istream& inf, std::ostream& outf);
 	virtual bool Process(const std::vector<Symbols>& input_symbols, std::vector<Symbols>& output_symbols, Symbols start_symbol);

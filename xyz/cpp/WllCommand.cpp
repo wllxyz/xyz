@@ -163,7 +163,7 @@ AddTranslationsCommand::AddTranslationsCommand(Symbols cmd, std::vector< std::ve
 bool AddTranslationsCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
-	return LoadLanguage(this->parameters[1], this->intepreter->compiler->languages);
+	return LoadLanguage(this->parameters[1], this->intepreter->compiler->languages, true);
 }
 
 CondCommand::CondCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
