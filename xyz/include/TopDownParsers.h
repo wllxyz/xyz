@@ -47,7 +47,7 @@ class TopDownParsers: public LanguageParsers
 public:
 	TopDownParsers(Compiler* compiler) : LanguageParsers(compiler) { }
 	//调用算法分析句法
-	virtual bool Parse(LanguageGrammar& languages, const std::vector<Symbols>& input_symbols, LanguageTree*& source_tree, Symbols start_symbol);
+	virtual bool Parse(const LanguageGrammar& languages, const std::vector<Symbols>& input_symbols, LanguageTree*& source_tree, Symbols start_symbol);
 };
 
 #endif	//TOPDOWN_PARSERS_H

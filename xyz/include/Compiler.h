@@ -32,6 +32,8 @@ public:
 public:
 	virtual bool Process(std::istream& inf, std::ostream& outf);
 	virtual bool Process(const std::vector<Symbols>& input_symbols, std::vector<Symbols>& output_symbols, Symbols start_symbol);
+	virtual bool Process(const LanguageGrammar& languages, const std::vector<Symbols>& input_symbols, std::vector<Symbols>& output_symbols, Symbols start_symbol);
+	virtual bool Process(const std::string& grammar_file_name, const std::vector<Symbols>& input_symbols, std::vector<Symbols>& output_symbols, Symbols start_symbol);
 public:
 	//for debug display languages
 	virtual void DisplayLanguage();

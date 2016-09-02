@@ -18,8 +18,8 @@ class FirstCalculator
 {
 public:
 	FirstCalculator(const LanguageIndex& language);
-	bool First(Symbols e, set<Symbols>& result);
-	bool Select(Symbols e, Symbols input_symbol);
+	bool First(Symbols e, set<Symbols>& result) const;
+	bool Select(Symbols e, Symbols input_symbol) const;
 	void Initialize();
 private:
 	const LanguageIndex& language;

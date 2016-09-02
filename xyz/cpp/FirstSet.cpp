@@ -136,7 +136,7 @@ void FirstCalculator::Initialize()
 	this->initialized = true;
 }
 
-bool FirstCalculator::First(Symbols e, set<Symbols>& result)
+bool FirstCalculator::First(Symbols e, set<Symbols>& result) const
 {
 	if(this->initialized)
 	{
@@ -150,7 +150,7 @@ bool FirstCalculator::First(Symbols e, set<Symbols>& result)
 	}
 }
 
-bool FirstCalculator::Select(Symbols e, Symbols input_symbol)
+bool FirstCalculator::Select(Symbols e, Symbols input_symbol) const
 {
 	set<Symbols> result;
 	bool null_able = this->First(e,result);

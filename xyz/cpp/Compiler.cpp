@@ -59,18 +59,23 @@ bool Compiler::Process(istream& inf,ostream& outf)
 
 bool Compiler::Process(const vector<Symbols>& input_symbols, vector<Symbols>& output_symbols, Symbols start_symbol)
 {
+	return this->Process(this->languages, input_symbols, output_symbols, start_symbol);
+}
+
+bool Compiler::Process(const LanguageGrammar& languages, const std::vector<Symbols>& input_symbols, std::vector<Symbols>& output_symbols, Symbols start_symbol)
+{
 	LanguageTree* source_tree = NULL;
 	LanguageTree* destination_tree = NULL;
 
 	LanguageParsers* parser = this->parser_strategy.Get();
-	if(!parser->Parse(this->languages, input_symbols, source_tree, start_symbol))
+	if(!parser->Parse(languages, input_symbols, source_tree, start_symbol))
 	{
 		DestroyTree(source_tree);
 		INFO("Parse failed");
 		return false;
 	}
 
-	if(!TranslateTree(source_tree, destination_tree, this->languages.destination_rules.rules))
+	if(!TranslateTree(source_tree, destination_tree, languages.destination_rules.rules))
 	{
 		DestroyTree(source_tree);
 		DestroyTree(destination_tree);
@@ -96,6 +101,18 @@ bool Compiler::Process(const vector<Symbols>& input_symbols, vector<Symbols>& ou
 	DestroyTree(destination_tree);
 
 	return true;
+}
+
+bool Compiler::Process(const std::string& grammar_file_name, const std::vector<Symbols>& input_symbols, std::vector<Symbols>& output_symbols, Symbols start_symbol)
+{
+	LanguageGrammar languages;
+	if(!::LoadLanguage(grammar_file_name.c_str(), languages))
+	{
+		ERROR("LoadLanguage "<<grammar_file_name<<" failed");
+		return false;
+	}
+
+	return this->Process(languages, input_symbols, output_symbols, start_symbol);
 }
 
 //for debug

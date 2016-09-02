@@ -500,12 +500,25 @@ CallCommand::CallCommand(Symbols cmd, std::vector< std::vector<Symbols> >& param
 
 bool CallCommand::Intepret(std::vector<Symbols>& result)
 {
-	//($CALL <function_name> <parameter>)
-	assert(this->parameters.size()==3);
-	assert(this->parameters[1].size()==1);
-	assert(this->parameters[1][0].IsVariable());
 
-	return this->intepreter->compiler->Process(this->parameters[2], result,this->parameters[1][0]);
+	assert(this->parameters.size() == 3 || this->parameters.size() == 4);
+	if(this->parameters.size() == 3)
+	{
+		//($CALL "<function_name>" "<parameter>")
+		string start_symbol;
+		ToString(start_symbol, this->parameters[1]);
+		return this->intepreter->compiler->Process(this->parameters[2], result, Symbols(start_symbol.c_str()));
+	}
+	else if(this->parameters.size() == 4)
+	{
+		//($CALL "<file_name>" "<function_name>" "<parameter>")
+		string grammar_file_name;
+		ToString(grammar_file_name, this->parameters[1]);
+		string start_symbol;
+		ToString(start_symbol, this->parameters[2]);
+		return this->intepreter->compiler->Process(grammar_file_name, this->parameters[3], result, Symbols(start_symbol.c_str()));
+	}
+	return false;
 }
 
 WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)

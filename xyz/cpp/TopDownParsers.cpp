@@ -21,7 +21,7 @@ ostream& operator<< (ostream& o,const SearchStates& s)
 }
 
 //调用算法分析句法
-bool TopDownParsers::Parse(LanguageGrammar& languages, const std::vector<Symbols>& input_symbols, LanguageTree*& source_tree, Symbols start_symbol)
+bool TopDownParsers::Parse(const LanguageGrammar& languages, const std::vector<Symbols>& input_symbols, LanguageTree*& source_tree, Symbols start_symbol)
 {
 //输入字符流==>查阅词典==>单词流==>句法分析器的输入
 //<句法分析算法>

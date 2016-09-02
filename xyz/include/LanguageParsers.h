@@ -15,7 +15,7 @@ public:
 	LanguageParsers(Compiler* compiler) { this->compiler = compiler; }
 public:
 	//input symbols --> source parse grammar tree
-	virtual bool Parse(LanguageGrammar& languages, const std::vector<Symbols>& input_symbols, LanguageTree*& source_tree, Symbols start_symbol) = 0;
+	virtual bool Parse(const LanguageGrammar& languages, const std::vector<Symbols>& input_symbols, LanguageTree*& source_tree, Symbols start_symbol) = 0;
 	Compiler* compiler;
 };//end of LanguageParsers
 
