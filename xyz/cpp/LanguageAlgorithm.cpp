@@ -904,15 +904,15 @@ bool LoadLanguage(const std::vector<Symbols>& input_symbols, LanguageGrammar& la
 	return retval;
 }
 
-bool LoadLanguage(std::istream& input_stream, LanguageGrammar& languages)
+bool LoadLanguage(std::istream& input_stream, LanguageGrammar& languages, bool add_mode, bool check_grammar)
 {
 	vector<Symbols> input_symbols;
 	input_stream >> input_symbols;
 
-	return LoadLanguage(input_symbols, languages);
+	return LoadLanguage(input_symbols, languages, add_mode, check_grammar);
 }
 
-bool LoadLanguage(const char* grammar_filename, LanguageGrammar& languages)
+bool LoadLanguage(const char* grammar_filename, LanguageGrammar& languages, bool add_mode, bool check_grammar)
 {
 	ifstream grammar_file(grammar_filename);
 	if(grammar_file.fail())
@@ -922,5 +922,5 @@ bool LoadLanguage(const char* grammar_filename, LanguageGrammar& languages)
 	}
 
 	INFO("Loading grammar file["<<grammar_filename<<"]");
-	return LoadLanguage(grammar_file, languages);
+	return LoadLanguage(grammar_file, languages, add_mode, check_grammar);
 }

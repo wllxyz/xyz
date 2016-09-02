@@ -9,6 +9,7 @@
 #include "Wll0Loader.h"
 #include "Wll1Loader.h"
 #include "LR1Parsers.h"
+#include "LanguageAlgorithm.h"
 #include <string>
 #include <fstream>
 #include "WllTrace.h"
@@ -37,24 +38,8 @@ bool WllLoader::TestLanguage()
 		Wll::Util::GetProcessDir(dir,sizeof(dir));
 		string wll_xyz_grammar_filename = string(dir) + "/../data/" + this->grammar_file_name;
 
-		ifstream wll_xyz_grammar_file(wll_xyz_grammar_filename.c_str());
-		if(wll_xyz_grammar_file.fail())
-		{
-			cerr<<"open grammar file "<<wll_xyz_grammar_filename<<" failed"<<endl;
-			return false;
-		}
-
-		vector<Symbols> symbols;
-		wll_xyz_grammar_file >> symbols;
-
 		//LanguageParser instance will call Wll1Loader.LoadWll to LoadLanguage, it must NOT call TestLanguage()
-		Wll1Loader loader(symbols);
-		if(!loader.Load(wll_xyz_languages))
-		{
-			cerr<<"LL(1) parser load language failed"<<endl;
-			loader.ShowErrorMessage();
-			return false;
-		}
+		LoadLanguage(wll_xyz_grammar_filename.c_str(), wll_xyz_languages, false, false);
 
 		is_wll_xyz_loaded = true;
 	}

@@ -50,9 +50,9 @@ bool LRParse(const vector<Symbols>& symbols,LanguageTree*& tree,const StateTrans
 
 bool LoadLanguage(const std::vector<Symbols>& input_symbols, LanguageGrammar& languages, bool add_mode=false, bool check_grammar = true);
 
-bool LoadLanguage(std::istream& input_stream, LanguageGrammar& languages);
+bool LoadLanguage(std::istream& input_stream, LanguageGrammar& languages, bool add_mode=false, bool check_grammar = true);
 
-bool LoadLanguage(const char* grammar_filename, LanguageGrammar& languages);
+bool LoadLanguage(const char* grammar_filename, LanguageGrammar& languages, bool add_mode=false, bool check_grammar = true);
 
 #endif	//LANGUAGE_ALGORITHM
 
