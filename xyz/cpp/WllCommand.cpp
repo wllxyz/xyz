@@ -13,6 +13,7 @@
 #include "Wll1Intepreter.h"
 #include "WllTrace.h"
 #include "WllSingleton.h"
+#include "LanguageAlgorithm.h"
 using namespace std;
 
 WllCommand::WllCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* wll_intepreter)
@@ -150,10 +151,7 @@ LoadTranslationsCommand::LoadTranslationsCommand(Symbols cmd, std::vector< std::
 bool LoadTranslationsCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
-
-	this->intepreter->compiler->languages.translation_rules.clear();
-	bool retval = AddTranslations(this->parameters[1], this->intepreter->compiler->languages);
-	return retval;
+	return LoadLanguage(this->parameters[1], this->intepreter->compiler->languages, false);
 }
 
 AddTranslationsCommand::AddTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
@@ -165,8 +163,7 @@ AddTranslationsCommand::AddTranslationsCommand(Symbols cmd, std::vector< std::ve
 bool AddTranslationsCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
-	bool retval = AddTranslations(this->parameters[1], this->intepreter->compiler->languages);
-	return retval;
+	return LoadLanguage(this->parameters[1], this->intepreter->compiler->languages);
 }
 
 CondCommand::CondCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
@@ -598,35 +595,4 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	return command;
 }
 
-bool AddTranslations(const std::vector<Symbols>& input_symbols, LanguageGrammar& languages)
-{
-	WllLoader* loader = WllLoaderFactory::CreateWllLoader(input_symbols);
-	if(loader == NULL) return false;
-
-	bool retval = true;
-	try
-	{
-		INFO("wllloader="<<input_symbols);
-
-		if(!loader->TestLanguage())
-		{
-			ERROR("Test WLL language grammar failed!!!");
-			throw -1;
-		}
-		INFO("Test WLL language grammar PASSED!!!");
-
-		if(!loader->Load(languages))
-		{
-			loader->ShowErrorMessage();
-			throw -2;
-		}
-		INFO("LOAD WLL language grammar SUCCESS!!!");
-	}
-	catch(int error_code)
-	{
-		retval = false;
-	}
-	delete loader;
-	return retval;
-}
 

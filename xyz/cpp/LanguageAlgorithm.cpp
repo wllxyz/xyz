@@ -10,6 +10,7 @@
 #include "Wll0Intepreter.h"
 #include "Wll1Intepreter.h"
 #include "Wll2Intepreter.h"
+#include "WllLoader.h"
 using namespace std;
 
 
@@ -856,6 +857,50 @@ bool LRParse(const vector<Symbols>& symbols,LanguageTree*& tree,const StateTrans
 	}while(!state_stack.empty()); //这两个条件正常情况下永远成立
 
 	return false;
+}
+
+bool LoadLanguage(const std::vector<Symbols>& input_symbols, LanguageGrammar& languages, bool add_mode, bool check_grammar)
+{
+	WllLoader* loader = WllLoaderFactory::CreateWllLoader(input_symbols);
+	if(loader == NULL) return false;
+
+	bool retval = true;
+	try
+	{
+		INFO("wllloader="<<input_symbols);
+
+		if(check_grammar)
+		{
+			if(!loader->TestLanguage())
+			{
+				ERROR("Test WLL language grammar failed!!!");
+				throw -1;
+			}
+			INFO("Test WLL language grammar PASSED!!!");
+		}
+		else
+		{
+			INFO("Test WLL language grammar SKIPED!!!");
+		}
+
+		if(!add_mode)
+		{
+			languages.translation_rules.clear();
+		}
+
+		if(!loader->Load(languages))
+		{
+			loader->ShowErrorMessage();
+			throw -2;
+		}
+		INFO("LOAD WLL language grammar SUCCESS!!!");
+	}
+	catch(int error_code)
+	{
+		retval = false;
+	}
+	delete loader;
+	return retval;
 }
 
 

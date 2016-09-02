@@ -48,5 +48,7 @@ void ConvertStateTransformTable(const vector< vector<TransformEdge> >& state_tra
 //根据文法预测分析表分析文法,得到文法分析树(供LR1重载)
 bool LRParse(const vector<Symbols>& symbols,LanguageTree*& tree,const StateTransformTable& state_transform_table,const vector<LanguageRules*>& languages, const vector< StateSets<LR1States> >& state_sets, Symbols start_symbol);
 
+bool LoadLanguage(const std::vector<Symbols>& input_symbols, LanguageGrammar& languages, bool add_mode=true, bool check_grammar = true);
+
 #endif	//LANGUAGE_ALGORITHM
 

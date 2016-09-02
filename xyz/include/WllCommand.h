@@ -184,6 +184,4 @@ public:
 	static WllCommand* CreateCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
 };
 
-bool AddTranslations(const std::vector<Symbols>& input_symbols, LanguageGrammar& languages);
-
 #endif /* WLL_COMMAND_H_ */
