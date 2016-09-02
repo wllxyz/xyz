@@ -21,7 +21,7 @@ ostream& operator<< (ostream& o,const SearchStates& s)
 }
 
 //调用算法分析句法
-bool TopDownParsers::Parse(const std::vector<Symbols>& input_symbols, LanguageTree*& source_tree, Symbols start_symbol)
+bool TopDownParsers::Parse(LanguageGrammar& languages, const std::vector<Symbols>& input_symbols, LanguageTree*& source_tree, Symbols start_symbol)
 {
 //输入字符流==>查阅词典==>单词流==>句法分析器的输入
 //<句法分析算法>
@@ -96,15 +96,15 @@ bool TopDownParsers::Parse(const std::vector<Symbols>& input_symbols, LanguageTr
 //			否则,抛弃这个状态,分析下一个状态.(什么也不做)
 
 			//下一个输入符号应该在当前扩展的变量的first集合中,否则跳过(终止)这个分析状态
-			if(this->languages.first_calculator.Select(current_symbol, current_input_symbol))
+			if(languages.first_calculator.Select(current_symbol, current_input_symbol))
 			{
 				vector<size_t> rule_nos;
-				if(this->languages.source_rules.GetRuleNosBySymbol(current_symbol, rule_nos))
+				if(languages.source_rules.GetRuleNosBySymbol(current_symbol, rule_nos))
 				{
 					state.expression.symbols.erase(state.expression.symbols.begin());
 					for(vector<size_t>::reverse_iterator i = rule_nos.rbegin(); i < rule_nos.rend(); ++i)
 					{
-						LanguageExpressions& entend_expression = this->languages.source_rules.rules[*i]->expression;
+						LanguageExpressions& entend_expression = languages.source_rules.rules[*i]->expression;
 						//根据first集合过滤一些规则
 						if(entend_expression.symbols.empty())
 						{
@@ -119,7 +119,7 @@ bool TopDownParsers::Parse(const std::vector<Symbols>& input_symbols, LanguageTr
 						{
 							Symbols entend_first_symbol = entend_expression.symbols.front();
 
-							if(this->languages.first_calculator.Select(entend_first_symbol, current_input_symbol))
+							if(languages.first_calculator.Select(entend_first_symbol, current_input_symbol))
 							{
 								SearchStates new_state;
 								new_state.expression=entend_expression+state.expression;
@@ -140,7 +140,7 @@ bool TopDownParsers::Parse(const std::vector<Symbols>& input_symbols, LanguageTr
 						max_matched_state=state;
 					}	
 				}
-			}//if(this->first_calculator.Select(current_symbol, current_input_symbol))
+			}//if(first_calculator.Select(current_symbol, current_input_symbol))
 		}
 		else	//字符常量和输入符号没有匹配
 		{
@@ -166,7 +166,7 @@ bool TopDownParsers::Parse(const std::vector<Symbols>& input_symbols, LanguageTr
 			{
 				cout<<"solution "<<i<<endl;
 				cout<<success_states[i]<<endl;
-				ConstructTreeByRules(source_tree,success_states[i].rules,this->languages.source_rules.rules,LEFT_REDUCE);
+				ConstructTreeByRules(source_tree,success_states[i].rules,languages.source_rules.rules,LEFT_REDUCE);
 				DisplayTree(cout,source_tree,0);
 				cout<<endl;
 				cout<<source_tree<<endl;
@@ -179,7 +179,7 @@ bool TopDownParsers::Parse(const std::vector<Symbols>& input_symbols, LanguageTr
 		}
 		//根据使用的规则构造文法分析树
 		INFO(">>>ConstructTreeByRules");
-		ConstructTreeByRules(source_tree,state.rules,this->languages.source_rules.rules,LEFT_REDUCE);
+		ConstructTreeByRules(source_tree,state.rules,languages.source_rules.rules,LEFT_REDUCE);
 		INFO("<<<ConstructTreeByRules");
 	}
 	else

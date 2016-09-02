@@ -37,8 +37,6 @@ bool ConstructTreeByReverseRightReduceRules(LanguageTree*& source_tree,const vec
 
 //translate the source tree to dest tree, use dest_languages for lookup rule_no
 bool TranslateTree(LanguageTree* source,LanguageTree*& dest,const vector<LanguageRules*>& destination_languages);
-//explain tree to introduce the self-explain feather
-bool SelfExplain(const vector<Symbols>& input_symbols,vector<LanguageTranslations>& languages, vector<Symbols>& output_symbols);
 
 //根据文法自动生成文法预测分析表(供LR1文法分析器重载)
 void GenerateStateTransformTable(const LanguageIndex& languages,vector< vector<TransformEdge> >& state_transform_table, vector< StateSets<LR1States> >& state_sets, Symbols start_symbol);

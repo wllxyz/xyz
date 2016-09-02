@@ -13,8 +13,8 @@
 #include <cassert>
 #include "WllCommand.h"
 
-Wll2IntepreterLL1Impl::Wll2IntepreterLL1Impl(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols, std::vector<LanguageTranslations>* translations, WllIntepreter* intepreter)
-:input_symbols(input_symbols),output_symbols(output_symbols),translations(translations),intepreter(intepreter)
+Wll2IntepreterLL1Impl::Wll2IntepreterLL1Impl(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols, WllIntepreter* intepreter)
+:input_symbols(input_symbols),output_symbols(output_symbols),intepreter(intepreter)
 {
 	this->input_pos = 0;
 }
@@ -99,7 +99,7 @@ bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 			parameter_fields.push_back(parameter);
 		}
 
-		WllCommand* command = WllCommandFactory::CreateCommand(symbol, parameter_fields,this->intepreter, this->translations);
+		WllCommand* command = WllCommandFactory::CreateCommand(symbol, parameter_fields,this->intepreter);
 		assert(command!=NULL);
 		command->Intepret(result);
 		delete command;

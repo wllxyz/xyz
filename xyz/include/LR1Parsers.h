@@ -11,9 +11,10 @@
 class LR1Parsers : public LanguageParsers
 {
 public:
+	LR1Parsers(Compiler* compiler) : LanguageParsers(compiler) { }
 	virtual void DisplayStates();
 	//根据文法规则对输入符号流进行文法结构的分析,分析结果用文法分析树表示
-	virtual bool Parse(const std::vector<Symbols>& input_symbols, LanguageTree*& source_tree, Symbols start_symbol);
+	virtual bool Parse(LanguageGrammar& languages, const std::vector<Symbols>& input_symbols, LanguageTree*& source_tree, Symbols start_symbol);
 //重载LRPARSERS支撑算法
 protected:
 	//判定文法是否存在移近规约冲突（文法二义性判断）

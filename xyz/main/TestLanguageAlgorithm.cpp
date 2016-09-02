@@ -170,6 +170,7 @@ int main()
 	symbols.push_back(Symbols::REMARK_DESTINATION_RULE);
 	symbols.push_back(Symbols::REMARK_TRANSLATION);	
 
+	/*
 	vector<Symbols> temp_result;	
 	assert(SelfExplain(symbols,languages,temp_result));
 	stringstream lang_str;
@@ -179,6 +180,7 @@ int main()
 	}
 	cout<<lang_str.str();
 	assert(lang_str.str()=="<e>--><t>+<e>==><e>--><t><e>+\n<e>--><t>==><e>--><t>\n");
+	*/
 
 	//根据文法自动生成文法预测分析表(供LR1文法分析器重载)
 	//void GenerateStateTransformTable(const LanguageIndex& languages,vector< vector<TransformEdge> >& state_transform_table);

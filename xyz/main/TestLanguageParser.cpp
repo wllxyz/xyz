@@ -1,6 +1,7 @@
 #include "TopDownParsers.h"
 //#include "LR0Parsers.h"
 #include "LR1Parsers.h"
+#include "Compiler.h"
 #include <fstream>
 #include <iostream>
 using namespace std;
@@ -13,7 +14,10 @@ GTEST_API_ int main(int argc, char **argv) {
 
 TEST(TopDownParser, Process)
 {
-	TopDownParsers parser;
+	Compiler parser;
+	TopDownParsers topdown_parser(&parser);
+	parser.parser_strategy.Set(&topdown_parser);
+
 	ifstream grammar_file("data/grammar");
 	parser.LoadLanguage(grammar_file);
 	vector<Symbols> input_symbols, output_symbols;
@@ -45,7 +49,10 @@ TEST(TopDownParser, Process)
 
 TEST(LR1Parser, Process)
 {
-	LR1Parsers parser;
+	Compiler parser;
+	LR1Parsers lr1_parser(&parser);
+	parser.parser_strategy.Set(&lr1_parser);
+
 	ifstream grammar_file("data/grammar");
 	parser.LoadLanguage(grammar_file);
 	vector<Symbols> input_symbols, output_symbols;

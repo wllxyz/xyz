@@ -13,6 +13,8 @@ struct LanguageGrammar
 public:
 	LanguageGrammar():first_calculator(source_rules) {}
 	void Initialize();
+	//获得默认文法开始符号(第一条文法的root_symbol)
+	virtual Symbols GetDefaultStartSymbol();
 public:
 	vector<LanguageTranslations> translation_rules;
 public:

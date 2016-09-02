@@ -15,19 +15,21 @@
 #include <fstream>
 #include <iostream>
 #include <cstring>
+#include "Wll1Intepreter.h"
 using namespace std;
 
 int main(int argc,char** argv)
 {
+	Compiler compiler;
 #if PARSER==LR0_PARSER
-	LR0Parsers parser;
+	LR0Parsers* parser = new LR0Parsers(&compiler);
 #elif   PARSER==TOPDOWN_PARSER
-	TopDownParsers parser;
+	TopDownParsers* parser = new TopDownParsers(&compiler);
 #elif   PARSER==LR1_PARSER
-	LR1Parsers parser;
+	LR1Parsers* parser = new LR1Parsers(&compiler);
 #endif  //PARSER
-	
-	parser.LoadLanguage();
+	compiler.parser_strategy.Set(parser);
+	compiler.intepreter_strategy.Set(new Wll1Intepreter(&compiler));
 
 	if(argc==1)
 	{
@@ -52,7 +54,7 @@ int main(int argc,char** argv)
 					continue;
 				}
 				cout<<"loading ["<<file_name<<"] ..."<<endl;
-				if(!parser.Process(input,cout))
+				if(!compiler.Process(input,cout))
 				{
 					cout<<"process file ["<<file_name<<"] failed!"<<endl;
 					continue;
@@ -62,11 +64,7 @@ int main(int argc,char** argv)
 			else if(cmd=="grammar")
 			{
 				cout<<"current loaded language rules:"<<endl;
-				parser.DisplayLanguage();
-			}
-			else if(cmd=="states")
-			{
-				parser.DisplayStates();
+				compiler.DisplayLanguage();
 			}
 		}while(true);
 
@@ -91,7 +89,7 @@ int main(int argc,char** argv)
 			}
 			input = &input_file;
 		}
-		if(!parser.Process(*input,cout))
+		if(!compiler.Process(*input,cout))
 		{
 			cerr<<"process input file ["<<argv[i]<<"] failed!"<<endl;
 			return -1;
@@ -100,7 +98,3 @@ int main(int argc,char** argv)
 
 	return 0;
 }
-
-//<�޸ļ�¼>
-// ʵ�����ķ������滻��ű�Ĵ���,���������ַ���,���ǵ�����.����Ҳ��Ϊ�ķ����з���ƥ��.
-//</�޸ļ�¼>

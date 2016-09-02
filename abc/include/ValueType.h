@@ -341,6 +341,7 @@ struct Integer : public ValueType
 			return Nature("0");
 			break;
 		}
+		return Nature("0");
 	}
 
 	virtual bool operator< (const ValueType& that)

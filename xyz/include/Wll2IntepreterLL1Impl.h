@@ -16,13 +16,12 @@
 class Wll2IntepreterLL1Impl
 {
 public:
-	Wll2IntepreterLL1Impl(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols, std::vector<LanguageTranslations>* translations,WllIntepreter* intepreter);
+	Wll2IntepreterLL1Impl(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols, WllIntepreter* intepreter);
 	virtual bool IntepretWll();
 	void ShowErrorMessage();
 protected:
 	const std::vector<Symbols>& input_symbols;
 	std::vector<Symbols>& output_symbols;
-	std::vector<LanguageTranslations>* translations;
 	WllIntepreter* intepreter;
 	int input_pos;
 	//<expression>--><sub-expression><expression>

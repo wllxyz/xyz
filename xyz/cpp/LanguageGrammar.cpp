@@ -19,6 +19,15 @@ void LanguageGrammar::Initialize()
 	this->first_calculator.Initialize();
 }
 
+Symbols LanguageGrammar::GetDefaultStartSymbol()
+{
+	if(this->translation_rules.empty())
+	{
+		return Symbols::NULL_SYMBOL;
+	}
+	return this->translation_rules.front().source_rule.symbol;
+}
+
 ostream& operator<< (ostream& o, const LanguageGrammar& lg)
 {
 	size_t rule_no = 0;

@@ -2,42 +2,21 @@
 #define LANGUAGE_PARSERS_H
 
 #include "LanguageTypes.h"
-#include "FirstSet.h"
+#include "LanguageGrammar.h"
+#include "Compiler.h"
 #include <vector>
-#include <set>
-#include <map>
-#include <Wll0Loader.h>
 using namespace std;
 
-static const char* GRAMMAR_FILE_NAME = "data/grammar";
-
+class Compiler;
 //common language parser class
 class LanguageParsers
 {
 public:
-	LanguageParsers();
-	LanguageParsers(const LanguageParsers& that);
-	virtual ~LanguageParsers();
+	LanguageParsers(Compiler* compiler) { this->compiler = compiler; }
 public:
-	//input istream --> output ostream
-	virtual bool Process(istream& inf,ostream& outf);
-	virtual bool Process(const vector<Symbols>& input_symbols, vector<Symbols>& output_symbols, Symbols start_symbol);
-	//for debug display languages
-	virtual void DisplayLanguage();
-	virtual void DisplayStates();
-public:
-	//获得默认文法开始符号(第一条文法的root_symbol)
-	virtual Symbols GetDefaultStartSymbol();
 	//input symbols --> source parse grammar tree
-	virtual bool Parse(const std::vector<Symbols>& input_symbols, LanguageTree*& source_tree, Symbols start_symbol) = 0;
-	//source parse grammar tree --> destination parse grammar tree --> stand output ostream
-public:
-	//load default wll0 language
-	virtual bool LoadLanguage();
-	//load language from input stream
-	virtual bool LoadLanguage(istream& ins);
-protected:
-	LanguageGrammar languages;
+	virtual bool Parse(LanguageGrammar& languages, const std::vector<Symbols>& input_symbols, LanguageTree*& source_tree, Symbols start_symbol) = 0;
+	Compiler* compiler;
 };//end of LanguageParsers
 
 #endif //LANGUAGE_PARSERS_H

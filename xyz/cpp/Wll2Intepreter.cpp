@@ -8,8 +8,8 @@
 #include "Wll2Intepreter.h"
 #include "Wll2IntepreterLL1Impl.h"
 
-bool Wll2Intepreter::IntepretWll(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols, std::vector<LanguageTranslations>* translations)
+bool Wll2Intepreter::IntepretWll(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols)
 {
-	Wll2IntepreterLL1Impl intepreter(input_symbols, output_symbols, translations,this);
+	Wll2IntepreterLL1Impl intepreter(input_symbols, output_symbols, this);
 	return intepreter.IntepretWll();
 }

@@ -3,7 +3,7 @@
 using namespace std;
 
 //销毁语法分析树
-void DestroyTree(LanguageTree *root)
+void DestroyTree(LanguageTree*& root)
 {
 	if(root==NULL) return;
 
@@ -15,6 +15,7 @@ void DestroyTree(LanguageTree *root)
 		}
 	}
 	delete root;
+	root = NULL;
 }
 
 //遍历输出语法分析树结构

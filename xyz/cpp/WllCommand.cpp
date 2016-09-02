@@ -15,14 +15,14 @@
 #include "WllSingleton.h"
 using namespace std;
 
-WllCommand::WllCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* wll_intepreter, std::vector<LanguageTranslations>* language_translations)
-: command(cmd), parameters(parameter_fields), intepreter(wll_intepreter), translations(language_translations)
+WllCommand::WllCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* wll_intepreter)
+: command(cmd), parameters(parameter_fields), intepreter(wll_intepreter)
 {
 
 }
 
-AddCommand::AddCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+AddCommand::AddCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
@@ -45,8 +45,8 @@ bool AddCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-SubCommand::SubCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+SubCommand::SubCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
@@ -77,8 +77,8 @@ bool SubCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-MulCommand::MulCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+MulCommand::MulCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
@@ -109,8 +109,8 @@ bool MulCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-DivCommand::DivCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+DivCommand::DivCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
@@ -141,8 +141,8 @@ bool DivCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-LoadTranslationsCommand::LoadTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+LoadTranslationsCommand::LoadTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
@@ -150,12 +150,14 @@ LoadTranslationsCommand::LoadTranslationsCommand(Symbols cmd, std::vector< std::
 bool LoadTranslationsCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
-	this->translations->clear();
-	return AddTranslations(this->parameters[1],*(this->translations));
+
+	this->intepreter->compiler->languages.translation_rules.clear();
+	bool retval = AddTranslations(this->parameters[1], this->intepreter->compiler->languages);
+	return retval;
 }
 
-AddTranslationsCommand::AddTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+AddTranslationsCommand::AddTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
@@ -163,12 +165,12 @@ AddTranslationsCommand::AddTranslationsCommand(Symbols cmd, std::vector< std::ve
 bool AddTranslationsCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
-	//this->translations->clear();
-	return AddTranslations(this->parameters[1],*(this->translations));
+	bool retval = AddTranslations(this->parameters[1], this->intepreter->compiler->languages);
+	return retval;
 }
 
-CondCommand::CondCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+CondCommand::CondCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
@@ -180,15 +182,15 @@ bool CondCommand::Intepret(std::vector<Symbols>& result)
 	{
 		if(this->parameters[i][0] == Symbols::TRUE)
 		{
-			this->intepreter->IntepretWll(this->parameters[i+1], result, this->translations);
+			this->intepreter->IntepretWll(this->parameters[i+1], result);
 			break;
 		}
 	}
 	return true;
 }
 
-LoopCommand::LoopCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+LoopCommand::LoopCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
@@ -201,7 +203,7 @@ bool LoopCommand::Intepret(std::vector<Symbols>& result)
 	{
 		std::vector<Symbols> condition_result;
 		INFO("Intepret LoopCommand condition part: condition=["<<this->parameters[1]<<"],expression=["<<this->parameters[2]<<"]");
-		if(!this->intepreter->IntepretWll(this->parameters[1],condition_result,this->translations))
+		if(!this->intepreter->IntepretWll(this->parameters[1],condition_result))
 		{
 			TERM_ERROR("Intepret LoopCommand condition failed: condition=["<<this->parameters[1]<<"],expression=["<<this->parameters[2]<<"]");
 			return false;
@@ -211,7 +213,7 @@ bool LoopCommand::Intepret(std::vector<Symbols>& result)
 		if(condition_result[0] == Symbols::FALSE) break;
 
 		INFO("Intepret LoopCommand expression part: condition=["<<this->parameters[1]<<"],expression=["<<this->parameters[2]<<"]");
-		if(!this->intepreter->IntepretWll(this->parameters[2], result, this->translations))
+		if(!this->intepreter->IntepretWll(this->parameters[2], result))
 		{
 			TERM_ERROR("Intepret LoopCommand expression failed: condition=["<<this->parameters[1]<<"],expression=["<<this->parameters[2]<<"]");
 			return false;
@@ -221,8 +223,8 @@ bool LoopCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-EqCommand::EqCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+EqCommand::EqCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 }
 
@@ -233,8 +235,8 @@ bool EqCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-LtCommand::LtCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+LtCommand::LtCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 }
 
@@ -245,8 +247,8 @@ bool LtCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-AndCommand::AndCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+AndCommand::AndCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 }
 
@@ -257,8 +259,8 @@ bool AndCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-OrCommand::OrCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+OrCommand::OrCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 }
 
@@ -270,8 +272,8 @@ bool OrCommand::Intepret(std::vector<Symbols>& result)
 }
 
 
-NotCommand::NotCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+NotCommand::NotCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 }
 
@@ -282,8 +284,8 @@ bool NotCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-ShellCommand::ShellCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+ShellCommand::ShellCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 }
 
@@ -311,8 +313,8 @@ bool ShellCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-DefCommand::DefCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+DefCommand::DefCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
@@ -331,8 +333,8 @@ bool DefCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-SetCommand::SetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+SetCommand::SetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
@@ -359,8 +361,8 @@ bool SetCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-GetCommand::GetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+GetCommand::GetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
@@ -387,8 +389,8 @@ bool GetCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-PushDataCommand::PushDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+PushDataCommand::PushDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
@@ -401,8 +403,8 @@ bool PushDataCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-PopDataCommand::PopDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+PopDataCommand::PopDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
@@ -417,8 +419,8 @@ bool PopDataCommand::Intepret(std::vector<Symbols>& result)
 }
 
 
-PushCommand::PushCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+PushCommand::PushCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
@@ -434,8 +436,8 @@ bool PushCommand::Intepret(std::vector<Symbols>& result)
 }
 
 
-PopCommand::PopCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+PopCommand::PopCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
@@ -481,8 +483,8 @@ bool PopCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-EvalCommand::EvalCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
-: WllCommand(cmd,parameter_fields,intepreter,translations)
+EvalCommand::EvalCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
@@ -490,11 +492,11 @@ EvalCommand::EvalCommand(Symbols cmd, std::vector< std::vector<Symbols> >& param
 bool EvalCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
-	return this->intepreter->IntepretWll(this->parameters[1], result, this->translations);
+	return this->intepreter->IntepretWll(this->parameters[1], result);
 }
 
 
-WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter, std::vector<LanguageTranslations>* translations)
+WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 {
 	INFO("cmd="<<cmd);
 	INFO("parameters=");
@@ -506,97 +508,97 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	WllCommand* command = NULL;
 	if(cmd == Symbols::LOAD_TRANSLATIONS)
 	{
-		command = new LoadTranslationsCommand(cmd,parameter_fields,intepreter,translations);
+		command = new LoadTranslationsCommand(cmd,parameter_fields,intepreter);
 	}//LOAD_TRANSLATIONS
 	else if(cmd == Symbols::ADD_TRANSLATIONS)
 	{
-		command = new AddTranslationsCommand(cmd,parameter_fields,intepreter,translations);
+		command = new AddTranslationsCommand(cmd,parameter_fields,intepreter);
 	}//LOAD_TRANSLATIONS
 	else if(cmd == Symbols::ADD)
 	{
-		command = new AddCommand(cmd,parameter_fields,intepreter,translations);
+		command = new AddCommand(cmd,parameter_fields,intepreter);
 	}//ADD
 	else if(cmd == Symbols::SUB)
 	{
-		command = new SubCommand(cmd,parameter_fields,intepreter,translations);
+		command = new SubCommand(cmd,parameter_fields,intepreter);
 	}//SUB
 	else if(cmd == Symbols::MUL)
 	{
-		command = new MulCommand(cmd,parameter_fields,intepreter,translations);
+		command = new MulCommand(cmd,parameter_fields,intepreter);
 	}//MUL
 	else if(cmd == Symbols::DIV)
 	{
-		command = new DivCommand(cmd,parameter_fields,intepreter,translations);
+		command = new DivCommand(cmd,parameter_fields,intepreter);
 	}//DIV
 	else if(cmd == Symbols::COND)
 	{
-		command = new CondCommand(cmd,parameter_fields,intepreter,translations);
+		command = new CondCommand(cmd,parameter_fields,intepreter);
 	}//COND
 	else if(cmd == Symbols::LOOP)
 	{
-		command = new LoopCommand(cmd,parameter_fields,intepreter,translations);
+		command = new LoopCommand(cmd,parameter_fields,intepreter);
 	}//LOOP
 	else if(cmd == Symbols::EQ)
 	{
-		command = new EqCommand(cmd,parameter_fields,intepreter,translations);
+		command = new EqCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::LT)
 	{
-		command = new LtCommand(cmd,parameter_fields,intepreter,translations);
+		command = new LtCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::AND)
 	{
-		command = new AndCommand(cmd,parameter_fields,intepreter,translations);
+		command = new AndCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::OR)
 	{
-		command = new OrCommand(cmd,parameter_fields,intepreter,translations);
+		command = new OrCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::NOT)
 	{
-		command = new NotCommand(cmd,parameter_fields,intepreter,translations);
+		command = new NotCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::SHELL)
 	{
-		command = new ShellCommand(cmd,parameter_fields,intepreter,translations);
+		command = new ShellCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::DEF)
 	{
-		command = new DefCommand(cmd,parameter_fields,intepreter,translations);
+		command = new DefCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::SET)
 	{
-		command = new SetCommand(cmd,parameter_fields,intepreter,translations);
+		command = new SetCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::GET)
 	{
-		command = new GetCommand(cmd,parameter_fields,intepreter,translations);
+		command = new GetCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::PUSH_DATA)
 	{
-		command = new PushDataCommand(cmd,parameter_fields,intepreter,translations);
+		command = new PushDataCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::POP_DATA)
 	{
-		command = new PopDataCommand(cmd,parameter_fields,intepreter,translations);
+		command = new PopDataCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::PUSH)
 	{
-		command = new PushCommand(cmd,parameter_fields,intepreter,translations);
+		command = new PushCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::POP)
 	{
-		command = new PopCommand(cmd,parameter_fields,intepreter,translations);
+		command = new PopCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::EVAL)
 	{
-		command = new EvalCommand(cmd,parameter_fields,intepreter,translations);
+		command = new EvalCommand(cmd,parameter_fields,intepreter);
 	}
 
 	return command;
 }
 
-bool AddTranslations(const std::vector<Symbols>& input_symbols, std::vector<LanguageTranslations>& translations)
+bool AddTranslations(const std::vector<Symbols>& input_symbols, LanguageGrammar& languages)
 {
 	WllLoader* loader = WllLoaderFactory::CreateWllLoader(input_symbols);
 	if(loader == NULL) return false;
@@ -613,7 +615,7 @@ bool AddTranslations(const std::vector<Symbols>& input_symbols, std::vector<Lang
 		}
 		INFO("Test WLL language grammar PASSED!!!");
 
-		if(!loader->LoadWll(translations))
+		if(!loader->Load(languages))
 		{
 			loader->ShowErrorMessage();
 			throw -2;

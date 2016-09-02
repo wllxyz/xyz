@@ -21,7 +21,7 @@ public:
 };
 
 //destroy tree nodes
-void DestroyTree(LanguageTree *root);
+void DestroyTree(LanguageTree*& root);
 //for debug and output
 void DisplayTree(ostream& outf,const LanguageTree *root,int n);
 //for debug and output

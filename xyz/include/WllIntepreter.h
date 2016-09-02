@@ -11,11 +11,16 @@
 #include "LanguageSymbols.h"
 #include "LanguageTranslations.h"
 #include <vector>
+#include "Compiler.h"
+
+class Compiler;
 
 class WllIntepreter
 {
 public:
-	virtual bool IntepretWll(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols, std::vector<LanguageTranslations>* translations)=0;
+	WllIntepreter(Compiler* compiler) { this->compiler = compiler; }
+	virtual bool IntepretWll(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols)=0;
+	Compiler* compiler;
 protected:
 	int SplitParameters(const vector<Symbols>&symbols,  vector< vector<Symbols> >& fields);
 };

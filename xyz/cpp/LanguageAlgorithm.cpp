@@ -305,34 +305,6 @@ bool TranslateTree(LanguageTree* source,LanguageTree*& dest,const vector<Languag
 	return true;
 }
 
-//<start>--><wll0>==><start>-->$WLL0<wll0>;
-//<wll0>--><translation>";"<spaces>==><wll0>--><translation>;
-//<wll0>--><translation>";"<spaces><wll0>==><wll0>--><translation><wll0>;
-//<translation>--><source_rule>"==>"<destination_rule>==><translation>--><source_rule><destination_rule>$TRANSLATION;
-//<source_rule>--><rule>==><source_rule>--><rule>$SOURCE-RULE;
-//<destination_rule>--><rule>==><destination_rule>--><rule>$DESTINATION-RULE;
-//<rule>--><root>"-->"<expression>==><rule>--><root><expression>$EXPRESSION$RULE;
-//<root>--><variable>==><root>--><variable>$ROOT-SYMBOL;
-//<expression>--><symbol>==><expression>--><symbol>;
-//<expression>--><symbol><expression>==><expression>--><symbol><expression>;
-//<symbol>--><variable>==><symbol>--><variable>$SUB-SYMBOL;
-//<symbol>--><constant>==><symbol>--><constant>$SUB-SYMBOL;
-//<symbol>--><remark>==><symbol>--><remark>$SUB-SYMBOL;
-//<variable>-->"<"<identifier>">"==><variable>--><identifier>$VARIABLE;
-//<constant>-->"\""<string>"\""==><constant>--><string>$CONSTANT;
-//<remark>-->"$"<identifier>==><remark>--><identifier>$REMARK;
-bool SelfExplain(const vector<Symbols>& input_symbols,vector<LanguageTranslations>& languages, vector<Symbols>& output_symbols)
-{
-#ifndef	WLL1LOADER
-	Wll0Intepreter intepreter;
-#else
-	Wll1Intepreter intepreter;
-	//Wll2Intepreter intepreter();
-#endif
-	bool retval = intepreter.IntepretWll(input_symbols, output_symbols, &languages);
-	return retval;
-}
-
 //<预测分析表的自动生成算法>
 
 //<SLR(1)><UPDATE>

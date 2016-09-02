@@ -14,7 +14,7 @@
 #include <cassert>
 #include "WllCommand.h"
 
-bool Wll1Intepreter::IntepretWll(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols, std::vector<LanguageTranslations>* translations)
+bool Wll1Intepreter::IntepretWll(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols)
 {
 	DEBUG_LOG("symbols="<<input_symbols);
 
@@ -65,7 +65,7 @@ bool Wll1Intepreter::IntepretWll(const std::vector<Symbols>& input_symbols,std::
 				symbol = parameter_fields[0][0];
 				DEBUG_LOG("symbol="<<symbol);
 
-				WllCommand* command = WllCommandFactory::CreateCommand(symbol, parameter_fields,this, translations);
+				WllCommand* command = WllCommandFactory::CreateCommand(symbol, parameter_fields,this);
 				assert(command!=NULL);
 				bool retval = command->Intepret(data_stack);
 				delete command;

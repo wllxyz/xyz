@@ -19,9 +19,16 @@ WllLoader::WllLoader(const vector<Symbols>& input_symbols) : input_symbols(input
 
 }
 
+bool WllLoader::Load(LanguageGrammar& languages)
+{
+	if(!this->LoadWll(languages.translation_rules)) return false;
+	languages.Initialize();
+	return true;
+}
+
 bool WllLoader::TestLanguage()
 {
-	static LR1Parsers wll_xyz;
+	static LanguageGrammar wll_xyz_languages;
 	static bool is_wll_xyz_loaded = false;
 
 	if(is_wll_xyz_loaded == false)
@@ -37,10 +44,15 @@ bool WllLoader::TestLanguage()
 			return false;
 		}
 
+		vector<Symbols> symbols;
+		wll_xyz_grammar_file >> symbols;
+
 		//LanguageParser instance will call Wll1Loader.LoadWll to LoadLanguage, it must NOT call TestLanguage()
-		if( !wll_xyz.LoadLanguage(wll_xyz_grammar_file) )
+		Wll1Loader loader(symbols);
+		if(!loader.Load(wll_xyz_languages))
 		{
-			cerr<<"load "<<wll_xyz_grammar_filename<<" failed"<<endl;
+			cerr<<"LL(1) parser load language failed"<<endl;
+			loader.ShowErrorMessage();
 			return false;
 		}
 
@@ -48,7 +60,8 @@ bool WllLoader::TestLanguage()
 	}
 
 	LanguageTree* source_tree = NULL;
-	if(!wll_xyz.Parse(this->input_symbols, source_tree, wll_xyz.GetDefaultStartSymbol()))
+	LR1Parsers wll_xyz(NULL);
+	if(!wll_xyz.Parse(wll_xyz_languages, this->input_symbols, source_tree, wll_xyz_languages.GetDefaultStartSymbol()))
 	{
 		ERROR("Test WLL language failed");
 		TERM_ERROR("Test WLL language failed");
