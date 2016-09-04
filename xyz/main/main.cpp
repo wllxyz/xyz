@@ -15,6 +15,7 @@
 #include <fstream>
 #include <iostream>
 #include <cstring>
+#include "Wll2Intepreter.h"
 #include "Wll1Intepreter.h"
 #include "Wll0Intepreter.h"
 using namespace std;
@@ -30,7 +31,7 @@ int main(int argc,char** argv)
 	LR1Parsers* parser = new LR1Parsers(&compiler);
 #endif  //PARSER
 	compiler.parser_strategy.Set(parser);
-	compiler.intepreter_strategy.Set(new Wll1Intepreter(&compiler));
+	compiler.intepreter_strategy.Set(new Wll2Intepreter(&compiler));
 
 	if(argc==1)
 	{
