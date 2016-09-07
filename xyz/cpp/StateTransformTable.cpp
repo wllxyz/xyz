@@ -9,14 +9,21 @@ std::ostream& operator<< (std::ostream& o, const Actions& action)
 	{
 	case MOVE_ACTION:
 		o<<"MOVE";
+		o<<" "<<action.value;
+		o<<" : ";
+		o<<(*action.state);
 		break;
 	case REDUCE_ACTION:
 		o<<"REDUCE";
+		o<<" "<<action.value;
+		o<<" : ";
+		o<<(*action.rule);
 		break;
 	default:
 		assert(false);
 	}
-	return o<<" "<<action.value<<")";
+	o<<")";
+	return o;
 }
 
 std::ostream& operator<< (std::ostream& o, const TransformEdge& edge)

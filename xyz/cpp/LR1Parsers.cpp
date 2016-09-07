@@ -34,19 +34,13 @@ bool LR1Parsers::IsAmbiguous(const vector< vector< TransformEdge > >& state_tran
 			flag = true;
 			//#ifdef	DEBUG
 			cerr<<"conflict in state transform table (state no = "<<n<<") :"<<endl;
-			cerr<<state_sets[n]<<endl;
+			//cerr<<state_sets[n]<<endl;
 
 			for(map<Symbols,int>::iterator it = stat_map.begin(); it != stat_map.end(); ++it)
 			{
 				if(it->second > 1)	//conflict item
 				{
-					for(vector<TransformEdge>::const_iterator j = i->begin(); j != i->end(); ++j)
-					{
-						if(j->symbol == it->first)
-						{
-							cerr<<*j<<endl;
-						}
-					}
+					it->first.Dump(cerr); cerr<<endl;
 					for(set<LR1States>::const_iterator k=state_sets[n].states.begin(); k!=state_sets[n].states.end(); ++k)
 					{
 						if(k->IsReduceState())
@@ -61,6 +55,7 @@ bool LR1Parsers::IsAmbiguous(const vector< vector< TransformEdge > >& state_tran
 							cerr<<*k<<endl;
 						}
 					}
+					cerr<<"+++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
 				}
 			}
 			//#endif	//DEBUG 

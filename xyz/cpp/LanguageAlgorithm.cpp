@@ -432,6 +432,7 @@ void GenerateStateTransformTable(const LanguageIndex& languages,vector< vector<T
 					e.symbol = *j;
 					e.action.type = REDUCE_ACTION;
 					e.action.value = k->rule_no;
+					e.action.rule = languages.GetRule(k->rule_no);
 					trans_list.push_back(e);
 					DEBUG_LOG("e="<<e);
 				}
@@ -498,6 +499,7 @@ void GenerateStateTransformTable(const LanguageIndex& languages,vector< vector<T
 			e.symbol = i->first;
 			e.action.type = MOVE_ACTION;
 			e.action.value = n;
+			e.action.state = &(state_sets[n]);
 			trans_list.push_back(e);
 			DEBUG_LOG("add transform edge e="<<e<<" into transform list");
 //          </循环体>
@@ -750,12 +752,12 @@ bool LRParse(const vector<Symbols>& symbols,LanguageTree*& tree,const StateTrans
 			}
 			cerr<<endl;
 
-			cerr<<"current symbol : "<<symbol;
-			symbol.Dump(cerr);
-			cerr<<endl;
+			cerr<<"current symbol : ";	symbol.Dump(cerr); cerr<<endl;
 			cerr<<"current state : "<< state_sets[S] <<endl;
 			for(map<Symbols,Actions>::const_iterator i=state_transform_table[S].begin(); i!=state_transform_table[S].end(); ++i)
-				cerr << i->first << " ==> " << i->second << endl;
+			{
+				i->first.Dump(cerr);	cerr << " ==> " << i->second << endl;
+			}
 			cerr<<endl;
 
 			cerr<<"accpeted part:"<<endl;

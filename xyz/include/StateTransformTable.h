@@ -5,6 +5,8 @@
 #include <map>
 #include <vector>
 #include "LanguageSymbols.h"
+#include "LanguageRules.h"
+#include "States.h"
 
 enum ActionTypes
 {
@@ -16,6 +18,11 @@ struct Actions
 {
 	ActionTypes	type;
 	size_t		value;
+	union
+	{
+		const LanguageRules* rule;
+		const StateSets<LR1States>* state;
+	};
 };
 
 std::ostream& operator<< (std::ostream& o, const Actions& action);

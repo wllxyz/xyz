@@ -97,16 +97,23 @@ struct LR1States: public States
 
 	virtual void Display(ostream& o)const
 	{
-		o<<"(";
-		States::Display(o);
-		o<<",";
-		o<<"(";
-		for(set<Symbols>::const_iterator i=this->follow.begin(); i != this->follow.end(); ++i)
+		if(this->IsReduceState())
 		{
-			o<<*i;
+			o<<"(";
+			States::Display(o);
+			o<<",";
+			o<<"(";
+			for(set<Symbols>::const_iterator i=this->follow.begin(); i != this->follow.end(); ++i)
+			{
+				o<<"| ";  i->Dump(o); o<<" |";
+			}
+			o<<")";
+			o<<")";
 		}
-	    o<<")";
-		o<<")";
+		else
+		{
+			States::Display(o);
+		}
 	}
 };//end of LR1States
 
