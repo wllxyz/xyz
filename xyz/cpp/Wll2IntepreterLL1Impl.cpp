@@ -17,6 +17,7 @@ Wll2IntepreterLL1Impl::Wll2IntepreterLL1Impl(const std::vector<Symbols>& input_s
 :input_symbols(input_symbols),output_symbols(output_symbols),intepreter(intepreter)
 {
 	this->input_pos = 0;
+	this->eval_switch = true;
 }
 
 //<input>--><expression>
@@ -36,27 +37,7 @@ bool Wll2IntepreterLL1Impl::IntepretExpression(std::vector<Symbols>& result)
 {
 	if(this->Encount(Symbols::END_SYMBOL) || this->Encount(Symbols::RIGHT_QUOTE) || this->Encount(Symbols::SEPERATOR)) return true;
 
-	if(this->Encount(Symbols::REMARK_IGNORE))
-	{
-		//<expression>--><sub-expression><expression>
-		//<sub-expression>--><ignore-expression>
-		//<ignore-expression>-->$IGNORE$LEFT_QUOTE...$RIGHT_QUOTE
-		//$IGNORE$LEFT_QUOTE...$RIGHT_QUOTE : 对括号内的符号不进行求值,原样输出
-		this->Accept(Symbols::REMARK_IGNORE);
-		if(!this->Accept(Symbols::LEFT_QUOTE)) return false;
-		int depth = 1;
-		while(!this->Encount(Symbols::END_SYMBOL))
-		{
-			if(this->Encount(Symbols::RIGHT_QUOTE) && depth == 1) break;
-			if(this->Encount(Symbols::LEFT_QUOTE)) depth++;
-			if(this->Encount(Symbols::RIGHT_QUOTE)) depth--;
-			result.push_back(this->GetSymbol());
-			this->input_pos++;
-		}
-		if(!this->Accept(Symbols::RIGHT_QUOTE)) return false;
-		return this->IntepretExpression(result);
-	}
-	else if(this->Encount(Symbols::LEFT_QUOTE))
+	if(this->Encount(Symbols::LEFT_QUOTE))
 	{
 		//<expression>--><sub-expression><expression>
 		//<sub-expression>--><quote-expression>
@@ -77,6 +58,9 @@ bool Wll2IntepreterLL1Impl::IntepretExpression(std::vector<Symbols>& result)
 //<quote-expression>-->$LEFT_QUOTE<expression-list>$RIGHT_QUOTE
 bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 {
+	bool local_eval_switch;
+	local_eval_switch = this->eval_switch;
+
 	if(!this->Accept(Symbols::LEFT_QUOTE)) return false;
 
 	if(!this->Encount(Symbols::RIGHT_QUOTE))
@@ -85,6 +69,15 @@ bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 		if(!this->IntepretExpression(cmd)) return false;
 
 		Symbols symbol = cmd[0];
+
+		if(symbol == Symbols::REMARK_IGNORE)
+		{
+			this->eval_switch = false;
+		}
+		else if(symbol == Symbols::EVAL)
+		{
+			this->eval_switch = true;
+		}
 
 		vector<vector<Symbols> >parameter_fields;
 		parameter_fields.push_back(cmd);
@@ -99,12 +92,31 @@ bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 			parameter_fields.push_back(parameter);
 		}
 
-		WllCommand* command = WllCommandFactory::CreateCommand(symbol, parameter_fields,this->intepreter);
-		assert(command!=NULL);
-		command->Intepret(result);
-		delete command;
+		if(local_eval_switch)
+		{
+			WllCommand* command = WllCommandFactory::CreateCommand(symbol, parameter_fields,this->intepreter);
+			assert(command!=NULL);
+			command->Intepret(result);
+			delete command;
+		}
+		else
+		{
+			result.push_back(Symbols::LEFT_QUOTE);
+			for(vector<vector<Symbols> >::const_iterator i = parameter_fields.begin(); i != parameter_fields.end(); ++i)
+			{
+				for(vector<Symbols>::const_iterator j = i->begin(); j != i->end(); ++j)
+				{
+					result.push_back(*j);
+				}
+				result.push_back(Symbols::SEPERATOR);
+			}
+			if(result.back() == Symbols::SEPERATOR) result.pop_back();
+			result.push_back(Symbols::RIGHT_QUOTE);
+		}
 	}//RIGHT_QUOTE
 	if(!this->Accept(Symbols::RIGHT_QUOTE)) return false;
+
+	this->eval_switch = local_eval_switch;
 
 	return true;
 }

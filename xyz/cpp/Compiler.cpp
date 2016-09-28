@@ -8,6 +8,7 @@
 #include "Compiler.h"
 #include "Wll1Loader.h"
 #include "Wll1Intepreter.h"
+#include "Wll2Intepreter.h"
 #include "LR1Parsers.h"
 #include "LanguageAlgorithm.h"
 #include "WllUtil.h"
@@ -22,7 +23,7 @@ Compiler::Compiler()
 {
 	this->LoadLanguage();
 	this->parser_strategy.Set(new LR1Parsers(this));
-	this->intepreter_strategy.Set(new Wll1Intepreter(this));
+	this->intepreter_strategy.Set(new Wll2Intepreter(this));
 }
 
 bool Compiler::LoadLanguage()

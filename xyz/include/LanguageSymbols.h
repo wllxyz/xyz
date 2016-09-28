@@ -88,6 +88,8 @@ public:
 	static const Symbols POP_DATA;			//销毁本层变量空间并出栈
 	static const Symbols PUSH;				//表达式值压入参数栈顶
 	static const Symbols POP;				//参数栈顶值出栈到变量
+
+	static const Symbols CAT;				//从文件中加载符号,支持INCLUDE特性
 };
 
 istream& operator>> (istream& i,  vector<Symbols>& symbols);

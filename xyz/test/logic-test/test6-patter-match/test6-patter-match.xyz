@@ -103,8 +103,8 @@
 <operator>-->"$"==><operator>-->"$";
 <operator>-->"&"==><operator>-->"&";
 <operator>-->"|"==><operator>-->"|";
-<operator>-->"\""==><operator>-->"\"";
-<operator>-->"\\"==><operator>-->"\\";
+<operator>-->'"'==><operator>-->'"';
+<operator>-->'\'==><operator>-->'\';
 <space>-->"\t"==><space>-->"\t";
 <space>-->"\n"==><space>-->"\n";
 <space>-->"\r"==><space>-->"\r";

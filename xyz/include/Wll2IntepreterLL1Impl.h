@@ -24,6 +24,7 @@ protected:
 	std::vector<Symbols>& output_symbols;
 	WllIntepreter* intepreter;
 	int input_pos;
+	bool eval_switch;
 	//<expression>--><sub-expression><expression>
 	//<sub-expression>--><ignore-expression>
 	//<sub-expression>--><quote-expression>

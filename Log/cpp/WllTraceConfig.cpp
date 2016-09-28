@@ -55,7 +55,7 @@ bool LogPrintConfig::Load(const char* config_file)
 	Configure config;
 	if(!config.Load(config_file))
 	{
-		std::cerr<<"load config file ["<<config_file<<"] failed\n";
+		//std::cerr<<"load config file ["<<config_file<<"] failed\n";
 		return false;
 	}
 

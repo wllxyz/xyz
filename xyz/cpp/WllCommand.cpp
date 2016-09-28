@@ -14,6 +14,8 @@
 #include "WllTrace.h"
 #include "WllSingleton.h"
 #include "LanguageAlgorithm.h"
+#include <iostream>
+#include <fstream>
 using namespace std;
 
 WllCommand::WllCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* wll_intepreter)
@@ -492,6 +494,22 @@ bool EvalCommand::Intepret(std::vector<Symbols>& result)
 	return this->intepreter->IntepretWll(this->parameters[1], result);
 }
 
+IgnoreCommand::IgnoreCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool IgnoreCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size()==2);
+	for(vector<Symbols>::const_iterator i = this->parameters[1].begin(); i != this->parameters[1].end(); ++i)
+	{
+		result.push_back(*i);
+	}
+	return true;
+}
+
 CallCommand::CallCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
@@ -504,14 +522,14 @@ bool CallCommand::Intepret(std::vector<Symbols>& result)
 	assert(this->parameters.size() == 3 || this->parameters.size() == 4);
 	if(this->parameters.size() == 3)
 	{
-		//($CALL "<function_name>" "<parameter>")
+		//($CALL, "<function_name>", "<parameter>")
 		string start_symbol;
 		ToString(start_symbol, this->parameters[1]);
 		return this->intepreter->compiler->Process(this->parameters[2], result, Symbols(start_symbol.c_str()));
 	}
 	else if(this->parameters.size() == 4)
 	{
-		//($CALL "<file_name>" "<function_name>" "<parameter>")
+		//($CALL, "<file_name>", "<function_name>", "<parameter>")
 		string grammar_file_name;
 		ToString(grammar_file_name, this->parameters[1]);
 		string start_symbol;
@@ -519,6 +537,28 @@ bool CallCommand::Intepret(std::vector<Symbols>& result)
 		return this->intepreter->compiler->Process(grammar_file_name, this->parameters[3], result, Symbols(start_symbol.c_str()));
 	}
 	return false;
+}
+
+CatCommand::CatCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool CatCommand::Intepret(std::vector<Symbols>& result)
+{
+
+	assert(this->parameters.size() == 2);
+	//($CAT, "<file_name>")
+	string file_name;
+	ToString(file_name, this->parameters[1]);
+	INFO("file_name="<<file_name);
+	ifstream input_file(file_name.c_str());
+	if(input_file.fail()) return false;
+	INFO("result="<<result);
+	input_file>>result;
+	INFO("result="<<result);
+	return true;
 }
 
 WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
@@ -619,9 +659,17 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	{
 		command = new EvalCommand(cmd,parameter_fields,intepreter);
 	}
+	else if(cmd == Symbols::REMARK_IGNORE)
+	{
+		command = new IgnoreCommand(cmd,parameter_fields,intepreter);
+	}
 	else if(cmd == Symbols::CALL)
 	{
 		command = new CallCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::CAT)
+	{
+		command = new CatCommand(cmd, parameter_fields, intepreter);
 	}
 
 	return command;

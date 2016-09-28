@@ -52,6 +52,8 @@ const Symbols Symbols::POP_DATA(REMARK_SYMBOL,"$POP_DATA");
 const Symbols Symbols::PUSH(REMARK_SYMBOL,"$PUSH");
 const Symbols Symbols::POP(REMARK_SYMBOL,"$POP");
 
+const Symbols Symbols::CAT(REMARK_SYMBOL,"$CAT");
+
 
 Symbols::Symbols()
 {
@@ -164,7 +166,7 @@ void Symbols::Dump(ostream& o) const
 
 istream& operator>> (istream&ins, vector<Symbols>& symbols)
 {
-	symbols.clear();
+	//symbols.clear();
 
 	char c=ins.get();
 	if(!ins.eof())

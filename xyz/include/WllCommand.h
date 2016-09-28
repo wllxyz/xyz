@@ -171,6 +171,13 @@ public:
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
+class IgnoreCommand : public WllCommand
+{
+public:
+	IgnoreCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
 class LoopCommand : public WllCommand
 {
 public:
@@ -182,6 +189,13 @@ class CallCommand : public WllCommand
 {
 public:
 	CallCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
+class CatCommand : public WllCommand
+{
+public:
+	CatCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 

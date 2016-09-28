@@ -31,7 +31,6 @@ int main(int argc,char** argv)
 	LR1Parsers* parser = new LR1Parsers(&compiler);
 #endif  //PARSER
 	compiler.parser_strategy.Set(parser);
-	compiler.intepreter_strategy.Set(new Wll2Intepreter(&compiler));
 
 	if(argc==1)
 	{
