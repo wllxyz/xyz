@@ -1,4 +1,4 @@
-<i>-->"shell "<cmd>==><o>-->($SHELL <cmd>);
+<i>--><cmd>==><o>-->($SHELL,<cmd>);
 <cmd>--><string>==><cmd>--><string>;
 <string>-->""==><string>-->"";
 <string>--><character><string>==><string>--><character><string>;
