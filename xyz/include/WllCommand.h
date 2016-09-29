@@ -22,6 +22,41 @@ protected:
 	std::vector<LanguageTranslations>* translations;
 };
 
+class TranslationCommand : public WllCommand
+{
+public:
+	TranslationCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
+class RuleCommand : public WllCommand
+{
+public:
+	RuleCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
+class VariableCommand : public WllCommand
+{
+public:
+	VariableCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
+class ConstantCommand : public WllCommand
+{
+public:
+	ConstantCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
+class RemarkCommand : public WllCommand
+{
+public:
+	RemarkCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
 class AddCommand : public WllCommand
 {
 public:

@@ -24,6 +24,78 @@ WllCommand::WllCommand(Symbols cmd, std::vector< std::vector<Symbols> >& paramet
 
 }
 
+TranslationCommand::TranslationCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool TranslationCommand::Intepret(std::vector<Symbols>& result)
+{
+
+}
+
+
+RuleCommand::RuleCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool RuleCommand::Intepret(std::vector<Symbols>& result)
+{
+
+}
+
+VariableCommand::VariableCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool VariableCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size()==2);
+	string variable_name;
+	ToString(variable_name, this->parameters[1]);
+	Symbols variable(variable_name.c_str());
+	result.push_back(variable);
+	return true;
+}
+
+ConstantCommand::ConstantCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool ConstantCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size()==2);
+	for(vector<Symbols>::const_iterator i = this->parameters[1].begin(); i != this->parameters[1].end(); ++i)
+	{
+		result.push_back(*i);
+	}
+
+	return true;
+}
+
+RemarkCommand::RemarkCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool RemarkCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size()==2);
+	string remark_name;
+	ToString(remark_name, this->parameters[1]);
+	Symbols remark(REMARK_SYMBOL, remark_name.c_str());
+	result.push_back(remark);
+	return true;
+}
+
 AddCommand::AddCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
@@ -579,6 +651,26 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	{
 		command = new AddTranslationsCommand(cmd,parameter_fields,intepreter);
 	}//LOAD_TRANSLATIONS
+	else if(cmd == Symbols::REMARK_TRANSLATION)
+	{
+		command = new TranslationCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::REMARK_RULE)
+	{
+		command = new RuleCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::REMARK_VARIABLE)
+	{
+		command = new VariableCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::REMARK_CONSTANT)
+	{
+		command = new ConstantCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::REMARK_REMARK)
+	{
+		command = new RemarkCommand(cmd,parameter_fields,intepreter);
+	}
 	else if(cmd == Symbols::ADD)
 	{
 		command = new AddCommand(cmd,parameter_fields,intepreter);
