@@ -102,6 +102,7 @@ ostream& operator<< (ostream& o, const vector<Symbols>& symbols);
 int Split(const vector<Symbols>&symbols, Symbols seperator, vector< vector<Symbols> >& fields);
 int SplitParameters(const vector<Symbols>&symbols, vector< vector<Symbols> >& fields);
 int SplitParameters(vector<Symbols>::const_iterator begin, vector<Symbols>::const_iterator end, vector< vector<Symbols> >& fields);
+void ComposeSList(vector<vector<Symbols> >::const_iterator begin, vector<vector<Symbols> >::const_iterator end, vector<Symbols>& slist);
 std::vector<Symbols>& operator+= (std::vector<Symbols>& a, const std::vector<Symbols>& b);
 std::vector<Symbols>& operator+= (std::vector<Symbols>& a, const std::string& b);
 const std::string& ToString (std::string& str, const std::vector<Symbols>& symbols);

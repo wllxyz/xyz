@@ -258,6 +258,18 @@ int SplitParameters(vector<Symbols>::const_iterator begin, vector<Symbols>::cons
 	return fields.size();
 }
 
+void ComposeSList(vector<vector<Symbols> >::const_iterator begin, vector<vector<Symbols> >::const_iterator end, vector<Symbols>& slist)
+{
+	slist.push_back(Symbols::LEFT_QUOTE);
+	for(vector<vector<Symbols> >::const_iterator i = begin; i != end; ++i)
+	{
+		slist += *i;
+		slist.push_back(Symbols::SEPERATOR);
+	}
+	if(slist.back() == Symbols::SEPERATOR) slist.pop_back();
+	slist.push_back(Symbols::RIGHT_QUOTE);
+}
+
 vector<Symbols>& operator+= (vector<Symbols>& a, const vector<Symbols>& b)
 {
 	for(vector<Symbols>::const_iterator i = b.begin(); i != b.end(); ++i)

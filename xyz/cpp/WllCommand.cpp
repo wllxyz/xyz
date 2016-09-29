@@ -32,7 +32,25 @@ TranslationCommand::TranslationCommand(Symbols cmd, std::vector< std::vector<Sym
 
 bool TranslationCommand::Intepret(std::vector<Symbols>& result)
 {
+	assert(this->parameters.size()==3);
+	vector<Symbols>& source_rule = this->parameters[1];
+	vector<Symbols>& destination_rule = this->parameters[2];
+	vector<vector<Symbols> > source_rule_fields, destination_rule_fields;
+	SplitParameters(source_rule.begin()+1, source_rule.end()-1, source_rule_fields);
+	SplitParameters(destination_rule.begin()+1, destination_rule.end()-1, destination_rule_fields);
+	assert(source_rule_fields.size()==2);
+	assert(destination_rule_fields.size()==2);
+	assert(source_rule_fields[0].size()==1);
+	assert(destination_rule_fields[0].size()==1);
+	assert(source_rule_fields[0][0].IsVariable());
+	assert(destination_rule_fields[0][0].IsVariable());
+	LanguageRules source(source_rule_fields[0][0], LanguageExpressions(source_rule_fields[1]));
+	LanguageRules dest(destination_rule_fields[0][0], LanguageExpressions(destination_rule_fields[1]));
+	LanguageTranslations translation(source, dest);
 
+	INFO("ADD TRANSLATION : "<<translation);
+	this->intepreter->compiler->languages.translation_rules.push_back(translation);
+	return true;
 }
 
 
@@ -44,7 +62,9 @@ RuleCommand::RuleCommand(Symbols cmd, std::vector< std::vector<Symbols> >& param
 
 bool RuleCommand::Intepret(std::vector<Symbols>& result)
 {
-
+	assert(this->parameters.size()==3);
+	ComposeSList(this->parameters.begin()+1, this->parameters.end(), result);
+	return true;
 }
 
 VariableCommand::VariableCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
@@ -104,17 +124,8 @@ ListCommand::ListCommand(Symbols cmd, std::vector< std::vector<Symbols> >& param
 
 bool ListCommand::Intepret(std::vector<Symbols>& result)
 {
-	result.push_back(Symbols::LEFT_QUOTE);
-	for(vector<vector<Symbols> >::const_iterator i = this->parameters.begin()+1; i != this->parameters.end(); ++i)
-	{
-		for(vector<Symbols>::const_iterator j = i->begin(); j != i->end(); ++j)
-		{
-			result.push_back(*j);
-		}
-		result.push_back(Symbols::SEPERATOR);
-	}
-	if(result.back() == Symbols::SEPERATOR) result.pop_back();
-	result.push_back(Symbols::RIGHT_QUOTE);
+	ComposeSList(this->parameters.begin()+1, this->parameters.end(), result);
+
 	return true;
 }
 
@@ -137,10 +148,7 @@ bool CarCommand::Intepret(std::vector<Symbols>& result)
 
 	if(!fields.empty())
 	{
-		for(vector<Symbols>::const_iterator i = fields.front().begin(); i != fields.front().end(); ++i)
-		{
-			result.push_back(*i);
-		}
+		result += fields.front();
 	}
 
 	return true;
@@ -165,17 +173,7 @@ bool CdrCommand::Intepret(std::vector<Symbols>& result)
 
 	if(fields.size()>1)
 	{
-		result.push_back(Symbols::LEFT_QUOTE);
-		for(vector<vector<Symbols> >::const_iterator i = fields.begin()+1; i != fields.end(); ++i)
-		{
-			for(vector<Symbols>::const_iterator j = i->begin(); j != i->end(); ++j)
-			{
-				result.push_back(*j);
-			}
-			result.push_back(Symbols::SEPERATOR);
-		}
-		if(result.back() == Symbols::SEPERATOR) result.pop_back();
-		result.push_back(Symbols::RIGHT_QUOTE);
+		ComposeSList(fields.begin()+1, fields.end(), result);
 	}
 
 	return true;
