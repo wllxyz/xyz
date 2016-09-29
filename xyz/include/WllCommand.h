@@ -57,6 +57,27 @@ public:
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
+class ListCommand : public WllCommand
+{
+public:
+	ListCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
+class CarCommand : public WllCommand
+{
+public:
+	CarCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
+class CdrCommand : public WllCommand
+{
+public:
+	CdrCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
 class AddCommand : public WllCommand
 {
 public:

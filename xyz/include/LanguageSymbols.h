@@ -64,6 +64,10 @@ public:
 	static const Symbols SEPERATOR;			//S表达式的参数分隔符号,用来分隔前缀表达式参数
 	static const Symbols LOAD_TRANSLATIONS;	//调用Wll0Loader加载文法规则
 	static const Symbols ADD_TRANSLATIONS;	//调用Wll0Loader加载文法规则,和LOAD_TRANSLATIONS的区别是ADD_TRANSLATIONS不会清空之前的文法规则
+	//支持Ｓ表达式求值
+	static const Symbols LIST;
+	static const Symbols CAR;
+	static const Symbols CDR;
 	//支持运算控制
 	static const Symbols ADD;				//整数加,1..n个参数
 	static const Symbols SUB;				//整数减,1..n个参数
@@ -96,6 +100,8 @@ istream& operator>> (istream& i,  vector<Symbols>& symbols);
 ostream& operator<< (ostream& o, const Symbols& symbol);
 ostream& operator<< (ostream& o, const vector<Symbols>& symbols);
 int Split(const vector<Symbols>&symbols, Symbols seperator, vector< vector<Symbols> >& fields);
+int SplitParameters(const vector<Symbols>&symbols, vector< vector<Symbols> >& fields);
+int SplitParameters(vector<Symbols>::const_iterator begin, vector<Symbols>::const_iterator end, vector< vector<Symbols> >& fields);
 std::vector<Symbols>& operator+= (std::vector<Symbols>& a, const std::vector<Symbols>& b);
 std::vector<Symbols>& operator+= (std::vector<Symbols>& a, const std::string& b);
 const std::string& ToString (std::string& str, const std::vector<Symbols>& symbols);

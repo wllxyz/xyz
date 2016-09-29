@@ -27,6 +27,10 @@ const Symbols Symbols::RIGHT_QUOTE(REMARK_SYMBOL,"$RIGHT_QUOTE");
 const Symbols Symbols::SEPERATOR(REMARK_SYMBOL,"$SEPERATOR");
 const Symbols Symbols::LOAD_TRANSLATIONS(REMARK_SYMBOL,"$LOAD_TRANSLATIONS");
 const Symbols Symbols::ADD_TRANSLATIONS(REMARK_SYMBOL,"$ADD_TRANSLATIONS");
+//支持Ｓ表达式求值
+const Symbols Symbols::LIST(REMARK_SYMBOL,"$LIST");
+const Symbols Symbols::CAR(REMARK_SYMBOL,"$CAR");
+const Symbols Symbols::CDR(REMARK_SYMBOL,"$CDR");
 //支持运算控制
 const Symbols Symbols::ADD(REMARK_SYMBOL,"$ADD");
 const Symbols Symbols::SUB(REMARK_SYMBOL,"$SUB");
@@ -211,6 +215,42 @@ int Split(const vector<Symbols>&symbols, Symbols seperator, vector< vector<Symbo
 		}
 		else
 		{
+			field.push_back(*i);
+		}
+	}
+	fields.push_back(field);
+	return fields.size();
+}
+
+int SplitParameters(const vector<Symbols>&symbols, vector< vector<Symbols> >& fields)
+{
+	return SplitParameters(symbols.begin(), symbols.end(), fields);
+}
+
+int SplitParameters(vector<Symbols>::const_iterator begin, vector<Symbols>::const_iterator end, vector< vector<Symbols> >& fields)
+{
+	fields.clear();
+	if(begin>=end) return 0;
+
+	vector<Symbols> field;
+	int depth = 0;
+	for(vector<Symbols>::const_iterator i = begin; i != end; ++i)
+	{
+		if(*i == Symbols::SEPERATOR && depth == 0)
+		{
+			fields.push_back(field);
+			field.clear();
+		}
+		else
+		{
+			if(*i == Symbols::LEFT_QUOTE)
+			{
+				depth++;
+			}
+			else if(*i == Symbols::RIGHT_QUOTE)
+			{
+				depth--;
+			}
 			field.push_back(*i);
 		}
 	}

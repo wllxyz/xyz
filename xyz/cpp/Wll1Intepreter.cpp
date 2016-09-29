@@ -61,7 +61,7 @@ bool Wll1Intepreter::IntepretWll(const std::vector<Symbols>& input_symbols,std::
 			{
 				INFO("parameters="<<vector<Symbols>(parameters.begin(),parameters.end()));
 				vector< vector<Symbols> > parameter_fields;
-				this->SplitParameters(vector<Symbols>(parameters.begin(), parameters.end()), parameter_fields);
+				SplitParameters(vector<Symbols>(parameters.begin(), parameters.end()), parameter_fields);
 				symbol = parameter_fields[0][0];
 				DEBUG_LOG("symbol="<<symbol);
 

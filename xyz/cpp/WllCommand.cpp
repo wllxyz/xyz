@@ -96,6 +96,91 @@ bool RemarkCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
+ListCommand::ListCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool ListCommand::Intepret(std::vector<Symbols>& result)
+{
+	result.push_back(Symbols::LEFT_QUOTE);
+	for(vector<vector<Symbols> >::const_iterator i = this->parameters.begin()+1; i != this->parameters.end(); ++i)
+	{
+		for(vector<Symbols>::const_iterator j = i->begin(); j != i->end(); ++j)
+		{
+			result.push_back(*j);
+		}
+		result.push_back(Symbols::SEPERATOR);
+	}
+	if(result.back() == Symbols::SEPERATOR) result.pop_back();
+	result.push_back(Symbols::RIGHT_QUOTE);
+	return true;
+}
+
+CarCommand::CarCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool CarCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size()==2);
+	vector<Symbols>& e = this->parameters[1];
+	if(e.empty()) return true;
+
+	if(!(e.front()==Symbols::LEFT_QUOTE && e.back()==Symbols::RIGHT_QUOTE)) return true;
+
+	vector<vector<Symbols> > fields;
+	SplitParameters(e.begin()+1, e.end()-1, fields);
+
+	if(!fields.empty())
+	{
+		for(vector<Symbols>::const_iterator i = fields.front().begin(); i != fields.front().end(); ++i)
+		{
+			result.push_back(*i);
+		}
+	}
+
+	return true;
+}
+
+CdrCommand::CdrCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool CdrCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size()==2);
+	vector<Symbols>& e = this->parameters[1];
+	if(e.empty()) return true;
+
+	if(!(e.front()==Symbols::LEFT_QUOTE && e.back()==Symbols::RIGHT_QUOTE)) return true;
+
+	vector<vector<Symbols> > fields;
+	SplitParameters(e.begin()+1, e.end()-1, fields);
+
+	if(fields.size()>1)
+	{
+		result.push_back(Symbols::LEFT_QUOTE);
+		for(vector<vector<Symbols> >::const_iterator i = fields.begin()+1; i != fields.end(); ++i)
+		{
+			for(vector<Symbols>::const_iterator j = i->begin(); j != i->end(); ++j)
+			{
+				result.push_back(*j);
+			}
+			result.push_back(Symbols::SEPERATOR);
+		}
+		if(result.back() == Symbols::SEPERATOR) result.pop_back();
+		result.push_back(Symbols::RIGHT_QUOTE);
+	}
+
+	return true;
+}
+
 AddCommand::AddCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
@@ -670,6 +755,18 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	else if(cmd == Symbols::REMARK_REMARK)
 	{
 		command = new RemarkCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::LIST)
+	{
+		command = new ListCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::CAR)
+	{
+		command = new CarCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::CDR)
+	{
+		command = new CdrCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::ADD)
 	{
