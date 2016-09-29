@@ -18,7 +18,12 @@ echo "run logic test ..."
 for dir in $(ls logic-test)
 do
 	echo "run logic-test/$dir ..."
-	./bin/main.bin logic-test/$dir/$dir.xyz logic-test/$dir/$dir.in | diff - logic-test/$dir/$dir.out
+	if [ -e logic-test/$dir/test.sh ]
+	then
+		logic-test/$dir/test.sh
+	else
+		./bin/main.bin logic-test/$dir/$dir.xyz logic-test/$dir/$dir.in | diff - logic-test/$dir/$dir.out
+	fi
 	echo "run logic-test/$dir done"
 done
 echo "run logic test done"
