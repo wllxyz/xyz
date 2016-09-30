@@ -1,1 +1,21 @@
-<i>-->"\n"==><o>-->($PUSH_DATA)($SET "n" "10")($LOOP $IGNORE(($NOT ($EQ ($GET "n") "0"))) $IGNORE(($SET "s" "0")($SET "i" "0")($LOOP $IGNORE(($NOT ($EQ ($GET "i") ($GET "n")))) $IGNORE(($SET "s" ($ADD ($GET "s") ($GET "i")))($SET "i" ($ADD ($GET "i") "1"))))($GET "s")"\n"($SET "n" ($SUB ($GET "n") "1"))))($POP_DATA);
+<i>-->"\n"==><o>-->
+	($PUSH_DATA)
+	($SET, "n", "10")
+	($LOOP, 
+		($IGNORE, ($NOT, ($EQ, ($GET, "n"), "0"))),
+		($IGNORE, 
+				($SET, "s", "0")
+				($SET, "i", "0")
+			    	($LOOP, 
+				    ($IGNORE, ($NOT, ($EQ, ($GET, "i"), ($GET, "n")))), 
+				    ($IGNORE, 
+					    ($SET, "s", ($ADD, ($GET, "s"), ($GET, "i")))
+					    ($SET, "i", ($ADD, ($GET, "i"), "1"))
+				    )
+			    	)
+			    	($GET, "s")
+			    	"\n"
+			    	($SET, "n", ($SUB, ($GET, "n"), "1"))
+		)
+	)
+	($POP_DATA);
