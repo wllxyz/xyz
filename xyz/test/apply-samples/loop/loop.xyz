@@ -1,1 +1,0 @@
-<i>-->"\n"==><o>-->($PUSH_DATA)($SET "s" "0")($SET "i" "0")($LOOP $IGNORE(($NOT ($EQ ($GET "i") "100"))) $IGNORE(($SET "s" ($ADD ($GET "s") ($GET "i")))($SET "i" ($ADD ($GET "i") "1"))))($GET "s")($POP_DATA);
