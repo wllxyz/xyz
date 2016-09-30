@@ -1,0 +1,1 @@
+<i>-->"\n"==><o>-->($PUSH_DATA)($SET, "a", "hello ")($PUSH_DATA)($SET, "a", "world")($GET, "a")($POP_DATA)($GET, "a")($POP_DATA);
