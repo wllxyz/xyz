@@ -58,6 +58,7 @@ bool Wll2IntepreterLL1Impl::IntepretExpression(std::vector<Symbols>& result)
 //<quote-expression>-->$LEFT_QUOTE<expression-list>$RIGHT_QUOTE
 bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 {
+	bool retval = true;
 	bool local_eval_switch;
 	local_eval_switch = this->eval_switch;
 
@@ -96,7 +97,10 @@ bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 		{
 			WllCommand* command = WllCommandFactory::CreateCommand(symbol, parameter_fields,this->intepreter);
 			assert(command!=NULL);
-			command->Intepret(result);
+			vector<Symbols> command_result;
+			retval = command->Intepret(command_result);
+			INFO("command_result="<<command_result);
+			result += command_result;
 			delete command;
 		}
 		else
@@ -118,7 +122,7 @@ bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 
 	this->eval_switch = local_eval_switch;
 
-	return true;
+	return retval;
 }
 
 bool Wll2IntepreterLL1Impl::Accept(const Symbols& symbol)

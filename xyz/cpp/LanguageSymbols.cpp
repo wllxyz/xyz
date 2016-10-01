@@ -258,6 +258,49 @@ int SplitParameters(vector<Symbols>::const_iterator begin, vector<Symbols>::cons
 	return fields.size();
 }
 
+int SplitSList(const vector<Symbols>&symbols, vector< vector<Symbols> >& fields)
+{
+	if(symbols.front() == Symbols::LEFT_QUOTE && symbols.back() == Symbols::RIGHT_QUOTE)
+	{
+		return SplitParameters(symbols.begin()+1, symbols.end()-1, fields);
+	}
+	else
+	{
+		return -1;
+	}
+}
+
+//分解表达式为符号列表
+int SplitExpression(const vector<Symbols>&symbols, vector< vector<Symbols> >& fields)
+{
+	fields.clear();
+	if(symbols.empty()) return 0;
+
+	vector<Symbols> field;
+	int depth = 0;
+	for(vector<Symbols>::const_iterator i = symbols.begin(); i != symbols.end(); ++i)
+	{
+		field.push_back(*i);
+
+		if(*i == Symbols::LEFT_QUOTE)
+		{
+			depth++;
+		}
+		else if(*i == Symbols::RIGHT_QUOTE)
+		{
+			depth--;
+		}
+
+		if(depth == 0)
+		{
+			fields.push_back(field);
+			field.clear();
+		}
+	}
+
+	return fields.size();
+}
+
 void ComposeSList(vector<vector<Symbols> >::const_iterator begin, vector<vector<Symbols> >::const_iterator end, vector<Symbols>& slist)
 {
 	slist.push_back(Symbols::LEFT_QUOTE);

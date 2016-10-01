@@ -22,6 +22,13 @@ protected:
 	std::vector<LanguageTranslations>* translations;
 };
 
+class Wll0Command : public WllCommand
+{
+public:
+	Wll0Command(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
 class TranslationCommand : public WllCommand
 {
 public:

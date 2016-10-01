@@ -102,6 +102,20 @@ ostream& operator<< (ostream& o, const vector<Symbols>& symbols);
 int Split(const vector<Symbols>&symbols, Symbols seperator, vector< vector<Symbols> >& fields);
 int SplitParameters(const vector<Symbols>&symbols, vector< vector<Symbols> >& fields);
 int SplitParameters(vector<Symbols>::const_iterator begin, vector<Symbols>::const_iterator end, vector< vector<Symbols> >& fields);
+//分解S表达式为符号表
+//<expression>--><symbol>;
+//<expression>--><symbol><expression>;
+//<symbol>--><variable>;
+//<symbol>--><constant>;
+//<symbol>--><remark>;
+//<symbol>--><s_expression>;
+//<s_expression>-->$LEFT_QUOTE<expression_list>$RIGHT_QUOTE;
+//<expression_list>--><expression>;
+//<expression_list>--><expression>$SEPERATOR<expression_list>;
+int SplitSList(const vector<Symbols>&symbols, vector< vector<Symbols> >& fields);
+//分解表达式为符号列表
+int SplitExpression(const vector<Symbols>&symbols, vector< vector<Symbols> >& fields);
+
 void ComposeSList(vector<vector<Symbols> >::const_iterator begin, vector<vector<Symbols> >::const_iterator end, vector<Symbols>& slist);
 std::vector<Symbols>& operator+= (std::vector<Symbols>& a, const std::vector<Symbols>& b);
 std::vector<Symbols>& operator+= (std::vector<Symbols>& a, const std::string& b);
