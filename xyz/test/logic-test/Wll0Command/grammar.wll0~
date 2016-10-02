@@ -28,7 +28,7 @@
 <symbol>--><s_expression>==><symbol>--><s_expression>;
 <s_expression>-->"("<spaces><expression_list>")"==><s_expression>-->$LEFT_QUOTE<expression_list>$RIGHT_QUOTE;
 <expression_list>--><expression>==><expression_list>--><expression>;
-<expression_list>--><expression>","<spaces><expression_list>==><expression_list>--><expression>$SEPERATOR<expression_list>;
+<expression_list>--><expression>","<spaces><expression_list>==><expression_list>--><expression>$LEFT_QUOTE$REMARK$SEPERATOR"$SEPERATOR"$RIGHT_QUOTE<expression_list>;
 <variable>-->"<"<identifier>">"==><variable>-->$LEFT_QUOTE$VARIABLE$SEPERATOR"<"<identifier>">"$RIGHT_QUOTE;
 <constant>-->'"'<string>'"'==><constant>-->$LEFT_QUOTE$CONSTANT$SEPERATOR<string>$RIGHT_QUOTE;
 <constant>-->"'"<original_string>"'"==><constant>-->$LEFT_QUOTE$CONSTANT$SEPERATOR<original_string>$RIGHT_QUOTE;

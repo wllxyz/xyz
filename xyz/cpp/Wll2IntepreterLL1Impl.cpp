@@ -105,17 +105,7 @@ bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 		}
 		else
 		{
-			result.push_back(Symbols::LEFT_QUOTE);
-			for(vector<vector<Symbols> >::const_iterator i = parameter_fields.begin(); i != parameter_fields.end(); ++i)
-			{
-				for(vector<Symbols>::const_iterator j = i->begin(); j != i->end(); ++j)
-				{
-					result.push_back(*j);
-				}
-				result.push_back(Symbols::SEPERATOR);
-			}
-			if(result.back() == Symbols::SEPERATOR) result.pop_back();
-			result.push_back(Symbols::RIGHT_QUOTE);
+			ComposeSList(parameter_fields.begin(), parameter_fields.end(),result);
 		}
 	}//RIGHT_QUOTE
 	if(!this->Accept(Symbols::RIGHT_QUOTE)) return false;

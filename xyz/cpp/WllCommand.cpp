@@ -38,11 +38,13 @@ bool Wll0Command::Intepret(std::vector<Symbols>& result)
 
 	vector<vector<Symbols> > translation_fields;
 	SplitExpression(this->parameters[1], translation_fields);
+	//INFO("translation_fields="<<translation_fields);
 
 	for(int i = 1; i<translation_fields.size(); ++i)
 	{
 		vector<vector<Symbols> > fields;
 		SplitParameters(translation_fields[i].begin()+1, translation_fields[i].end()-1, fields);
+		//INFO("fields="<<fields);
 		assert(fields.size()==2);
 		vector<Symbols>& source_rule = fields[0];
 		vector<Symbols>& destination_rule = fields[1];
@@ -51,7 +53,9 @@ bool Wll0Command::Intepret(std::vector<Symbols>& result)
 
 		vector<vector<Symbols> > source_rule_fields, destination_rule_fields;
 		SplitParameters(source_rule.begin()+1, source_rule.end()-1, source_rule_fields);
+		//INFO("source_rule_fields="<<source_rule_fields);
 		SplitParameters(destination_rule.begin()+1, destination_rule.end()-1, destination_rule_fields);
+		//INFO("destination_rule_fields="<<destination_rule_fields);
 		assert(source_rule_fields.size()==2);
 		assert(destination_rule_fields.size()==2);
 		assert(source_rule_fields[0].size()==1);
