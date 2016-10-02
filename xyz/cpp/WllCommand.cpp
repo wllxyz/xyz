@@ -14,6 +14,7 @@
 #include "WllTrace.h"
 #include "WllSingleton.h"
 #include "LanguageAlgorithm.h"
+#include "VariableContainer.h"
 #include <iostream>
 #include <fstream>
 using namespace std;
@@ -33,43 +34,10 @@ Wll0Command::Wll0Command(Symbols cmd, std::vector< std::vector<Symbols> >& param
 bool Wll0Command::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
-
-	this->intepreter->compiler->languages.translation_rules.clear();
-
-	vector<vector<Symbols> > translation_fields;
-	SplitExpression(this->parameters[1], translation_fields);
-	//INFO("translation_fields="<<translation_fields);
-
-	for(int i = 1; i<translation_fields.size(); ++i)
-	{
-		vector<vector<Symbols> > fields;
-		SplitParameters(translation_fields[i].begin()+1, translation_fields[i].end()-1, fields);
-		//INFO("fields="<<fields);
-		assert(fields.size()==2);
-		vector<Symbols>& source_rule = fields[0];
-		vector<Symbols>& destination_rule = fields[1];
-		INFO("source_rule="<<source_rule);
-		INFO("destination_rule="<<destination_rule);
-
-		vector<vector<Symbols> > source_rule_fields, destination_rule_fields;
-		SplitParameters(source_rule.begin()+1, source_rule.end()-1, source_rule_fields);
-		//INFO("source_rule_fields="<<source_rule_fields);
-		SplitParameters(destination_rule.begin()+1, destination_rule.end()-1, destination_rule_fields);
-		//INFO("destination_rule_fields="<<destination_rule_fields);
-		assert(source_rule_fields.size()==2);
-		assert(destination_rule_fields.size()==2);
-		assert(source_rule_fields[0].size()==1);
-		assert(destination_rule_fields[0].size()==1);
-		assert(source_rule_fields[0][0].IsVariable());
-		assert(destination_rule_fields[0][0].IsVariable());
-		LanguageRules source(source_rule_fields[0][0], LanguageExpressions(source_rule_fields[1]));
-		LanguageRules dest(destination_rule_fields[0][0], LanguageExpressions(destination_rule_fields[1]));
-		LanguageTranslations translation(source, dest);
-
-		INFO("ADD TRANSLATION : "<<translation);
-		this->intepreter->compiler->languages.translation_rules.push_back(translation);
-	}
+	VariableContainer* container = Singleton<VariableContainer>::GetInstance();
+	this->intepreter->compiler->languages.translation_rules = container->translations;
 	this->intepreter->compiler->languages.Initialize();
+	container->translations.clear();
 
 	return true;
 }
@@ -84,10 +52,44 @@ bool TranslationCommand::Intepret(std::vector<Symbols>& result)
 {
 	//($TRANSLATION, ($RULE, ($VARIABLE, $EXPRESSION)), ($RULE, ($VARIABLE, $EXPRESSION)))
 	assert(this->parameters.size()==3);
-	ComposeSList(this->parameters.begin()+1, this->parameters.end(), result);
+	VariableContainer* container = Singleton<VariableContainer>::GetInstance();
+	container->translation.source_rule = container->source_rule;
+	container->translation.destination_rule = container->destination_rule;
+	container->translations.push_back(container->translation);
 	return true;
 }
 
+SourceRuleCommand::SourceRuleCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool SourceRuleCommand::Intepret(std::vector<Symbols>& result)
+{
+	//($RULE, ($VARIABLE, $EXPRESSION))
+	assert(this->parameters.size()==2);
+	VariableContainer* container = Singleton<VariableContainer>::GetInstance();
+	container->source_rule = container->rule;
+
+	return true;
+}
+
+DestinationRuleCommand::DestinationRuleCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool DestinationRuleCommand::Intepret(std::vector<Symbols>& result)
+{
+	//($RULE, ($VARIABLE, $EXPRESSION))
+	assert(this->parameters.size()==2);
+	VariableContainer* container = Singleton<VariableContainer>::GetInstance();
+	container->destination_rule = container->rule;
+
+	return true;
+}
 
 RuleCommand::RuleCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
@@ -99,7 +101,10 @@ bool RuleCommand::Intepret(std::vector<Symbols>& result)
 {
 	//($RULE, ($VARIABLE, $EXPRESSION))
 	assert(this->parameters.size()==3);
-	ComposeSList(this->parameters.begin()+1, this->parameters.end(), result);
+	VariableContainer* container = Singleton<VariableContainer>::GetInstance();
+	container->rule.symbol = this->parameters[1][0];
+	container->rule.expression = this->parameters[2];
+
 	return true;
 }
 
@@ -777,6 +782,14 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	else if(cmd == Symbols::REMARK_TRANSLATION)
 	{
 		command = new TranslationCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::REMARK_SOURCE_RULE)
+	{
+		command = new SourceRuleCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::REMARK_DESTINATION_RULE)
+	{
+		command = new DestinationRuleCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::REMARK_RULE)
 	{

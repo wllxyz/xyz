@@ -21,8 +21,8 @@
 <include_file>-->'"'<string>'"'==><include_file>--><string>;
 <translation>--><source_rule>"==>"<spaces><destination_rule>==><translation>-->$LEFT_QUOTE$TRANSLATION$SEPERATOR<source_rule>$SEPERATOR<destination_rule>$RIGHT_QUOTE;
 <translation>--><source_rule>==><translation>-->$LEFT_QUOTE$TRANSLATION$SEPERATOR<source_rule>$SEPERATOR<source_rule>$RIGHT_QUOTE;
-<source_rule>--><rule>==><source_rule>--><rule>;
-<destination_rule>--><rule>==><destination_rule>--><rule>;
+<source_rule>--><rule>==><source_rule>-->$LEFT_QUOTE$SOURCE_RULE$SEPERATOR<rule>$RIGHT_QUOTE;
+<destination_rule>--><rule>==><destination_rule>-->$LEFT_QUOTE$DESTINATION_RULE$SEPERATOR<rule>$RIGHT_QUOTE;
 <rule>--><root><spaces>"-->"<spaces><expression>==><rule>-->$LEFT_QUOTE$RULE$SEPERATOR<root>$SEPERATOR<expression>$RIGHT_QUOTE;
 <root>--><variable>==><root>--><variable>;
 <expression>--><symbol><spaces>==><expression>--><symbol>;

@@ -36,6 +36,20 @@ public:
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
+class SourceRuleCommand : public WllCommand
+{
+public:
+	SourceRuleCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
+class DestinationRuleCommand : public WllCommand
+{
+public:
+	DestinationRuleCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
 class RuleCommand : public WllCommand
 {
 public:
