@@ -9,8 +9,8 @@
 	<block>
 	($SET, "i", "0")
 	($LOOP, 
-		$IGNORE(($NOT, ($EQ, ($GET, "i"), ($GET, "code_index")))), 
-		$IGNORE(
+		($IGNORE,($NOT, ($EQ, ($GET, "i"), ($GET, "code_index")))), 
+		($IGNORE,
 			($GET, "i") " : " 
 				($GET, "code."($GET, "i")".cmd") " " 
 				($GET, "code."($GET, "i")".op1") " " 
