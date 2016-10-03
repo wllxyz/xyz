@@ -78,6 +78,7 @@ bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 		else if(symbol == Symbols::EVAL)
 		{
 			this->eval_switch = true;
+			local_eval_switch = true;
 		}
 
 		vector<vector<Symbols> >parameter_fields;
