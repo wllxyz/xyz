@@ -1,4 +1,4 @@
-<start>--><wll0>==><start>-->$LEFT_QUOTE$LOAD_TRANSLATIONS$SEPERATOR$LEFT_QUOTE$IGNORE$SEPERATOR<wll0>$RIGHT_QUOTE$RIGHT_QUOTE;
+<start>--><wll0>==><start>-->$LEFT_QUOTE$LOAD_TRANSLATIONS$SEPERATOR<wll0>$RIGHT_QUOTE;
 <wll0>--><comment_line>==><wll0>-->"";
 <wll0>--><comment_line><wll0>==><wll0>--><wll0>;
 <wll0>--><empty_line>==><wll0>-->"";
