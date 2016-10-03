@@ -23,13 +23,6 @@ n=n-1
 $print s
 l=l-1
 }
-$if(n)
-{
-$print s
-}
-$else
-{
-}
 f(x)=
 {
 $if(x)
