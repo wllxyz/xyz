@@ -248,6 +248,13 @@ public:
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
+class ExecCommand : public WllCommand
+{
+public:
+	ExecCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
 class IgnoreCommand : public WllCommand
 {
 public:

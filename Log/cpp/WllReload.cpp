@@ -58,7 +58,7 @@ using namespace Wll::Tool;
                                         memset(buf,0,sizeof(buf));
                                         if(sizeof(buf)!=read(service_socket,buf,sizeof(buf)))
                                         {
-                                                TERM_ERROR("read reload command RELOAD error! READ SIZE ERROR");
+                                                LOCAL_ERROR("read reload command RELOAD error! READ SIZE ERROR");
                                         }
 
                                         DEBUG_LOG("read reload command RELOAD success");
@@ -76,7 +76,7 @@ using namespace Wll::Tool;
                                                 else
                                                 {
                                                     DEBUG_LOG("reload_method return false");
-                                                        TERM_ERROR("reload failed!");
+                                                        LOCAL_ERROR("reload failed!");
                                                 }
                                         }
                                         DEBUG_LOG("closing service_socket["<<service_socket<<"]");
@@ -88,7 +88,7 @@ using namespace Wll::Tool;
                 }
                 else
                 {
-                        TERM_ERROR("open reload server ["<<this->server_name<<"] failed!)");
+                        LOCAL_ERROR("open reload server ["<<this->server_name<<"] failed!)");
                 }
         }
 

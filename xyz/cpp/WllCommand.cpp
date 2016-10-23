@@ -690,6 +690,18 @@ bool EvalCommand::Intepret(std::vector<Symbols>& result)
 	return this->intepreter->IntepretWll(this->parameters[1], result);
 }
 
+ExecCommand::ExecCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool ExecCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size()==2);
+	return this->intepreter->IntepretWll(this->parameters[1], result);
+}
+
 IgnoreCommand::IgnoreCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
@@ -898,6 +910,10 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	else if(cmd == Symbols::EVAL)
 	{
 		command = new EvalCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::EXEC)
+	{
+		command = new ExecCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::REMARK_IGNORE)
 	{

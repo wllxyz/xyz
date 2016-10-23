@@ -58,7 +58,8 @@ public:
 	static const Symbols REMARK_REMARK;
 	//支持S表达式求解(WLL1文法自解释)
 	static const Symbols REMARK_IGNORE;		//忽略$IGNORE$LEFT_QUOTE...$RIGHT_QUOTE括号内的符号的求值
-	static const Symbols EVAL;				//执行求值动作
+	static const Symbols EVAL;				//执行求值动作,受外部$IGNORE制约
+	static const Symbols EXEC;				//执行求值动作,不受外部$IGNORE制约
 	static const Symbols LEFT_QUOTE;		//S表达式的左括号,用来界定前缀表达式
 	static const Symbols RIGHT_QUOTE;		//S表达式的右括号,用来界定前缀表达式
 	static const Symbols SEPERATOR;			//S表达式的参数分隔符号,用来分隔前缀表达式参数

@@ -13,7 +13,6 @@
 #to set the default compiler, default use c++
 GCC ?= c++
 AR ?= ar
-JAR ?= jar
 #--------------------------------------
 #here you can set your customer macros defined for compiler
 #DEFINE_OPTION ?= -DDEBUG
@@ -39,18 +38,14 @@ DEPEND_LIB_OPTION=$(foreach MODULE,$(DEPEND_MODULES),$(shell make --no-print-dir
 #--------------------------------------
 CPP_FILES = $(wildcard cpp/*.cpp)
 C_FILES = $(wildcard c/*.c)
-JAVA_FILES = $(wildcard java/*.java)
 CPP_OBJS = $(foreach FILE,$(CPP_FILES:.cpp=.o),tmp/$(FILE))
 C_OBJS = $(foreach FILE,$(C_FILES:.c=.o),tmp/$(FILE))
-JAVA_OBJS = $(foreach FILE,$(JAVA_FILES:.java=.class),tmp/$(FILE))
 CPP_DEPENDS = $(CPP_OBJS:.o=.d)
 C_DEPENDS = $(C_OBJS:.o=.d)
 MAIN_FILES = $(wildcard main/*.cpp)
 MAIN_C_FILES = $(wildcard main/*.c)
-MAIN_JAVA_FILES = $(wildcard main/*.java)
 MAIN_OBJS = $(foreach FILE, $(MAIN_FILES:.cpp=.o),tmp/$(FILE))
 MAIN_C_OBJS = $(foreach FILE, $(MAIN_C_FILES:.c=.o),tmp/$(FILE))
-MAIN_JAVA_OBJS = $(foreach FILE, $(MAIN_JAVA_FILES:.java=.class),tmp/$(FILE))
 MAIN_DEPENDS = $(MAIN_OBJS:.o=.d) 
 MAIN_C_DEPENDS = $(MAIN_C_OBJS:.o=.d)
 MAIN_BINS = $(foreach FILE, $(notdir $(MAIN_FILES:.cpp=.bin)), bin/$(FILE))
@@ -66,12 +61,7 @@ else
 LOCAL_SO=lib/lib$(MODULE).so
 endif
 
-ifeq (,$(JAVA_OBJS))
-LOCAL_CLASS=
-else
-LOCAL_CLASS=lib/$(MODULE).jar
-endif
-LOCAL_LIBS=$(LOCAL_LIB) $(LOCAL_SO) $(LOCAL_CLASS)
+LOCAL_LIBS=$(LOCAL_LIB) $(LOCAL_SO)
 ###############################################################################
 #--------------------------------------
 ifeq (1,$(DEBUG))
@@ -96,7 +86,7 @@ COMPILE=$(GCC) -c -fpic -o $@ $< $(COMPILE_OPTIONS)
 LINK=$(GCC) -o $@ $< $(LINK_OPTIONS)
 PACK_LIB=$(AR) -r $@ $^
 PACK_SO=$(GCC) -shared -o $@ $^
-PACK_CLASS=$(JAR) -cvf $@ -C tmp/java . 
+PACK_CLASS=$(JAR) -cvf $@ -C tmp .
 #--------------------------------------
 ###############################################################################
 #--------------------------------------
@@ -118,17 +108,6 @@ $(LOCAL_SO):$(CPP_OBJS) $(C_OBJS)
 	mkdir -p lib
 	$(PACK_SO)
 
-$(LOCAL_CLASS):$(JAVA_OBJS)
-	mkdir -p lib
-	$(PACK_CLASS)
-#--------------------------------------
-$(JAVA_OBJS):tmp/%.class:%.java
-	mkdir -p `dirname $@`
-	javac -d `dirname $@` $<
-#--------------------------------------
-$(MAIN_JAVA_OBJS):tmp/%.class:%.java
-	mkdir -p `dirname $@`
-	javac -d `dirname $@` $<
 #--------------------------------------
 $(MAIN_C_BINS) $(MAIN_BINS):bin/%.bin:tmp/main/%.o $(LOCAL_LIB)
 	mkdir -p bin
@@ -204,7 +183,6 @@ DEBUG:
 	echo "MAINC_BINS=$(MAIN_C_BINS)"
 	echo "resurse=$(recurse)"
 	echo $(LOCAL_LIBS)
-	echo $(JAVA_OBJS)
 	echo $(LOCAL_CLASS)
 #--------------------------------------
 ###############################################################################

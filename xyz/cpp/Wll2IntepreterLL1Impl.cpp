@@ -75,13 +75,11 @@ bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 		{
 			this->eval_switch = false;
 		}
-		/*
-		else if(symbol == Symbols::EVAL)
+		else if(symbol == Symbols::EXEC)
 		{
-			this->eval_switch = true;			//$EVAL的子节点开启求值(允许内层屏蔽节点先求值)
-			local_eval_switch = true;			//开启本层$EVAL命令的求值
+			this->eval_switch = true;			//$EXEC的子节点开启求值(允许内层屏蔽节点先求值)
+			local_eval_switch = true;			//开启本层$EXEC命令的求值
 		}
-		*/
 
 		vector<vector<Symbols> >parameter_fields;
 		parameter_fields.push_back(cmd);
