@@ -54,6 +54,7 @@
 <remark>-->$POP_DATA==><remark>-->$POP_DATA;
 <remark>-->$PUSH==><remark>-->$PUSH;
 <remark>-->$POP==><remark>-->$POP;
+<remark>-->$CAT==><remark>-->$CAT;
 <identifier>--><letter>==><identifier>--><letter>;
 <identifier>--><letter><letter_digit_string>==><identifier>--><letter><letter_digit_string>;
 <letter_digit_string>--><letter>==><letter_digit_string>--><letter>;
