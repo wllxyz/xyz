@@ -8,12 +8,12 @@
 <statement>--><complex_statement>			==>	<statement>--><complex_statement>;
 <statement>--><define_statement>			==>	<statement>--><define_statement>;
 <statement>--><e_statement>			==>	<statement>--><e_statement>;
-<assign_statement>--><variable>"="<e>		==>	<assign_statement>-->($SET <variable> <e>);
+<assign_statement>--><variable>"="<e>		==>	<assign_statement>-->($SET, <variable>, <e>);
 <print_statement>-->"$print "<e>				==> <print_statement>--><e>"\n";
 <e_statement>--><e>				==> <e_statement>--><e>;
-<while_statement>-->"$while("<e>")\n"<statement>	==>	<while_statement>-->($LOOP $IGNORE(($NOT ($EQ <e> "0"))) $IGNORE(<statement>));
+<while_statement>-->"$while("<e>")\n"<statement>	==>	<while_statement>-->($LOOP, ($IGNORE,($NOT, ($EQ, <e>, "0"))), ($IGNORE, <statement>));
 
-<if_statement>-->"$if("<e>")\n"<statement>"\n$else\n"<statement2>			==>	<if_statement>-->($COND ($NOT ($EQ <e> "0")) $IGNORE(<statement>) $TRUE $IGNORE(<statement2>));
+<if_statement>-->"$if("<e>")\n"<statement>"\n$else\n"<statement2>			==>	<if_statement>-->($COND, ($NOT, ($EQ, <e>, "0")), ($IGNORE,<statement>), $TRUE, ($IGNORE,<statement2>));
 <statement2>--><statement>					==> <statement2>--><statement>;
 <complex_statement>-->"{\n"<statement_list>"}"	==> <complex_statement>--><statement_list>;
 <variable>--><identifier>					==>		<variable>--><identifier>;
@@ -86,26 +86,26 @@
 <digit>-->"7"==><digit>-->"7";
 <digit>-->"8"==><digit>-->"8";
 <digit>-->"9"==><digit>-->"9";
-<e>--><e>"+"<t>		==>		<e>-->($ADD <e> <t>);
-<e>--><e>"-"<t>		==>		<e>-->($SUB <e> <t>);
+<e>--><e>"+"<t>		==>		<e>-->($ADD, <e>, <t>);
+<e>--><e>"-"<t>		==>		<e>-->($SUB, <e>, <t>);
 <e>--><t>		==>		<e>--><t>;
 <t>--><f>		==>		<t>--><f>;
-<t>--><t>"*"<f>		==>		<t>-->($MUL <t> <f>);
-<t>--><t>"/"<f>		==>		<t>-->($DIV <t> <f>);
-<f>--><variable>		==>		<f>-->($GET <variable>);
+<t>--><t>"*"<f>		==>		<t>-->($MUL, <t>, <f>);
+<t>--><t>"/"<f>		==>		<t>-->($DIV, <t>, <f>);
+<f>--><variable>		==>		<f>-->($GET, <variable>);
 <f>--><n>		==>		<f>--><n>;
 <f>-->"("<e>")"		==>		<f>--><e>;
 <f>--><r>		==>		<f>--><r>;
 <n>--><digit>	==>		<n>--><digit>;
 <n>--><digit><n>	==>		<n>--><digit><n>;
 
-<define_statement>--><fn>"("<pl>")=\n"<statement>==>		<define_statement>-->($SET <fn> $IGNORE(<statement>));
+<define_statement>--><fn>"("<pl>")=\n"<statement>==>		<define_statement>-->($SET, <fn>, ($IGNORE,<statement>));
 <fn>--><identifier>		==>		<fn>--><identifier>;
 <pl>--><p>		==>		<pl>--><p>;
 <pl>--><p>","<pl>	==>		<pl>--><p>","<pl>;
 <p>--><identifier>		==>		<p>--><identifier>;
-<r>--><fn>"("<ll>")"	==>		<r>-->($PUSH_DATA)<ll>($EVAL ($GET <fn>))($POP_DATA);
+<r>--><fn>"("<ll>")"	==>		<r>-->($PUSH_DATA)<ll>($EVAL, ($GET, <fn>))($POP_DATA);
 <ll>--><l>		==>		<ll>--><l>;
 <ll>--><l>","<ll>	==>		<ll>--><l><ll>;
-<l>--><p>"="<e>		==>		<l>-->($DEF <p> <e>);
+<l>--><p>"="<e>		==>		<l>-->($DEF, <p>, <e>);
 
