@@ -1,0 +1,32 @@
+l4-ok.xyz 和 l4-error.xyz的差别只是include语句的位置不同导致l4.xyz文法加载成功还是失败。
+原因可能是include语句的EXEC实现修改了后续语句的local_evel_switch状态。
+
+定位原因：
+bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
+的开始和结束，我们会先把this->eval_switch的状态存到local_eval_switch变量中，然后再从local_eval_switch中恢复到this->eval_switch。
+EXEC命令本身是需要执行，但是不应该改变同一层其他命令的执行环境。原来的做法local_eval_switch=true会通过this->eval_switch=local_eval_switch影响到上层语句的执行环境。
+
+修改方案：
+diff --git a/xyz/cpp/Wll2IntepreterLL1Impl.cpp b/xyz/cpp/Wll2IntepreterLL1Impl.cpp
+index 3d3fdda..9e7a6ef 100644
+--- a/xyz/cpp/Wll2IntepreterLL1Impl.cpp
++++ b/xyz/cpp/Wll2IntepreterLL1Impl.cpp
+@@ -78,7 +78,6 @@ bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
+                else if(symbol == Symbols::EXEC)
+                {
+                        this->eval_switch = true;                       //$EXEC的子节点开启求值(允许内层屏蔽节点先求值)
+-                       local_eval_switch = true;                       //开启本层$EXEC命令的求值
+                }
+ 
+                vector<vector<Symbols> >parameter_fields;
+@@ -94,7 +93,7 @@ bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
+                        parameter_fields.push_back(parameter);
+                }
+ 
+-               if(local_eval_switch)
++               if(local_eval_switch || symbol == Symbols::EXEC)    //EXEC命令本身也需要求值
+                {
+                        WllCommand* command = WllCommandFactory::CreateCommand(symbol, parameter_fields,this->intepreter);
+                        assert(command!=NULL);
+
+

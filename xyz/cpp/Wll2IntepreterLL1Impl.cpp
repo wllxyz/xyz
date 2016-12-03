@@ -78,7 +78,6 @@ bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 		else if(symbol == Symbols::EXEC)
 		{
 			this->eval_switch = true;			//$EXEC的子节点开启求值(允许内层屏蔽节点先求值)
-			local_eval_switch = true;			//开启本层$EXEC命令的求值
 		}
 
 		vector<vector<Symbols> >parameter_fields;
@@ -94,7 +93,7 @@ bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 			parameter_fields.push_back(parameter);
 		}
 
-		if(local_eval_switch)
+		if(local_eval_switch || symbol == Symbols::EXEC)    //EXEC命令本身也需要求值
 		{
 			WllCommand* command = WllCommandFactory::CreateCommand(symbol, parameter_fields,this->intepreter);
 			assert(command!=NULL);
