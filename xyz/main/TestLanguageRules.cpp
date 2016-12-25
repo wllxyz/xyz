@@ -23,8 +23,8 @@ int main()
 	assert(r2==r3);
 
 	stringstream output;
-	output<<LanguageRules(Symbols("abc"),LanguageExpressions("abc"));
-	assert(output.str()=="<abc>-->abc");
+	output<<LanguageRules(Symbols("<abc>"),LanguageExpressions("abc"));
+	assert(output.str()=="<abc>-->\"abc\"");
 
 	cout<<"PASS"<<endl;
 }

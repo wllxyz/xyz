@@ -24,7 +24,8 @@ int main()
 
 	stringstream output;
 	output<<LanguageExpressions("abc");
-	output<<LanguageExpressions(Symbols("abc"))<<LanguageExpressions(Symbols(REMARK_SYMBOL,"abc"));
+	output<<LanguageExpressions(Symbols("<abc>"))<<LanguageExpressions(Symbols(REMARK_SYMBOL,"$abc"));
+	cout<<output.str()<<endl;
 	assert(output.str()=="abc<abc>$abc");
 
 	cout<<"PASS"<<endl;
