@@ -36,6 +36,7 @@ public:
 	bool IsVariable()const;
 	bool IsConstant()const;
 	bool IsRemark()const;
+	const char* ToString()const;
 	virtual void Display(ostream& o) const;
 	void Dump(ostream& o) const;
 public:

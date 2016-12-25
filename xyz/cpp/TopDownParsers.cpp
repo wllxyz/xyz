@@ -1,5 +1,6 @@
 ﻿#include "TopDownParsers.h"
 #include "LanguageAlgorithm.h"
+#include "FirstSet.h"
 #include "WllTrace.h"
 #include <stack>
 #include <cassert>
@@ -62,8 +63,9 @@ bool TopDownParsers::Parse(const LanguageGrammar& languages, const std::vector<S
 		//cout<<state<<endl;
 		steps++;
 
+        set<Symbols> visited,first_set;
 //		如果当前状态C是一个空符号链表,而且当前词语的位置恰好处于句子末尾,那么算法成功返回
-		if(state.position==input_symbols.size() && state.expression.symbols.empty())
+		if(state.position==input_symbols.size() && (state.expression.symbols.empty() || First(languages.source_rules, state.expression.symbols,0,visited,first_set)))
 		{
 			//成功匹配！
 			success_states.push_back(state);

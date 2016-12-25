@@ -111,6 +111,27 @@ bool Symbols::IsRemark() const
 	return this->type==REMARK_SYMBOL;
 }
 
+const char* Symbols::ToString() const
+{
+    static char constant_char[2];
+	switch(this->type)
+	{
+	case VARIABLE_SYMBOL:
+		return(Symbols::variable_table.GetNameByIndex(this->value).c_str());
+		break;
+	case REMARK_SYMBOL:
+		return(Symbols::remark_table.GetNameByIndex(this->value).c_str());
+		break;
+	case CONSTANT_SYMBOL:
+		constant_char[0]=char(this->value);
+		return constant_char;
+		break;
+	default:
+		break;
+	}
+	return NULL;
+}
+
 void Symbols::Display(ostream& o) const
 {
 	switch(this->type)
