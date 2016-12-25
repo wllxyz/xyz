@@ -13,15 +13,17 @@ int main()
 	assert(empty_t1==empty_t2);
 
 	LanguageTranslations t1;
-	t1.source_rule = LanguageRules(Symbols("abc"),LanguageExpressions("abc"));
-	t1.destination_rule = LanguageRules(Symbols("abc"),LanguageExpressions(Symbols(REMARK_SYMBOL,"abc")));
+	t1.source_rule = LanguageRules(Symbols("<abc>"),LanguageExpressions("abc"));
+	t1.destination_rule = LanguageRules(Symbols("<abc>"),LanguageExpressions(Symbols(REMARK_SYMBOL,"$abc")));
 	LanguageTranslations t2 = t1;
 	assert(t1==t2);
 	assert(!(t1==empty_t1));
 
 	stringstream output;
 	output<<t1;
-	assert(output.str()=="<abc>-->abc==><abc>-->$abc");
-
+	cout<<t1<<endl;
+	
+	assert(output.str()=="<abc>-->\"abc\"==><abc>-->$abc;");
+    
 	cout<<"PASS"<<endl;
 }
