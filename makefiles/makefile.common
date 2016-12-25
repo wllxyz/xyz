@@ -130,6 +130,8 @@ release:
 	mkdir -p $(install_dir); for file in $(LOCAL_SO); do cp $$file $(install_dir); done
 
 install:
+	@echo back up $(install_dir) as $(install_dir).`date "+%FT%T"`
+	mv $(install_dir) $(install_dir).`date "+%FT%T"`
 	@if [ $(recurse) != 0 ]; then for dir in $(DEPEND_MODULES); do make -C $$dir install install_dir=$(install_dir); done; fi
 	mkdir -p $(install_dir)
 	if [ -e bin ]; then mkdir -p $(install_dir)/bin; cp -r bin/ $(install_dir); fi
