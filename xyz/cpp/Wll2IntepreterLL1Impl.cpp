@@ -23,7 +23,7 @@ Wll2IntepreterLL1Impl::Wll2IntepreterLL1Impl(const std::vector<Symbols>& input_s
 //<input>--><expression>
 bool Wll2IntepreterLL1Impl::IntepretWll()
 {
-	INFO("symbols="<<this->input_symbols);
+	INFO("start IntepretWll, symbols="<<this->input_symbols);
 
 	if(!this->IntepretExpression(this->output_symbols))
 	{
@@ -35,21 +35,24 @@ bool Wll2IntepreterLL1Impl::IntepretWll()
 
 bool Wll2IntepreterLL1Impl::IntepretExpression(std::vector<Symbols>& result)
 {
-	if(this->Encount(Symbols::END_SYMBOL) || this->Encount(Symbols::RIGHT_QUOTE) || this->Encount(Symbols::SEPERATOR)) return true;
-
-	if(this->Encount(Symbols::LEFT_QUOTE))
-	{
-		//<expression>--><sub-expression><expression>
-		//<sub-expression>--><quote-expression>
-		return this->IntepretSExpression(result) && this->IntepretExpression(result);
-	}
-	else
-	{
-		//<expression>--><sub-expression><expression>
-		//<sub-expression>--><symbol>
-		result.push_back(this->GetSymbol());
-		this->input_pos++;
-		return this->IntepretExpression(result);
+	while(!(this->Encount(Symbols::END_SYMBOL) || this->Encount(Symbols::RIGHT_QUOTE) || this->Encount(Symbols::SEPERATOR)))
+    {
+	    if(this->Encount(Symbols::LEFT_QUOTE))
+	    {
+		    //<expression>--><sub-expression><expression>
+		    //<sub-expression>--><quote-expression>
+		    if(!this->IntepretSExpression(result))
+		    {
+		        INFO("IntepretSExpression failed");
+		        return false;
+		    }
+	    }
+	    else
+	    {
+		    //<expression>--><sub-expression><expression>
+		    //<sub-expression>--><symbol>
+		    result.push_back(this->AcceptSymbol());
+	    }
 	}
 
 	return true;
@@ -62,12 +65,20 @@ bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 	bool local_eval_switch;
 	local_eval_switch = this->eval_switch;
 
-	if(!this->Accept(Symbols::LEFT_QUOTE)) return false;
+	if(!this->Accept(Symbols::LEFT_QUOTE)) 
+	{
+	    INFO("Expect ( as beginning of S-Expression");
+	    return false;
+	}
 
 	if(!this->Encount(Symbols::RIGHT_QUOTE))
 	{
 		std::vector<Symbols> cmd;
-		if(!this->IntepretExpression(cmd)) return false;
+		if(!this->IntepretExpression(cmd)) 
+		{
+		    INFO("IntepretExpression failed at the cmd part");
+		    return false;
+		}
 
 		Symbols symbol = cmd[0];
 
@@ -89,7 +100,11 @@ bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 			this->Accept(Symbols::SEPERATOR);
 
 			vector<Symbols> parameter;
-			if(!this->IntepretExpression(parameter)) return false;
+			if(!this->IntepretExpression(parameter)) 
+			{
+			    INFO("IntepretExpression failed at the parameter part");
+			    return false;
+			}
 			parameter_fields.push_back(parameter);
 		}
 
@@ -99,7 +114,7 @@ bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 			assert(command!=NULL);
 			vector<Symbols> command_result;
 			retval = command->Intepret(command_result);
-			INFO("command_result="<<command_result);
+			INFO(symbol<<" command_result="<<command_result);
 			result += command_result;
 			delete command;
 		}
@@ -108,7 +123,11 @@ bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 			ComposeSList(parameter_fields.begin(), parameter_fields.end(),result);
 		}
 	}//RIGHT_QUOTE
-	if(!this->Accept(Symbols::RIGHT_QUOTE)) return false;
+	if(!this->Accept(Symbols::RIGHT_QUOTE)) 
+	{
+	    INFO("Expect ) as end of S-Expression");
+	    return false;
+	}
 
 	this->eval_switch = local_eval_switch;
 
@@ -128,14 +147,19 @@ bool Wll2IntepreterLL1Impl::Accept(const Symbols& symbol)
 	}
 }
 
-bool Wll2IntepreterLL1Impl::Encount(const Symbols& symbol)
+bool Wll2IntepreterLL1Impl::Encount(const Symbols& symbol) const
 {
 	return this->GetSymbol()==symbol;
 }
 
-const Symbols& Wll2IntepreterLL1Impl::GetSymbol()
+const Symbols& Wll2IntepreterLL1Impl::GetSymbol() const
 {
 	return (this->input_pos >= this->input_symbols.size()) ? Symbols::END_SYMBOL : this->input_symbols[this->input_pos];
+}
+
+const Symbols& Wll2IntepreterLL1Impl::AcceptSymbol()
+{
+	return (this->input_pos >= this->input_symbols.size()) ? Symbols::END_SYMBOL : this->input_symbols[this->input_pos++];
 }
 
 void Wll2IntepreterLL1Impl::ShowErrorMessage()

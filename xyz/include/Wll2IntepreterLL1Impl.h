@@ -36,8 +36,9 @@ protected:
 	bool IntepretExpression(std::vector<Symbols>& result);
 	bool IntepretSExpression(std::vector<Symbols>& result);
 	bool Accept(const Symbols& symbol);
-	bool Encount(const Symbols& symbol);
-	const Symbols& GetSymbol();
+	bool Encount(const Symbols& symbol) const;
+	const Symbols& GetSymbol() const;
+	const Symbols& AcceptSymbol();
 };
 
 
