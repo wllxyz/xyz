@@ -800,6 +800,22 @@ bool LRParse(const vector<Symbols>& symbols,LanguageTree*& tree,const StateTrans
 				if(pos<symbols.size()) ++pos;
 				DEBUG_LOG("symbol["<<symbol<<"] is constant, advance input position");
 			}
+			//对于非终结符号（文法变量）
+			else
+			{
+				//如果没有通过规约生成symbol_node，则创建symbol_node节点
+				if(symbol_node==NULL)
+				{
+					DEBUG_LOG("symbol["<<symbol<<"] is variable, symbol_node is null.");
+					symbol_node = new LanguageTree();
+					symbol_node->symbol = symbol;
+					DEBUG_LOG("symbol["<<symbol<<"] is variable, symbol_node is created.");
+				}
+				else
+				{
+					DEBUG_LOG("symbol["<<symbol<<"] is variable, symbol_node is not null.");
+				}
+			}
 			analyzed_symbols.push_back(symbol_node);
 			DEBUG_LOG("symbol["<<symbol<<"] is pushed into analyzed symbols stack");
 		}
@@ -924,5 +940,15 @@ bool LoadLanguage(const char* grammar_filename, LanguageGrammar& languages, bool
 	}
 
 	INFO("Loading grammar file["<<grammar_filename<<"]");
-	return LoadLanguage(grammar_file, languages, add_mode, check_grammar);
+	bool retval = LoadLanguage(grammar_file, languages, add_mode, check_grammar);
+	if(retval)
+	{
+		INFO("Load grammar file["<<grammar_filename<<"] SUCCESS");
+	}
+	else
+	{
+		INFO("Loading grammar file["<<grammar_filename<<"] FAILED");
+	}
+
+	return retval;
 }

@@ -6,7 +6,7 @@ make -C ..
 echo "make project done"
 
 echo "run unit test ..."
-for file in bin/Test*.bin
+for file in $(ls bin/Test*.bin)
 do
         echo "run unit test case $file ..."
         ./$file

@@ -87,7 +87,7 @@ bool Compiler::Process(const LanguageGrammar& languages, const std::vector<Symbo
 	vector<Symbols> translate_output_symbols;
 	DisplayTreeLeaves(translate_output_symbols, destination_tree);
 
-	INFO("translate_output_symbols="<<translate_output_symbols);
+	INFO("input_symbols="<<input_symbols<<", translate_output_symbols="<<translate_output_symbols);
 
 	WllIntepreter* intepreter = this->intepreter_strategy.Get();
 	if(!intepreter->IntepretWll(translate_output_symbols, output_symbols))
@@ -97,6 +97,8 @@ bool Compiler::Process(const LanguageGrammar& languages, const std::vector<Symbo
 		INFO("Intepreter failed");
 		return false;
 	}
+
+	INFO("translate_output_symbols="<<translate_output_symbols<<", output_symbols="<<output_symbols);
 
 	DestroyTree(source_tree);
 	DestroyTree(destination_tree);
