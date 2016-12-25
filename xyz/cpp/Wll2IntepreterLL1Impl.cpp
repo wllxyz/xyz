@@ -164,7 +164,7 @@ const Symbols& Wll2IntepreterLL1Impl::AcceptSymbol()
 
 void Wll2IntepreterLL1Impl::ShowErrorMessage()
 {
-	TERM_ERROR("已经接受的输入符号:");
+	TERM_ERROR("already accepted symbols: ");
 	for(int i = 0; i<this->input_symbols.size(); i++)
 	{
 		if(i == this->input_pos)
