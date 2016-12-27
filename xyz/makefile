@@ -14,7 +14,7 @@ DEBUG=1
 GCC=clang++-3.5
 #--------------------------------------
 #here you can set your customer macros defined for compiler
-DEFINE_OPTION=-DPARSER=2 #-DDEBUG
+DEFINE_OPTION=-DPARSER=2 -DINTERPRETER=2 #-DDEBUG
 #DEFINE_OPTION=-DWLL1LOADER -DPARSER=0 -DSEARCH_ALL_SOLUTIONS #-DDEBUG
 STATIC_LINK=1
 #--------------------------------------

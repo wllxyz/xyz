@@ -21,8 +21,6 @@ public:
 	WllIntepreter(Compiler* compiler) { this->compiler = compiler; }
 	virtual bool IntepretWll(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols)=0;
 	Compiler* compiler;
-protected:
-	int SplitParameters(const vector<Symbols>&symbols,  vector< vector<Symbols> >& fields);
 };
 
 #endif /* WLL_INTEPRETER_H */

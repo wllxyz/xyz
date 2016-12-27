@@ -2,6 +2,10 @@
 #define LR0_PARSER  1
 #define LR1_PARSER  2
 
+#define	WLL0INTERPRETER	0
+#define	WLL1INTERPRETER	1
+#define	WLL2INTERPRETER	2
+
 //#define PARSER  LR1_PARSER
 
 #if PARSER==LR0_PARSER
@@ -30,7 +34,17 @@ int main(int argc,char** argv)
 #elif   PARSER==LR1_PARSER
 	LR1Parsers* parser = new LR1Parsers(&compiler);
 #endif  //PARSER
+
+#if	INTERPRETER==WLL0INTERPRETER
+	WllIntepreter* interpreter = new Wll0Intepreter(&compiler);
+#elif	INTERPRETER==WLL1INTERPRETER
+	WllIntepreter* interpreter = new Wll1Intepreter(&compiler);
+#elif	INTERPRETER==WLL2INTERPRETER
+	WllIntepreter* interpreter = new Wll2Intepreter(&compiler);
+#endif	//INTERPRETER
+
 	compiler.parser_strategy.Set(parser);
+	compiler.intepreter_strategy.Set(interpreter);
 
 	if(argc==1)
 	{
