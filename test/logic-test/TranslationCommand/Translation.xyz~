@@ -1,0 +1,14 @@
+<i>-->""==><o>-->
+($EQ, 
+    ($IGNORE, 
+        (
+            (<variable>, <variable>"CONSTANT"$REMARK),
+            (<variable>, <variable>"CONSTANT"$REMARK)
+        )
+    ), 
+    ($TRANSLATION, 
+        ($RULE, ($VARIABLE, "<variable>"), ($VARIABLE, "<variable>")($CONSTANT, "CONSTANT")($REMARK, "$REMARK") ), 
+        ($RULE, ($VARIABLE, "<variable>"), ($VARIABLE, "<variable>")($CONSTANT, "CONSTANT")($REMARK, "$REMARK") )
+    )
+) 
+"\n";

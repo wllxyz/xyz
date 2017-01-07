@@ -1,0 +1,22 @@
+#!/home/wll/work/svn/study/projects/c++/xyz/bin/wll-LR1.bin
+<in>--><e>"\n"==><out>-->$WLL0<e>"\n";
+<e>--><t>==><e>--><t>;
+<e>--><e>"+"<t>==><e>-->(+ <e> <t>);
+<e>--><e>"-"<t>==><e>-->(- <e> <t>);
+<t>--><f>==><t>--><f>;
+<t>--><t>"*"<f>==><t>-->(* <t> <f>);
+<t>--><t>"/"<f>==><t>-->(/ <t> <f>);
+<f>--><i>==><f>--><i>$REMARK_INT;
+<f>-->"("<e>")"==><f>--><e>;
+<i>--><digit>==><i>--><digit>;
+<i>--><i><digit>==><i>--><i><digit>;
+<digit>-->"0"==><digit>-->"0";
+<digit>-->"1"==><digit>-->"1";
+<digit>-->"2"==><digit>-->"2";
+<digit>-->"3"==><digit>-->"3";
+<digit>-->"4"==><digit>-->"4";
+<digit>-->"5"==><digit>-->"5";
+<digit>-->"6"==><digit>-->"6";
+<digit>-->"7"==><digit>-->"7";
+<digit>-->"8"==><digit>-->"8";
+<digit>-->"9"==><digit>-->"9";

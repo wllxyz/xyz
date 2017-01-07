@@ -1,0 +1,133 @@
+A->B,B->C(A-->C) : translate pipe
+B->C : language stack (can recognize A and B)  A->B || B->C || A->B,B->C
+C : interpret C instructions
+
+
+1. control logic
+
+	s1: A->B
+	s2: B->C
+	s3: C
+
+	for item in Si:
+		if left->right match left
+		then do the action (translate or interpret)
+			if the action is translate
+				the right is the output
+				if right === left 
+					output the right
+				else
+					iterator the right, put the output as input
+		else output the unmatched input
+
+
+2. define units and compose them together.
+	units:
+		u1: A->B
+		u2: B->C
+		u3: C
+
+	compose:
+		A->B,B->C as A-->C like pipe
+		A-->C || B-->C like Union operator
+
+
+3. 嵌入lisp子解释函数支持
+语法:
+	(LOAD_TRANSLATIONS <语法表达式>)
+	(ADD_TRANSLATIONS <语法表达式>)
+
+支持:
+	1. 独立LoadWll0相关函数[done]
+	2. 子解释添加LOAD_TRANSLATIONS标记的解释[done]
+	3. 注意输入状态[done]
+
+SelfExplain自解释和Translate翻译函数的功能分布改造
+	改造思路: 
+		1. Translate函数继续保持文法结构翻译的简洁性,但是需要考虑对直接引用源语言变量值的支持.[done]
+		2. SelfExplain简化对自解释/文法输出的分支判断(之前是通过识别$WLL0来实现的),把他们统一视为对文法中特殊REMARK的处理.[done]
+
+问题一:	是否需要保留原有的自解释语法标记?
+	解决方案: 可以保留原有的自解释语法标记,以便直接兼容原有文法. 括号标记文法是可以和原有自解释语法标记兼容的. [done][data/wll1/grammar.wll0](LOAD_TRANSLATIONS IGNORE($WLL0<wll0>))
+
+问题二: 考虑在对自解释输出代码进行求值的时候,怎样弥合Symbols和abc类中定义的ValueType类型的差异?
+是通过扩展Symbols的类型来解决问题,还是通过单独的数据栈来解决问题?
+同时需要考虑对变量赋值和引用的处理方法?
+
+问题三: 是时候考虑对 直接引用源语言中文法变量值 的支持了.
+	解决方案: 修改Translate算法
+
+其他优化点:
+1. 优化代码结构: 语法分析器分离,语法转换器分离,语法解释器分离
+2. 优化StringTable的实现: 采用string字符串池
+3. 优化ADD,SUB,MUL,DIV的解释实现[partly done]
+4. 优化SelfExplain的标记解析代码结构[done]
+5. 实现SUB,MUL,DIV的整型运算[done]
+6. 添加ADD_TRANSLATIONS标记[done]
+7. 采用s表达式结构对wll0语言标记进行自解释执行(wll2)
+8. 像lisp语言一样在运行的时候修改程序的s表达式: 
+	实现方式一: 调用WllIntepreter嵌套解释执行表达式
+	实现方式二: 把input_symbols看做代码栈,代码栈可以在解释执行时进行修改: input_symbols实现为deque<Symbols>&类型,当解释执行的代码消耗后,生成的代码可以input_symbols.push_front(生成的程序表达式)压入当前代码栈的栈顶,以便马上执行生成的代码.
+	实现方式三: LL(1)文法解析方式解释执行s程序表达式,嵌套解析方式(类似实现方式一),[优点可能是简单,但是不一定高效] [done Wll2Intepreter]
+
+9. 对函数定义的支持(非wll语言本身的函数)
+	通过引入GET SET实现了变量的存储和访问,根据符号表的管理需要,还需要实现DATA_PUSH, DATA_POP. 以实现变量的静态层次访问管理和数据堆栈的动态管理.
+	函数的定义和调用可以采用对函数变量赋值的方式实现(即函数也是变量,其值为运行的代码(也是数据)),函数调用的时候对参数的赋值可以采用压栈的方式,函数返回采用退栈的方式.(?怎样整合代码栈和数据栈?)(怎样整合静态数据栈和动态栈?)
+
+函数定义:
+1.设置函数名属性
+2.设置形参列表属性
+3.设置函数体
+t["a"]["name"] = 函数名;
+t["a"]["parameter_size"] = 2;
+t["a"]["parameters"]["0"] = "x";
+t["a"]["parameters"]["1"] = "y";
+
+函数调用:
+1.在当前数据堆栈中查找函数定义(函数定义的形参列表定义?)
+2.开辟新的数据堆栈(压栈),赋值形参 
+3.执行函数体(采用代码压栈技术?还是通过递归解释调用来简单实现?)
+
+
+数据堆栈:
+参数变量
+自动变量
+函数变量
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+1. 符号表的压栈应该在子模块定义开始处压栈,子模块定义结束处退栈.(这样可以解决静态数据链:内层变量对外层变量的访问问题:现在是用动态链访问会有非法访问的问题)[*TODO*]
+2. 函数的定义和调用可以使用单独的参数栈来传递和保存实参.(调用时压栈,函数定义处先出栈)
+3. 在需要内层能够引用外层模块的变量和函数定义时,动态数据栈和静态数据栈都需要;如果只需要访问本层的变量参数,则不需要静态数据栈.
+(引用外层变量和函数定义是一般是需要的)
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+对($SEPERATOR)+-*/标记符号可以考虑用符号本身来显示标记.(或者对调试日志进行字符替换)以方便调试和理解.
+
+循环和跳转的实现有两种方式:
+1. 引入JMP指令,代码栈的指针作为参数在编译的时候进行保存和填充.
+2. 通过递归调用函数间接实现.
+3. 直接通过解释器实现控制流的循环和跳转.[done: 添加了LOOP支持]
+
+($LOOP <condition> <expression>)
+($SET LOOP_BEGIN ($CODE_PTR))($COND <condition> <expression>($JMP ($GET LOOP_BEGIN)))
+
+两个小目标:
+1. 加强对嵌套循环的测试.[done]
+2. 加强对递归调用的测试.[done]
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+pl0.xyz在引入嵌套的PUSH_DATA/POP_DATA管理block嵌套定义时,遇到问题: 外层定义了code变量,内层SET code.x.y会因为x.y属性找不到而导致重新定义code变量
+怎样解决通过内层访问到code的附加属性(通过map实现的)的问题?
+通过修改SET和POP指令查找变量定义的名字(只取第一个"."分隔域)来解决上述问题.[done]
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+1. 整合WLL0标记文法==>WLL2 Intepreter中, 实现三种文法的加载解释?
+	可以通过Singleton变量translations来加载Wll0Command规则[done]
+	通过$REMARK转义$SEPERATOR[failed]
+
+2. 改进Wll2InterpreterImpl的递归实现性能
+

@@ -1,0 +1,9 @@
+#define space
+
+<spaces>-->""==><spaces>-->"";
+<spaces>--><space><spaces>==><spaces>--><space><spaces>;
+<space>-->" ";
+<space>-->"\t";
+<space>-->"\r";
+<space>-->"\n";
+

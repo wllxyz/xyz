@@ -1,0 +1,47 @@
+$print 2+3*5
+x=2
+marry=5*x+3
+$print x
+$print marry
+n=10
+$while(n)
+n=n-1
+$print n
+{
+}
+l=10
+$while(l)
+{
+$print l
+n=l
+s=0
+$while(n)
+{
+s=s+n
+n=n-1
+}
+$print s
+l=l-1
+}
+$if(n)
+{
+$print s
+}
+$else
+{
+}
+f(x)=
+{
+$if(x)
+{
+f(x=x-1)*x
+}
+$else
+{
+1
+}
+}
+$print f(x=1)
+$print f(x=2)
+$print f(x=3)
+$print f(x=10)

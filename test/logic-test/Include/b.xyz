@@ -1,0 +1,3 @@
+#this is b.xyz
+include "c.xyz"
+<b>--><c>==><b>--><c>;

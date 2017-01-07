@@ -1,0 +1,24 @@
+#define string
+
+<string>-->""==><string>-->"";
+<string>--><character><string>==><string>--><character><string>;
+<original_string>-->""==><original_string>-->"";
+<original_string>--><original_character><original_string>==><original_string>--><original_character><original_string>;
+<character>--><letter>==><character>--><letter>;
+<character>--><digit>==><character>--><digit>;
+<character>--><operator>==><character>--><operator>;
+<character>-->"'"==><character>-->"'";
+<character>--><spacial>==><character>--><spacial>;
+<character>--><space>==><character>--><space>;
+<original_character>--><letter>==><original_character>--><letter>;
+<original_character>--><digit>==><original_character>--><digit>;
+<original_character>--><operator>==><original_character>--><operator>;
+<original_character>-->'"'==><original_character>-->'"';
+<original_character>-->'\'==><original_character>-->'\';
+<original_character>--><space>==><original_character>--><space>;
+
+include "letter.xyz"
+include "digit.xyz"
+include "operator.xyz"
+include "space.xyz"
+include "spacial.xyz"

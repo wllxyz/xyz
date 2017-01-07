@@ -1,0 +1,47 @@
+<start>--><wll0>==><start>-->($WLL0,<wll0>);
+<wll0>--><comment_line>==><wll0>-->"";
+<wll0>--><comment_line><wll0>==><wll0>--><wll0>;
+<wll0>--><empty_line>==><wll0>-->"";
+<wll0>--><empty_line><wll0>==><wll0>--><wll0>;
+<wll0>--><include_line>==><wll0>--><include_line>;
+<wll0>--><include_line><wll0>==><wll0>--><include_line><wll0>;
+<wll0>--><translation>";"<end_of_line>==><wll0>--><translation>;
+<wll0>--><translation>";"<end_of_line><wll0>==><wll0>--><translation><wll0>;
+<comment_line>-->"#"<comment_string><end_of_line>==><comment_line>-->"#"<comment_string><end_of_line>;
+<empty_line>--><end_of_line>==><empty_line>--><end_of_line>;
+<comment_string>-->""==><comment_string>-->"";
+<comment_string>--><letter><comment_string>==><comment_string>--><letter><comment_string>;
+<comment_string>--><digit><comment_string>==><comment_string>--><digit><comment_string>;
+<comment_string>--><operator><comment_string>==><comment_string>--><operator><comment_string>;
+<comment_string>-->" "<comment_string>==><comment_string>-->" "<comment_string>;
+<comment_string>-->"\t"<comment_string>==><comment_string>-->"\t"<comment_string>;
+<end_of_line>-->"\n"==><end_of_line>-->"\n";
+<end_of_line>-->"\r\n"==><end_of_line>-->"\r\n";
+<include_line>-->"include"<space><spaces><include_file>==><include_line>-->($EXEC,($CALL,"<wll0>",($CAT,<include_file>)));
+<include_file>-->'"'<string>'"'==><include_file>--><string>;
+<translation>--><source_rule>"==>"<spaces><destination_rule>==><translation>-->($TRANSLATION,<source_rule>,<destination_rule>);
+<translation>--><rule>==><translation>-->($TRANSLATION,($SOURCE_RULE,<rule>),($DESTINATION_RULE,<rule>));
+<source_rule>--><rule>==><source_rule>-->($SOURCE_RULE,<rule>);
+<destination_rule>--><rule>==><destination_rule>-->($DESTINATION_RULE,<rule>);
+<rule>--><root><spaces>"-->"<spaces><expression>==><rule>-->($RULE,<root>,($IGNORE,<expression>));
+<root>--><variable>==><root>--><variable>;
+<expression>--><symbol><spaces>==><expression>--><symbol>;
+<expression>--><symbol><spaces><expression>==><expression>--><symbol><expression>;
+<symbol>--><variable>==><symbol>--><variable>;
+<symbol>--><constant>==><symbol>--><constant>;
+<symbol>--><remark>==><symbol>--><remark>;
+<symbol>--><s_expression>==><symbol>--><s_expression>;
+<s_expression>-->"("<spaces><expression_list>")"==><s_expression>-->$LEFT_QUOTE<expression_list>$RIGHT_QUOTE;
+<expression_list>--><expression>==><expression_list>--><expression>;
+<expression_list>--><expression>","<spaces><expression_list>==><expression_list>--><expression>$SEPERATOR<expression_list>;
+<variable>-->"<"<identifier>">"==><variable>-->($EXEC,($VARIABLE,"<"<identifier>">"));
+<constant>-->'"'<string>'"'==><constant>-->($EXEC,($CONSTANT,<string>));
+<constant>-->"'"<original_string>"'"==><constant>-->($EXEC,($CONSTANT,<original_string>));
+<remark>-->"$"<identifier>==><remark>-->($EXEC,($IGNORE,($REMARK,"$"<identifier>)));
+
+include "string.xyz"
+include "identifier.xyz"
+include "operator.xyz"
+include "space.xyz"
+include "spacial.xyz"
+
