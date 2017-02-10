@@ -1,0 +1,17 @@
+$def g(n)=
+{
+$if(n)
+{
+g(n-1)*n
+}
+$else
+{
+1
+}
+}
+n=10
+$while(n)
+{
+n=n-1
+$print g(n)
+}
