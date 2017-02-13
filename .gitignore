@@ -1,1 +1,6 @@
 wiki
+tmp
+lib
+bin
+**/logs/*
+*~
