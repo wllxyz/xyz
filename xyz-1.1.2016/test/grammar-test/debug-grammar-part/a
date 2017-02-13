@@ -1,0 +1,11 @@
+<symbol>--><variable>==><symbol>--><variable>$SUB-SYMBOL;
+<symbol>--><constant>==><symbol>--><constant>$SUB-SYMBOL;
+<variable>-->"<"<identifier>">"==><variable>--><identifier>;
+<constant>-->"$"<remark>==><constant>--><remark>$CONSTANT;
+<remark>-->"WLL0"==><remark>-->$WLL0;
+<remark>-->"TRANSLATION"==><remark>-->$TRANSLATION;
+<remark>-->"SOURCE-RULE"==><remark>-->$SOURCE-RULE;
+<remark>-->"DESTINATION-RULE"==><remark>-->$DESTINATION-RULE;
+<remark>-->"RULE"==><remark>-->$RULE;
+<remark>-->"ROOT-SYMBOL"==><remark>-->$ROOT-SYMBOL;
+<spacial>-->"\\\\"==><spacial>-->"\\";

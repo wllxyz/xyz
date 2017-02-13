@@ -1,0 +1,10 @@
+<me>--><e>"\n"==><be>--><e>;
+<e>--><e>"+"<t>==><e>--><e><t>"pop bx\npop ax\nadd ax bx\npush ax\n";
+<e>--><e>"-"<t>==><e>--><e><t>"pop bx\npop ax\nsub ax bx\npush ax\n";
+<e>--><t>==><e>--><t>;
+<t>--><t>"*"<f>==><t>--><t><f>"pop bx\npop ax\nmul ax bx\npush ax\n";
+<t>--><t>"/"<f>==><t>--><t><f>"pop bx\npop ax\ndiv ax bx\npush ax\n";
+<t>--><f>==><t>--><f>;
+<f>-->"("<e>")"==><f>--><e>;
+<f>-->"0"==><f>-->"push 0\n";
+<f>-->"1"==><f>-->"push 1\n";

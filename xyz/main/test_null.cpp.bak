@@ -1,0 +1,88 @@
+#define protected public
+#include "TopDownParsers.h"
+#include "LR0Parsers.h"
+#include "LR1Parsers.h"
+#include <fstream>
+using namespace std;
+
+template <typename PARSER_TYPE>
+class TestParsers : public PARSER_TYPE
+{
+//调试ParseTree方法的数据桩
+public:
+	virtual bool LoadLanguage()
+	{
+		//<w>--><a>"\n"==><w>--><a>;
+		//<a>-->""==><a>-->"";
+		//<a>-->"0"<a>==><a>-->"1"<a>;
+		//<a>-->"11"<a>==><a>-->"1"<a>;
+		this->source_languages.Clear();
+		this->dest_languages.Clear();
+
+		this->source_languages.Insert(LanguageRules(0,LanguageExpressions(2,-1,'\n')));
+		this->dest_languages.Insert(LanguageRules(0,LanguageExpressions(1,-1)));
+		this->source_languages.Insert(LanguageRules(-1,LanguageExpressions()));
+		this->dest_languages.Insert(LanguageRules(-1,LanguageExpressions()));
+		this->source_languages.Insert(LanguageRules(-1,LanguageExpressions(2,'0',-1)));
+		this->dest_languages.Insert(LanguageRules(-1,LanguageExpressions(2,'1',-1)));
+		this->source_languages.Insert(LanguageRules(-1,LanguageExpressions(3,'1','1',-1)));
+		this->dest_languages.Insert(LanguageRules(-1,LanguageExpressions(2,'1',-1)));
+	}
+
+void PrintRules(ostream& oo)
+{
+        oo<<"Source Language Rules:"<<endl;
+        for(SIZE_TYPE i=1; i<=this->source_languages.Length(); i++)
+            	oo<<i<<" : "<<this->source_languages[i]<<endl;
+
+	oo<<"Destinate Language Rules:"<<endl;
+	for(SIZE_TYPE i=1; i<=this->dest_languages.Length(); i++)
+		oo<<i<<" : "<<this->dest_languages[i]<<endl;
+
+}
+
+};//end of template class TestParsers
+
+template <typename PARSER_TYPE>
+void RunTest(const char* input_filename)
+{
+	TestParsers<PARSER_TYPE> parser;
+	parser.LoadLanguage();
+	parser.PrintRules(cout);
+
+	ifstream input(input_filename);
+	parser.LoadInput(input);
+
+	if(parser.Parse())
+	{
+		parser.Translate(cout);
+		cout<<"SUCCESS"<<endl;
+	}
+	else
+		cout<<"reject"<<endl;
+	
+}
+
+int main(int argc,char**argv)
+{
+	if(argc!=2)
+	{
+		cout<<argv[0]<<" <input file>"<<endl;
+		return -1;
+	}
+//	cout<<"========================================="<<endl;
+//	RunTest<LR0Parsers>();
+//	cout<<"========================================="<<endl;
+//	RunTest<LR1Parsers>();	
+	cout<<"========================================="<<endl;
+	RunTest<LR1Parsers>(argv[1]);
+//	char c;
+//	cin>>c;
+//	cout<<"========================================="<<endl;
+//	RunTest<TopDownParsers>();
+//	cout<<"========================================="<<endl;
+//	RunTest<TopDownParsers>();
+	return 0;
+	
+}
+

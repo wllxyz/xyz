@@ -1,0 +1,4 @@
+1.0版本 实现了wll语言的核心，测试了简单的例子，对自解释语法做了对比验证测试（pass），对左递归文法做了简单测试（pass），对二义文法做了简单测试（发现规约顺序为字母顺序）但是first集合的（orderlist==》list实现改变无法实现优先策略。
+1.2版本 增强了出错定位信息，发现了grammar-spaces.xyz的expression-spaces文法的二义性
+2.0版本 替换了DataStruct --> stl, 支持null语法，增加了大量单元测试代码。
+

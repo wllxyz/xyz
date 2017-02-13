@@ -1,0 +1,26 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+using namespace std;
+
+int main()
+{
+	ifstream input("a.txt");
+	vector<char> v;
+	while(!input.eof())
+	{
+		char c = input.get();
+		if(input.fail()) break;
+		cout<<c;
+		v.push_back(c);
+		//printf("%x",c);
+	}
+	cout<<endl;
+	cout<<v.size()<<endl;
+	for(vector<char>::const_iterator i=v.begin(); i!=v.end(); ++i)
+	{
+		printf("%x",char(*i));
+		cout<<" ";
+	}
+	return 0;
+}

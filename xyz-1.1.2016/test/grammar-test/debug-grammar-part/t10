@@ -1,0 +1,10 @@
+<space>-->"\r"==><space>==>"\r";
+<space>-->" "==><space>==>" ";
+<spacial>-->"\\\""==><spacial>==>"\"";
+<spacial>-->"\\\\"==><spacial>==>"\\";
+<spacial>-->"\\t"==><spacial>==>"\t";
+<spacial>-->"\\n"==><spacial>==>"\n";
+<spacial>-->"\\r"==><spacial>==>"\r";
+<spaces>--><space>==><spaces>--><space>;
+<spaces>--><space><spaces>==><spaces>--><space><spaces>;
+ 

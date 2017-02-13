@@ -1,0 +1,15 @@
+1. <a>--><b><b>==><a>--><b>
+the same <b> note exactly the same content, mean's <b>=<b>. so the above rule means transform two same part as one part out.
+if you want say two diff object of the same kind, then you should write the rule as follow:
+<a>--><c><d>==><a>--><c>
+<c>--><b>==><c>--><b>
+<d>--><b>==><d>--><b>
+
+2. except rule:
+<a>--><b>/<c>==><a>--><b>
+<a>--><c>==><a>--><c>
+when <c> maybe included in <b>, for example <b> note as all strings, <c> note as "if" -- the spacial string.
+when input is "if" the <a>--><c> rule should matched.
+when input is "hello" the <a>--><b>/<c> rule should matched.
+
+

@@ -1,0 +1,13 @@
+#include "LanguageParsers.h"
+
+class TestLanguageParser : public LanguageParsers
+{
+	virtual bool ParseTree(const List<int>&, List<LanguageRules>&, LanguageTree*&){}
+};
+
+int main()
+{
+	TestLanguageParser parser;
+	parser.LoadLanguage();
+}
+

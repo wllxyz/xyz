@@ -1,0 +1,150 @@
+﻿#include "TopDownParsers.h"
+
+//输出状态到输出流中
+ostream& operator<< (ostream& o,const SearchStates& s)
+{
+	o<<"("<<s.expression<<","<<s.position<<")"<<endl;
+	o<<'\t';
+	o<<"(";
+	if(!s.rules.IsEmpty())
+	{
+		for(SIZE_TYPE i=1; i<s.rules.Length(); i++)
+			o<<s.rules[i]<<',';
+		o<<s.rules[s.rules.Length()];
+	}
+	o<<")";
+	o<<endl;
+	return o;
+}
+
+	//调用算法分析句法
+	bool TopDownParsers::ParseTree(const List<Symbols>& symbols,List<LanguageRules>& languages,LanguageTree*& tree)
+	{
+	//输入字符流==>查阅词典==>单词流==>句法分析器的输入
+	//<句法分析算法>
+	//	构建词典
+	//	构建符号表(包括终结符号和非终结符号)
+	//	构建文法产生式表
+	//	初始化状态栈为空,初始状态((S)1)压栈
+	//	<循环><结束条件>栈为空,(搜索了全部状态都没有匹配)算法失败</结束条件>
+	//		栈顶状态出栈到当前状态C
+	//		如果当前状态C是一个空符号链表,而且当前词语的位置恰好处于句子末尾,那么算法成功返回
+	//		如果当前状态C是一个空符号链表,但是当前词语的位置不是处于句子末尾
+	//		或者当前状态C不是一个空符号链表,当前词语的位置已经处于句子末尾
+	//		则跳过这次循环,(抛弃这个状态)分析下一个状态
+	//		如果C中符号表的第一个符号和输入符号匹配
+	//			则从符号表中删除第一个符号,更新当前词语的位置(+1),把它构成一个新状态加入状态栈中
+	//		否则(C中符号表的第一个符号和输入符号不匹配),
+	//			如果C中符号表的第一个符号是非终结符
+	//				则根据第一个非终结符号查找文法产生式表,把所有能够由此非终结符号产生的文法表达式替换非终结符号,构成新的状态集,加入到状态搜索栈中
+	//			否则,抛弃这个状态,分析下一个状态.(什么也不做)
+	//	</循环>
+	//<句法分析算法>
+
+		Stack<SearchStates> stack;							//状态栈
+		SearchStates state(LanguageExpressions(1,0),1);		//当前状态
+		bool flag=false;								//成功匹配标志
+		unsigned long int steps=0;						//记录分析的步数
+		int max_matched_length=0;	//for error analyze
+		SearchStates max_matched_state;	//for error analyze
+	//	初始化状态栈为空,初始状态((S)1)压栈
+		stack.Push(state);
+	//	<循环><结束条件>栈为空,(搜索了全部状态都没有匹配)算法失败</结束条件>
+		while(!stack.IsEmpty())
+		{
+	//		栈顶状态出栈到当前状态C
+			stack.Pop(state);
+			cout<<state<<endl;
+			steps++;
+            //<INSERT>
+    //      如果当前状态的表达式的长度已经比输入流的符号长度大,则直接抛弃这个状态取下一个状态
+            if(state.expression.symbols.Length()>symbols.Length()) continue;
+            //</INSERT>
+	//		如果当前状态C是一个空符号链表,而且当前词语的位置恰好处于句子末尾,那么算法成功返回
+			if(state.position==symbols.Length()+1 && state.expression.symbols.IsEmpty())
+			{
+				//成功匹配！
+				//输出顺序使用的规则
+				cout<<"Source rules:"<<endl;
+				cout<<state.rules;
+				//根据使用的规则构造文法分析树
+				ConstructTreeByRules(state.rules,languages,tree);
+				flag=true;
+				break;
+			}
+	//		如果当前状态C是一个空符号链表,但是当前词语的位置不是处于句子末尾
+	//		或者当前状态C不是一个空符号链表,当前词语的位置已经处于句子末尾
+	//		则跳过这次循环,(抛弃这个状态)分析下一个状态
+			if(state.expression.symbols.IsEmpty() || state.position==symbols.Length()+1) continue;
+	//		如果C中符号表的第一个符号和输入符号匹配
+			if(symbols[state.position]==state.expression.symbols[1])
+			{
+	//			则从符号表中删除第一个符号,更新当前词语的位置(+1),把它构成一个新状态加入状态栈中
+				state.expression.symbols.Remove(1);
+				state.position++;
+				stack.Push(state);
+			}
+	//		否则(C中符号表的第一个符号和输入符号不匹配),
+			else
+			{
+	//			如果C中符号表的第一个符号是非终结符
+	//				则根据第一个非终结符号查找文法产生式表,把所有能够由此非终结符号产生的文法表达式替换非终结符号,构成新的状态集,加入到状态搜索栈中
+	//			否则,抛弃这个状态,分析下一个状态.(什么也不做)
+				LanguageRules language_rule;
+				language_rule.symbol=state.expression.symbols[1];
+				
+				if(languages.SearchFirst(language_rule))	//终结符号是没有文法产生式的，搜索将失败
+				{
+					SearchStates new_state;
+					state.expression.symbols.Remove(1);		//去掉第一个文法符号(被替换)
+					new_state.expression=language_rule.expression+state.expression;
+					new_state.position=state.position;
+					new_state.rules=state.rules;
+					new_state.rules.Insert(language_rule);
+					stack.Push(new_state);
+					while(languages.SearchNext(language_rule))
+					{
+						SearchStates new_state;
+						new_state.expression=language_rule.expression+state.expression;
+						new_state.position=state.position;
+						new_state.rules=state.rules;
+						new_state.rules.Insert(language_rule);
+						stack.Push(new_state);
+					}
+				}
+				else
+				{
+					//save the longest matched search state(for error analyze)
+					if(state.position>max_matched_length)
+					{
+						max_matched_length=state.position;
+						max_matched_state=state;
+					}	
+				}
+			}
+		}//end of while
+	//	</循环>
+		cout<<"Total steps:"<<steps<<endl;
+		if(!flag)
+		{	
+			//output error analyze info
+			cout<<"parse failed"<<endl;
+			cout<<"the max matched state:"<<endl;
+			cout<<max_matched_state<<endl;
+			cout<<"the current input symbol = "<<(isprint(symbols[max_matched_state.position])?(char)symbols[max_matched_state.position]:symbols[max_matched_state.position])<<endl;
+			for(int i=1; i<=symbols.Length(); i++)
+			{
+				if(i==max_matched_state.position)
+				{
+					cout<<"["<<(isprint(symbols[i])?(char)symbols[i]:symbols[max_matched_state.position])<<"]";
+				}
+				else
+				{
+					cout<<(char)symbols[i];
+				}
+			}
+			cout<<endl;
+		}
+		return flag;
+	}//Parse
+

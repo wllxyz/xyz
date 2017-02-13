@@ -1,0 +1,17 @@
+#!/bin/bash
+
+dir=$(pwd)
+for arg in $*
+do
+	if [ "x$arg" == "x-" ]
+	then
+		args="$args -"
+	else
+		args="$args $dir/$arg"
+	fi
+done
+
+cd $(dirname $0)
+cd ../
+./bin/main.bin $args
+

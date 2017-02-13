@@ -1,0 +1,11 @@
+$const a=365,b=2
+#var c,d
+@procedure f(p1,p2);
+%begin 
+	p1:=p1+p2 
+%end;
+%begin
+	$read(c,d);
+	$while a=b $do $if 5>a $then c:=5;
+	$write(5) 
+%end.

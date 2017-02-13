@@ -1,0 +1,63 @@
+<start>--><wll0>==><start>-->$LEFT_QUOTE$WLL0$SEPERATOR<wll0>$RIGHT_QUOTE;
+<wll0>--><comment_line>==><wll0>-->"";
+<wll0>--><comment_line><wll0>==><wll0>--><wll0>;
+<wll0>--><empty_line>==><wll0>-->"";
+<wll0>--><empty_line><wll0>==><wll0>--><wll0>;
+<wll0>--><include_line>==><wll0>--><include_line>;
+<wll0>--><include_line><wll0>==><wll0>--><include_line><wll0>;
+<wll0>--><translation>";"<end_of_line>==><wll0>--><translation>;
+<wll0>--><translation>";"<end_of_line><wll0>==><wll0>--><translation><wll0>;
+<comment_line>-->"#"<comment_string><end_of_line>==><comment_line>-->"#"<comment_string><end_of_line>;
+<empty_line>--><end_of_line>==><empty_line>--><end_of_line>;
+<comment_string>-->""==><comment_string>-->"";
+<comment_string>--><letter><comment_string>==><comment_string>--><letter><comment_string>;
+<comment_string>--><digit><comment_string>==><comment_string>--><digit><comment_string>;
+<comment_string>--><operator><comment_string>==><comment_string>--><operator><comment_string>;
+<comment_string>-->" "<comment_string>==><comment_string>-->" "<comment_string>;
+<comment_string>-->"\t"<comment_string>==><comment_string>-->"\t"<comment_string>;
+<end_of_line>-->"\n"==><end_of_line>-->"\n";
+<end_of_line>-->"\r\n"==><end_of_line>-->"\r\n";
+<include_line>-->"include"<space><spaces><include_file>==><include_line>-->$LEFT_QUOTE$EXEC$SEPERATOR$LEFT_QUOTE$CALL$SEPERATOR"<wll0>"$SEPERATOR$LEFT_QUOTE$CAT$SEPERATOR<include_file>$RIGHT_QUOTE$RIGHT_QUOTE$RIGHT_QUOTE;
+<include_file>-->'"'<string>'"'==><include_file>--><string>;
+<translation>--><source_rule>"==>"<spaces><destination_rule>==><translation>-->$LEFT_QUOTE$TRANSLATION$SEPERATOR<source_rule>$SEPERATOR<destination_rule>$RIGHT_QUOTE;
+<translation>--><rule>==><translation>-->$LEFT_QUOTE$TRANSLATION$SEPERATOR$LEFT_QUOTE$SOURCE_RULE$SEPERATOR<rule>$RIGHT_QUOTE$SEPERATOR$LEFT_QUOTE$DESTINATION_RULE$SEPERATOR<rule>$RIGHT_QUOTE$RIGHT_QUOTE;
+<source_rule>--><rule>==><source_rule>-->$LEFT_QUOTE$SOURCE_RULE$SEPERATOR<rule>$RIGHT_QUOTE;
+<destination_rule>--><rule>==><destination_rule>-->$LEFT_QUOTE$DESTINATION_RULE$SEPERATOR<rule>$RIGHT_QUOTE;
+<rule>--><root><spaces>"-->"<spaces><expression>==><rule>-->$LEFT_QUOTE$RULE$SEPERATOR<root>$SEPERATOR$LEFT_QUOTE$IGNORE$SEPERATOR<expression>$RIGHT_QUOTE$RIGHT_QUOTE;
+<root>--><variable>==><root>--><variable>;
+<expression>--><symbol><spaces>==><expression>--><symbol>;
+<expression>--><symbol><spaces><expression>==><expression>--><symbol><expression>;
+<symbol>--><variable>==><symbol>--><variable>;
+<symbol>--><constant>==><symbol>--><constant>;
+<symbol>--><remark>==><symbol>--><remark>;
+<symbol>--><s_expression>==><symbol>--><s_expression>;
+<s_expression>-->"("<spaces><expression_list>")"==><s_expression>-->$LEFT_QUOTE<expression_list>$RIGHT_QUOTE;
+<expression_list>--><expression>==><expression_list>--><expression>;
+<expression_list>--><expression>","<spaces><expression_list>==><expression_list>--><expression>$SEPERATOR<expression_list>;
+<variable>-->"<"<identifier>">"==><variable>-->$LEFT_QUOTE$EXEC$SEPERATOR$LEFT_QUOTE$VARIABLE$SEPERATOR"<"<identifier>">"$RIGHT_QUOTE$RIGHT_QUOTE;
+<constant>-->'"'<string>'"'==><constant>-->$LEFT_QUOTE$EXEC$SEPERATOR$LEFT_QUOTE$CONSTANT$SEPERATOR<string>$RIGHT_QUOTE$RIGHT_QUOTE;
+<constant>-->"'"<original_string>"'"==><constant>-->$LEFT_QUOTE$EXEC$SEPERATOR$LEFT_QUOTE$CONSTANT$SEPERATOR<original_string>$RIGHT_QUOTE$RIGHT_QUOTE;
+<remark>-->"$"<identifier>==><remark>-->$LEFT_QUOTE$EXEC$SEPERATOR$LEFT_QUOTE$IGNORE$SEPERATOR$LEFT_QUOTE$REMARK$SEPERATOR"$"<identifier>$RIGHT_QUOTE$RIGHT_QUOTE$RIGHT_QUOTE;
+
+<string>-->""==><string>-->"";
+<string>--><character><string>==><string>--><character><string>;
+<original_string>-->""==><original_string>-->"";
+<original_string>--><original_character><original_string>==><original_string>--><original_character><original_string>;
+<character>--><letter>==><character>--><letter>;
+<character>--><digit>==><character>--><digit>;
+<character>--><operator>==><character>--><operator>;
+<character>-->"'"==><character>-->"'";
+<character>--><spacial>==><character>--><spacial>;
+<character>--><space>==><character>--><space>;
+<original_character>--><letter>==><original_character>--><letter>;
+<original_character>--><digit>==><original_character>--><digit>;
+<original_character>--><operator>==><original_character>--><operator>;
+<original_character>-->'"'==><original_character>-->'"';
+<original_character>-->'\'==><original_character>-->'\';
+<original_character>--><space>==><original_character>--><space>;
+include "identifier.xyz"
+include "operator.xyz"
+include "space.xyz"
+include "spacial.xyz"
+<spaces>-->""==><spaces>-->"";
+<spaces>--><space><spaces>==><spaces>--><space><spaces>;

@@ -1,0 +1,6 @@
+svn 40 : 
+1. support null string grammar
+2. try to import wll.xyz grammar check (wll.xyz不是LR1文法)
+3. LR1 grammar limit
+4. 计划下一个版本重构分析内核实现二义性文法分析
+

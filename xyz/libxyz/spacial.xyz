@@ -1,0 +1,8 @@
+#define spacial
+
+<spacial>-->'\"'==><spacial>-->'"';
+<spacial>-->'\\'==><spacial>-->'\';
+<spacial>-->'\t'==><spacial>-->"\t";
+<spacial>-->'\n'==><spacial>-->"\n";
+<spacial>-->'\r'==><spacial>-->"\r";
+

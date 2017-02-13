@@ -1,0 +1,29 @@
+#include "LanguageParsers.h"
+
+class TestLanguageParser : public LanguageParsers
+{
+	virtual bool ParseTree(const List<int>&, List<LanguageRules>&, LanguageTree*&){}
+public:
+	void test()
+	{
+		Set<Symbols> visited,result;
+		bool could_be_empty = First(STRING,visited,result);
+		cout<<"could_be_empty"<<(could_be_empty?"true":"false")<<endl;
+		cout<<"first set of STRING:"<<endl;
+		if(result.First())
+		{
+			do{
+				Symbols symbol = result.GetCurrent();
+				cout<<char(symbol)<<" ";
+			}while(result.Next());
+		}
+	}
+};
+
+int main()
+{
+	TestLanguageParser parser;
+	//parser.LoadLanguage();
+	parser.test();
+}
+

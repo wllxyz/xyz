@@ -1,0 +1,13 @@
+<increament>--><number>"++"==><increament>--><number>
+<number>--><number>"0"==><number>--><number>"1"
+<number>--><number1>"1"==><number>-->(parse;<number>,<number1>)"0"
+
+
+<add>--><add1>"0""+"<add2>"0"==><add>-->(parse;<add>,<add1>"+"<add2>)"0";
+<add>--><add1>"1""+"<add2>"0"==><add>-->(parse;<add>,<add1>"+"<add2>)"1";
+<add>--><add1>"0""+"<add2>"1"==><add>-->(parse;<add>,<add1>"+"<add2>)"1";
+<add>--><add1>"1""+"<add2>"1"==><add>-->(parse;<add>,<add1>"+"<add2>"+""1")"0";
+<add>--><add1>"0""+"<add2>"0""+""1"==><add>-->(parse;<add>,<add1>"+"<add2>)"1";
+<add>--><add1>"1""+"<add2>"0""+""1"==><add>-->(parse;<add>,<add1>"+"<add2>"+""1")"0";
+<add>--><add1>"0""+"<add2>"1""+""1"==><add>-->(parse;<add>,<add1>"+"<add2>"+""1")"0";
+<add>--><add1>"1""+"<add2>"1""+""1"==><add>-->(parse;<add>,<add1>"+"<add2>"+""1")"1";
