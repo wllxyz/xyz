@@ -5,12 +5,12 @@
 <filter>-->"FwSC""\n"==><filter>-->"FwSC""\n";
 <filter>-->"FwSc""\n"==><filter>-->"FwSc""\n";
 <filter>-->"FwsC""\n"==><filter>-->"";
-<filter>-->"Fwsc""\n"==><filter>-->"Fwsc""\n";
-<filter>-->"fWSC""\n"==><filter>-->"fWSC""\n";
+<filter>-->"Fwsc""\n"==><filter>-->"";
+<filter>-->"fWSC""\n"==><filter>-->"";
 <filter>-->"fWSc""\n"==><filter>-->"";
 <filter>-->"fWsC""\n"==><filter>-->"fWsC""\n";
 <filter>-->"fWsc""\n"==><filter>-->"";
 <filter>-->"fwSC""\n"==><filter>-->"";
 <filter>-->"fwSc""\n"==><filter>-->"fwSc""\n";
-<filter>-->"fwsC""\n"==><filter>-->"";
+<filter>-->"fwsC""\n"==><filter>-->"fwsC";
 <filter>-->"fwsc""\n"==><filter>-->"fwsc""\n";

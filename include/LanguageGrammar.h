@@ -6,6 +6,7 @@
 #include "FirstSet.h"
 #include <vector>
 #include <map>
+#include <string>
 using namespace std;
 
 struct LanguageGrammar
@@ -16,6 +17,7 @@ public:
 	void RemoveRepeatedTranslationRules();
 	//获得默认文法开始符号(第一条文法的root_symbol)
 	virtual Symbols GetDefaultStartSymbol();
+	std::string ToString();
 public:
 	vector<LanguageTranslations> translation_rules;
 public:

@@ -1,3 +1,12 @@
-<solve>--><spaces><spaces>"\n"==><solve>--><spaces>;
-<spaces>-->""==><spaces>-->
-( $ADD , "5" , "3" "3" );
+<states>--><init_state><end_states>==><states>-->($CALL,"actions.xyz","<input>",<init_state>);
+<init_state>--><state>;
+<end_state>--><state>;
+<state>--><farmer><wolf><sheep><cabage>"\n";
+<farmer>-->"F";
+<farmer>-->"f";
+<wolf>-->"W";
+<wolf>-->"w";
+<sheep>-->"S";
+<sheep>-->"s";
+<cabage>-->"C";
+<cabage>-->"c";

@@ -1,17 +1,17 @@
-<input>--><state>"\n"==><output>--><states>"\n";
+<input>--><state>"\n"==><output>--><states>;
 <state>--><farmer><wolf><sheep><cabage>==><states>-->
-                                                ($CALL <transform> <farmer>)<wolf><sheep><cabage>"\n"
-							                    ($CALL <transform> <farmer>)($CALL <transform> <wolf>)<sheep><cabage>"\n"
-							                    ($CALL <transform> <farmer>)<wolf>($CALL <transform> <sheep>)<cabage>"\n"
-							                    ($CALL <transform> <farmer>)<wolf><sheep>($CALL <transform> <cabage>)"\n";
-<farmer>-->"F";
-<farmer>-->"f";
-<wolf>-->"W";
-<wolf>-->"w";
-<sheep>-->"S";
-<sheep>-->"s";
-<cabage>-->"C";
-<cabage>-->"c";
+    ($CALL,"<transform>",<farmer>)<wolf><sheep><cabage>"\n"
+    ($CALL,"<transform>",<farmer>)($CALL,"<transform>",<wolf>)<sheep><cabage>"\n"
+    ($CALL,"<transform>",<farmer>)<wolf>($CALL,"<transform>",<sheep>)<cabage>"\n"
+    ($CALL,"<transform>",<farmer>)<wolf><sheep>($CALL,"<transform>",<cabage>)"\n";
+<farmer>-->"F"==><farmer>-->"F";
+<farmer>-->"f"==><farmer>-->"f";
+<wolf>-->"W"==><wolf>-->"W";
+<wolf>-->"w"==><wolf>-->"w";
+<sheep>-->"S"==><sheep>-->"S";
+<sheep>-->"s"==><sheep>-->"s";
+<cabage>-->"C"==><cabage>-->"C";
+<cabage>-->"c"==><cabage>-->"c";
 <transform>-->"F"==><transform>-->"f";
 <transform>-->"f"==><transform>-->"F";
 <transform>-->"W"==><transform>-->"w";

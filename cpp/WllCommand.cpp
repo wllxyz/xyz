@@ -742,7 +742,24 @@ bool CallCommand::Intepret(std::vector<Symbols>& result)
 		ToString(grammar_file_name, this->parameters[1]);
 		string start_symbol;
 		ToString(start_symbol, this->parameters[2]);
-		return this->intepreter->compiler->Process(grammar_file_name, this->parameters[3], result, Symbols(start_symbol.c_str()));
+		//#bug: 跨文件Call应该使用不同的编译环境
+		//<update>
+		//return this->intepreter->compiler->Process(grammar_file_name, this->parameters[3], result, Symbols(start_symbol.c_str()));
+		//<as>
+		Compiler compiler;
+		ifstream input_grammar(grammar_file_name.c_str());
+		if(!input_grammar)
+		{
+			ERROR("open gramar file["<<grammar_file_name<<"] failed");
+			return false;
+		}
+		if(!compiler.Process(input_grammar, cout))
+		{
+			ERROR("process grammar_file_name["<<grammar_file_name<<"] failed");
+			return false;
+		}
+		return compiler.Process(this->parameters[3], result, Symbols(start_symbol.c_str()));
+		//</update>
 	}
 	return false;
 }

@@ -1,2 +1,12 @@
-<solve>--><spaces>"\n"==><solve>-->"OK";
-<spaces>-->""==><spaces>-->"";
+<states>--><init_state><end_states>==><states>-->($CALL,"actions.xyz","<input>",<init_state>);
+<init_state>--><state>;
+<end_state>--><state>
+<state>--><farmer><wolf><sheep><cabage>"\n";
+<farmer>-->"F";
+<farmer>-->"f";
+<wolf>-->"W";
+<wolf>-->"w";
+<sheep>-->"S";
+<sheep>-->"s";
+<cabage>-->"C";
+<cabage>-->"c";

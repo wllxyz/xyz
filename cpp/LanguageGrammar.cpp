@@ -1,4 +1,5 @@
 #include "LanguageGrammar.h"
+#include <sstream>
 
 void LanguageGrammar::Initialize()
 {
@@ -67,3 +68,9 @@ ostream& operator<< (ostream& o, const LanguageGrammar& lg)
 	return o;
 }
 
+std::string LanguageGrammar::ToString()
+{
+	std::stringstream o;
+	o<<(*this);
+	return o.str();
+}

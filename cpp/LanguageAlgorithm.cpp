@@ -768,6 +768,11 @@ bool LRParse(const vector<Symbols>& symbols,LanguageTree*& tree,const StateTrans
 			}
 			cerr<<endl;
 
+			for(vector<LanguageRules*>::const_iterator i = languages.begin(); i != languages.end(); ++i)
+			{
+				cerr<<(**i)<<endl;
+			}
+
 #ifdef	DEBUG
 			cerr<<"used rules :"<<endl;
 			for(vector<size_t>::const_iterator i = used_rules.begin(); i != used_rules.end(); ++i)
