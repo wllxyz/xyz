@@ -1,6 +1,0 @@
-1.0	使用DataStruct库的稳定版本，不支持null语法。
-2.0	使用stl库替代DataStruct的稳定版本，支持null语法。拆分了分析器代码，加入了大量测试代码。确定去除any支持，因为any支持会破坏文法解析。
-
-2015/10/28:
-	change remark define grammar and selfplain handle to support <remark>--><identifier>$REMARK;
-	

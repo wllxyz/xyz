@@ -1,6 +1,0 @@
-<i>-->"\n"==><o>-->
-	($PUSH_DATA)
-	($SET, "a", "hello ")
-	($GET, "a")
-	"world\n"
-	($POP_DATA);
