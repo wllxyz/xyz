@@ -1,4 +1,4 @@
-<states>--><init_state><end_states>==><states>-->($CALL,"actions.xyz","<input>",<init_state>);
+<states>--><init_state><end_state>==><states>-->($CALL,"actions.xyz","<input>",<init_state>);
 <init_state>--><state>;
 <end_state>--><state>;
 <state>--><farmer><wolf><sheep><cabage>"\n";
