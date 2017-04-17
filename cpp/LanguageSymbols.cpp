@@ -30,6 +30,7 @@ const Symbols Symbols::LOAD_TRANSLATIONS(REMARK_SYMBOL,"$LOAD_TRANSLATIONS");
 const Symbols Symbols::ADD_TRANSLATIONS(REMARK_SYMBOL,"$ADD_TRANSLATIONS");
 //支持Ｓ表达式求值
 const Symbols Symbols::LIST(REMARK_SYMBOL,"$LIST");
+const Symbols Symbols::APPEND(REMARK_SYMBOL,"$APPEND");
 const Symbols Symbols::CAR(REMARK_SYMBOL,"$CAR");
 const Symbols Symbols::CDR(REMARK_SYMBOL,"$CDR");
 //支持运算控制
@@ -282,6 +283,7 @@ int SplitParameters(vector<Symbols>::const_iterator begin, vector<Symbols>::cons
 
 int SplitSList(const vector<Symbols>&symbols, vector< vector<Symbols> >& fields)
 {
+	if(symbols.empty()) return 0;
 	if(symbols.front() == Symbols::LEFT_QUOTE && symbols.back() == Symbols::RIGHT_QUOTE)
 	{
 		return SplitParameters(symbols.begin()+1, symbols.end()-1, fields);

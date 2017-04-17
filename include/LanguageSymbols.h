@@ -68,6 +68,7 @@ public:
 	static const Symbols ADD_TRANSLATIONS;	//调用Wll0Loader加载文法规则,和LOAD_TRANSLATIONS的区别是ADD_TRANSLATIONS不会清空之前的文法规则
 	//支持Ｓ表达式求值
 	static const Symbols LIST;
+	static const Symbols APPEND;
 	static const Symbols CAR;
 	static const Symbols CDR;
 	//支持运算控制

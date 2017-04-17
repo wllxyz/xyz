@@ -170,6 +170,23 @@ bool ListCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
+AppendCommand::AppendCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool AppendCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size()==3);
+	vector<vector<Symbols> > fields;
+	SplitSList(this->parameters[1], fields);
+	fields.push_back(this->parameters[2]);
+	ComposeSList(fields.begin(), fields.end(), result);
+
+	return true;
+}
+
 CarCommand::CarCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
@@ -839,6 +856,10 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	else if(cmd == Symbols::LIST)
 	{
 		command = new ListCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::APPEND)
+	{
+		command = new AppendCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::CAR)
 	{
