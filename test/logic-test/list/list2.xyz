@@ -1,6 +1,6 @@
 
 <i>--><digits>==><o>-->$LEFT_QUOTE$LIST$SEPERATOR<digit_list>$RIGHT_QUOTE;
 <digits>--><digit><spaces><digits>==><digit_list>--><digit>$SEPERATOR<digit_list>;
-<digits>-->""==><digit_list>-->"";
+<digits>--><digit><spaces>==><digit_list>--><digit>;
 include "digit.xyz"
 include "space.xyz"
