@@ -1,0 +1,6 @@
+
+<i>--><digits>"\n"==><o>--><digit_list>;
+<digits>--><digits><spaces><digit>==><digit_list>-->($APPEND,<digit_list>,<digit>);
+<digits>-->""==><digit_list>-->"";
+include "digit.xyz"
+include "space.xyz"
