@@ -1,9 +1,11 @@
 <input>--><state>"\n"==><output>--><states>;
 <state>--><farmer><wolf><sheep><cabage>==><states>-->
-    ($CALL,"<transform>",<farmer>)<wolf><sheep><cabage>"\n"
-    ($CALL,"<transform>",<farmer>)($CALL,"<transform>",<wolf>)<sheep><cabage>"\n"
-    ($CALL,"<transform>",<farmer>)<wolf>($CALL,"<transform>",<sheep>)<cabage>"\n"
-    ($CALL,"<transform>",<farmer>)<wolf><sheep>($CALL,"<transform>",<cabage>)"\n";
+($LIST,
+    ($CALL,"conditions.xyz","<filter>",($CALL,"<transform>",<farmer>)<wolf><sheep><cabage>"\n"),
+    ($CALL,"conditions.xyz","<filter>",($CALL,"<transform>",<farmer>)($CALL,"<transform>",<wolf>)<sheep><cabage>"\n"),
+    ($CALL,"conditions.xyz","<filter>",($CALL,"<transform>",<farmer>)<wolf>($CALL,"<transform>",<sheep>)<cabage>"\n"),
+    ($CALL,"conditions.xyz","<filter>",($CALL,"<transform>",<farmer>)<wolf><sheep>($CALL,"<transform>",<cabage>)"\n")
+);
 <farmer>-->"F"==><farmer>-->"F";
 <farmer>-->"f"==><farmer>-->"f";
 <wolf>-->"W"==><wolf>-->"W";

@@ -17,6 +17,7 @@
 #include "VariableContainer.h"
 #include <iostream>
 #include <fstream>
+#include <iterator>
 using namespace std;
 
 WllCommand::WllCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* wll_intepreter)
@@ -179,10 +180,12 @@ AppendCommand::AppendCommand(Symbols cmd, std::vector< std::vector<Symbols> >& p
 bool AppendCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==3);
-	vector<vector<Symbols> > fields;
-	SplitSList(this->parameters[1], fields);
-	fields.push_back(this->parameters[2]);
-	ComposeSList(fields.begin(), fields.end(), result);
+	vector<vector<Symbols> > fields1,fields2;
+	SplitSList(this->parameters[1], fields1);
+	SplitSList(this->parameters[2], fields2);
+	insert_iterator<vector<vector<Symbols> > > insert_it(fields1,fields1.end());
+	copy(fields2.begin(), fields2.end(), insert_it);
+	ComposeSList(fields1.begin(), fields1.end(), result);
 
 	return true;
 }

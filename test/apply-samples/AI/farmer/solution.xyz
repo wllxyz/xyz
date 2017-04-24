@@ -1,4 +1,46 @@
-<states>--><init_state><end_state>==><states>-->($CALL,"actions.xyz","<input>",<init_state>);
+<states>--><init_state><end_state>==><states>-->
+($PUSH_DATA)
+	($SET,"visited_list","")
+	($SET,"visiting_list",($LIST,<init_state>))
+	"LOG>>>"	"init_state="<init_state>
+	"LOG>>>"	"end_state="<end_state>
+	($LOOP,
+		($IGNORE,($NOT,($OR,($EQ,($GET,"visiting_list"),""),($EQ,($CAR,($GET,"visiting_list")),<end_state>)))),
+		($IGNORE,
+			($SET,"visiting_node",($CAR,($GET,"visiting_list")))
+			"LOG>>>"	"visiting_node="($GET,"visiting_node")	
+			($COND,
+				($SET,"l",($GET,"visited_list"))
+                		($LOOP,
+	                		($IGNORE,($NOT,($OR,($EQ,($GET,"l"),""),($EQ,($CAR,($GET,"l")),($GET,"visiting_node"))))),
+	                		($IGNORE,($SET,"l",($CDR,($GET,"l"))))
+                		)
+                		($EQ,($GET,"l"),"")
+				,
+				($IGNORE,
+					($GET,"visiting_node")" NOT in "($GET,"visited_list")"\n"
+					($SET,"extend_list",($CALL,"actions.xyz","<input>",($GET,"visiting_node")))
+					"LOG>>>"	"extend_list="($GET,"extend_list")
+					($SET,"visiting_list",($APPEND,($GET,"extend_list"),($CDR,($GET,"visiting_list"))))
+					"LOG>>>"	"ADD extend_list into visiting_list"
+				),
+				$TRUE,
+				($IGNORE,
+					($GET,"visiting_node")" in "($GET,"visited_list")"\n"
+					($SET,"visiting_list",($CDR,($GET,"visiting_list")))
+				)
+			)
+			
+			($SET,"visited_list",($APPEND,($GET,"visited_list"),($GET,"visiting_node")))
+			"LOG>>>"	"ADD visiting_node INTO visited_list"
+			"LOG>>>"        "visiting_list="($GET,"visiting_list")
+			"LOG>>>"        "visited_list="($GET,"visited_list")
+			 
+		)
+	)
+    "visited: "($GET,"visited_list")"\n"
+($POP_DATA);
+
 <init_state>--><state>;
 <end_state>--><state>;
 <state>--><farmer><wolf><sheep><cabage>"\n";
