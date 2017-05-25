@@ -3,7 +3,7 @@
 <sl>--><s>"\n"<sl>	==>		<sl>--><s><sl>;
 <s>--><d>		==>		<s>--><d>;
 <s>--><e>		==>		<s>--><e>"\n";
-<d>--><fn>"("<pl>")="<e>==>		<d>-->($SET, <fn>, ($IGNORE,($PUSH_DATA)<pl><e>($POP_DATA)));
+<d>-->"def "<fn>"("<pl>")="<e>==>		<d>-->($SET, <fn>, ($IGNORE,($PUSH_DATA)<pl><e>($POP_DATA)));
 <d>--><p>"="<e>		==>		<d>-->($SET, <p>, <e>);
 <fn>-->"f"		==>		<fn>-->"f";
 <fn>-->"g"		==>		<fn>-->"g";
