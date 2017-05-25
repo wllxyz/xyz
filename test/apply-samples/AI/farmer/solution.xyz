@@ -22,7 +22,7 @@
 					($SET,"extend_list",($CALL,"actions.xyz","<input>",($GET,"visiting_node")))
 					"LOG>>>"	"extend_list="($GET,"extend_list")
 					($SET,"visiting_list",($APPEND,($GET,"extend_list"),($CDR,($GET,"visiting_list"))))
-					"LOG>>>"	"ADD extend_list into visiting_list"
+					"LOG>>>"	"ADD extend_list into visiting_list"					
 				),
 				$TRUE,
 				($IGNORE,

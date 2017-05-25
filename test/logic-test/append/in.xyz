@@ -1,0 +1,16 @@
+<i>-->""==><o>-->
+($SET,"in",($IGNORE,
+            (
+                    ($PUSH_DATA)
+	                ($SET,"l",($LIST,"0","1","2"))
+	                ($GET,"l")"\n"
+	                ($LOOP,
+		                ($IGNORE,($NOT,($OR,($EQ,($GET,"l"),""),($EQ,($CAR,($GET,"l")),"3")))),
+		                ($IGNORE,($SET,"l",($CDR,($GET,"l"))))
+	                )
+	                ($NOT,($EQ,($GET,"l"),""))"\n"
+	                ($POP_DATA)
+	        )
+           )
+)
+($GET,"in");
