@@ -98,42 +98,43 @@ __文法标记__是由$符号开头的标识符.
 	表示将中缀表达式的加法表达式转换为后缀表达式形式.  
 
 最新的xyz完整自解释文法请参考[xyz/data/grammar](xyz/data/wll1/grammar.wll1-TopDown)  
-补充xyz文法说明：  
-1. #开头行为注释行  
-2. 允许空行；除了文法表达式的文法符号之间不能有空格，其他符号之间都可以有空格。  
-3. 引入s-表达式，其形式和lisp的s表达式相同: (函数 参数1 ... 参数N) 函数（第一个参数）部分是remark标记，目前支持的remark标记有：  
+补充xyz文法说明：   
 
-	//支持S表达式求解(WLL1文法自解释)	
-	$IGNORE;			//忽略$IGNORE$LEFT_QUOTE...$RIGHT_QUOTE括号内的符号的求值
-	$EVAL;				//执行求值动作
-	$LEFT_QUOTE;		//S表达式的左括号,用来界定前缀表达式
-	$RIGHT_QUOTE;		//S表达式的右括号,用来界定前缀表达式
-	$SEPERATOR;			//S表达式的参数分隔符号,用来分隔前缀表达式参数
-	$LOAD_TRANSLATIONS;	//调用Wll0Loader加载文法规则
-	$ADD_TRANSLATIONS;	//调用Wll0Loader加载文法规则,和LOAD_TRANSLATIONS的区别是ADD_TRANSLATIONS不会清空之前的文法规则
-	//支持运算控制
-	$ADD;				//整数加,1..n个参数
-	$SUB;				//整数减,1..n个参数
-	$MUL;				//整数乘,1..n个参数
-	$DIV;				//整数除,1..n个参数
-	$TRUE;				//逻辑真
-	$FALSE;				//逻辑假
-	$COND;				//条件控制
-	$LOOP;				//循环控制
-	$EQ;				//等于
-	$LT;				//小于(字典序)
-	$AND;				//与
-	$OR;				//或
-	$NOT;				//非
-	$SHELL;				//执行shell命令
-	//支持变量存储
-	$DEF;				//变量定义
-	$SET;				//变量赋值,如果变量之前没有定义则自动定义
-	$GET;				//变量引用,如果变量没有定义,返回空值
-	$PUSH_DATA;			//初始化变量空间并压栈
-	$POP_DATA;			//销毁本层变量空间并出栈
-	$PUSH;				//表达式值压入参数栈顶
-	$POP;				//参数栈顶值出栈到变量
+        1. #开头行为注释行  
+        2. 允许空行；除了文法表达式的文法符号之间不能有空格，其他符号之间都可以有空格。  
+        3. 引入s-表达式，其形式和lisp的s表达式相同: (函数 参数1 ... 参数N) 函数（第一个参数）部分是remark标记，目前支持的remark标记有：  
+
+		支持S表达式求解(WLL1文法自解释)	
+		$IGNORE;			//忽略$IGNORE$LEFT_QUOTE...$RIGHT_QUOTE括号内的符号的求值
+		$EVAL;				//执行求值动作
+		$LEFT_QUOTE;		//S表达式的左括号,用来界定前缀表达式
+		$RIGHT_QUOTE;		//S表达式的右括号,用来界定前缀表达式
+		$SEPERATOR;			//S表达式的参数分隔符号,用来分隔前缀表达式参数
+		$LOAD_TRANSLATIONS;	//调用Wll0Loader加载文法规则
+		$ADD_TRANSLATIONS;	//调用Wll0Loader加载文法规则,和LOAD_TRANSLATIONS的区别是ADD_TRANSLATIONS不会清空之前的文法规则
+		支持运算控制
+		$ADD;				//整数加,1..n个参数
+		$SUB;				//整数减,1..n个参数
+		$MUL;				//整数乘,1..n个参数
+		$DIV;				//整数除,1..n个参数
+		$TRUE;				//逻辑真
+		$FALSE;				//逻辑假
+		$COND;				//条件控制
+		$LOOP;				//循环控制
+		$EQ;				//等于
+		$LT;				//小于(字典序)
+		$AND;				//与
+		$OR;				//或
+		$NOT;				//非
+		$SHELL;				//执行shell命令
+		支持变量存储
+		$DEF;				//变量定义
+		$SET;				//变量赋值,如果变量之前没有定义则自动定义
+		$GET;				//变量引用,如果变量没有定义,返回空值
+		$PUSH_DATA;			//初始化变量空间并压栈
+		$POP_DATA;			//销毁本层变量空间并出栈
+		$PUSH;				//表达式值压入参数栈顶
+		$POP;				//参数栈顶值出栈到变量
 	
 #6. wll和xyz的关系?
 	
