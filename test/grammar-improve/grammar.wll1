@@ -1,0 +1,48 @@
+<start>--><wll0>==><start>-->$LEFT_QUOTE$LOAD_TRANSLATIONS$SEPERATOR$LEFT_QUOTE$IGNORE$SEPERATOR<wll0>$RIGHT_QUOTE$RIGHT_QUOTE;
+<wll0>--><comment_line>==><wll0>-->"";
+<wll0>--><comment_line><wll0>==><wll0>--><wll0>;
+<wll0>--><empty_line>==><wll0>-->"";
+<wll0>--><empty_line><wll0>==><wll0>--><wll0>;
+<wll0>--><include_line>;
+<wll0>--><include_line><wll0>;
+<wll0>--><translation>";"<end_of_line>==><wll0>--><translation>";\n";
+<wll0>--><translation>";"<end_of_line><wll0>==><wll0>--><translation>";\n"<wll0>;
+<comment_line>-->"#"<comment_string><end_of_line>;
+<empty_line>--><end_of_line>;
+<comment_string>-->"";
+<comment_string>--><letter><comment_string>;
+<comment_string>--><digit><comment_string>;
+<comment_string>--><operator><comment_string>;
+<comment_string>-->" "<comment_string>;
+<comment_string>-->"\t"<comment_string>;
+<end_of_line>-->"\n";
+<end_of_line>-->"\r\n";
+<include_line>-->"include"<space><spaces><include_file>==><include_line>-->$LEFT_QUOTE$EXEC$SEPERATOR$LEFT_QUOTE$CALL$SEPERATOR"<wll0>"$SEPERATOR$LEFT_QUOTE$CAT$SEPERATOR<include_file>$RIGHT_QUOTE$RIGHT_QUOTE$RIGHT_QUOTE;
+<include_file>-->'"'<string>'"'==><include_file>--><string>;
+
+<translation>--><source_rule>"==>"<spaces><destination_rule>;
+<translation>--><source_rule>==><translation>--><source_rule>"==>"<source_rule>;
+<source_rule>--><rule>;
+<destination_rule>--><rule>;
+<rule>--><root><spaces>"-->"<spaces><expression>==><rule>--><root>"-->"<expression>;
+#TODO: <rule>--><root><spaces>"-->"<spaces>"["<start_char><spaces><end_char><spaces>"]"<spaces>==>
+<root>--><variable>;
+<expression>--><symbol><spaces>==><expression>--><symbol>;
+<expression>--><symbol><spaces><expression>==><expression>--><symbol><expression>;
+<symbol>--><variable>;
+<symbol>--><constant>;
+<symbol>--><remark>;
+<symbol>--><s_expression>;
+<s_expression>-->"("<spaces><expression_list>")"==><s_expression>-->$LEFT_QUOTE<expression_list>$RIGHT_QUOTE;
+<expression_list>--><expression>;
+<expression_list>--><expression>","<spaces><expression_list>==><expression_list>--><expression>$SEPERATOR<expression_list>;
+<variable>-->"<"<identifier>">";
+<constant>-->'"'<string>'"';
+<constant>-->"'"<original_string>"'";
+<remark>-->"$"<identifier>;
+
+include "string.xyz"
+include "identifier.xyz"
+include "operator.xyz"
+include "space.xyz"
+include "spacial.xyz"

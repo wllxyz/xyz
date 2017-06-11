@@ -1,0 +1,40 @@
+<rule>--><root><spaces>"-->"<spaces>"["<start_char><spaces>"-"<spaces><end_char><spaces>"]"<spaces>";"<spaces>==><rule>-->
+($PUSH_DATA)
+($SET,"c",<start_char>)
+($LOOP,
+	($IGNORE,
+		($NOT,
+			($EQ,($GET,"c"),<end_char>)
+		)
+	),
+	($IGNORE,
+		<root>"-->"($GET,"c")";\n"
+		($SET,"c",($ADD,($GET,"c"),"1"))
+	)
+)
+<root>"-->"<end_char>";\n"
+($POP_DATA);
+
+<start_char>--><digit>;
+<end_char>--><digit>;
+
+<root>--><variable>;
+<expression>--><symbol><spaces>==><expression>--><symbol>;
+<expression>--><symbol><spaces><expression>==><expression>--><symbol><expression>;
+<symbol>--><variable>;
+<symbol>--><constant>;
+<symbol>--><remark>;
+<symbol>--><s_expression>;
+<s_expression>-->"("<spaces><expression_list>")"==><s_expression>-->$LEFT_QUOTE<expression_list>$RIGHT_QUOTE;
+<expression_list>--><expression>;
+<expression_list>--><expression>","<spaces><expression_list>==><expression_list>--><expression>$SEPERATOR<expression_list>;
+<variable>-->"<"<identifier>">";
+<constant>-->'"'<string>'"';
+<constant>-->"'"<original_string>"'";
+<remark>-->"$"<identifier>;
+
+include "string.xyz"
+include "identifier.xyz"
+include "operator.xyz"
+include "space.xyz"
+include "spacial.xyz"
