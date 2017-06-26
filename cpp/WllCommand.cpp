@@ -13,12 +13,14 @@
 #include "Wll1Intepreter.h"
 #include "WllTrace.h"
 #include "WllSingleton.h"
+#include "WllString.h"
 #include "LanguageAlgorithm.h"
 #include "VariableContainer.h"
 #include <iostream>
 #include <fstream>
 #include <iterator>
 using namespace std;
+using namespace Wll::Util;
 
 WllCommand::WllCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* wll_intepreter)
 : command(cmd), parameters(parameter_fields), intepreter(wll_intepreter)
@@ -357,6 +359,77 @@ bool DivCommand::Intepret(std::vector<Symbols>& result)
 	{
 		result.push_back(Symbols(*i));
 	}
+	return true;
+}
+
+SubStrCommand::SubStrCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool SubStrCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size()==3 || this->parameters.size()==4);
+
+	string str;
+	ToString(str, this->parameters[1]);
+
+	string from_str;
+	ToString(from_str, this->parameters[2]);
+	int from;
+	String2Int(from_str, from);
+
+	int size = string::npos;
+	if(this->parameters.size()==4)
+	{
+		string size_str;
+		ToString(size_str, this->parameters[3]);
+		String2Int(size_str, size);
+	}
+
+	if(from<0)
+	{
+		from = str.size() + from;
+		if(from<0) from = 0;
+	}
+
+	string sub_str = str.substr(from,size);
+
+	for(string::const_iterator i = sub_str.begin(); i != sub_str.end(); ++i)
+	{
+		result.push_back(Symbols(*i));
+	}
+
+	return true;
+}
+
+NextCharCommand::NextCharCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool NextCharCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size()==2 || this->parameters.size()==3);
+
+	string str;
+	ToString(str, this->parameters[1]);
+	assert(str.size()==1);
+	char c = str[0];
+
+	int n = 1;
+	if(this->parameters.size()==3)
+	{
+		string next_n;
+		ToString(next_n, this->parameters[2]);
+		String2Int(next_n, n);
+	}
+
+	c += n;
+
+	result.push_back(Symbols(c));
 	return true;
 }
 
@@ -888,6 +961,14 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	{
 		command = new DivCommand(cmd,parameter_fields,intepreter);
 	}//DIV
+	else if(cmd == Symbols::SUB_STR)
+	{
+		command = new SubStrCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::NEXT_CHAR)
+	{
+		command = new NextCharCommand(cmd,parameter_fields,intepreter);
+	}
 	else if(cmd == Symbols::COND)
 	{
 		command = new CondCommand(cmd,parameter_fields,intepreter);

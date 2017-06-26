@@ -38,6 +38,8 @@ const Symbols Symbols::ADD(REMARK_SYMBOL,"$ADD");
 const Symbols Symbols::SUB(REMARK_SYMBOL,"$SUB");
 const Symbols Symbols::MUL(REMARK_SYMBOL,"$MUL");
 const Symbols Symbols::DIV(REMARK_SYMBOL,"$DIV");
+const Symbols Symbols::SUB_STR(REMARK_SYMBOL,"$SUB_STR");
+const Symbols Symbols::NEXT_CHAR(REMARK_SYMBOL,"$NEXT_CHAR");
 const Symbols Symbols::TRUE(REMARK_SYMBOL,"$TRUE");
 const Symbols Symbols::FALSE(REMARK_SYMBOL,"$FALSE");
 const Symbols Symbols::COND(REMARK_SYMBOL,"$COND");
