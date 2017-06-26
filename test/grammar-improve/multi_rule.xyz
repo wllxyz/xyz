@@ -9,14 +9,14 @@
 	),
 	($IGNORE,
 		<root>"-->"($GET,"c")";\n"
-		($SET,"c",($ADD,($GET,"c"),"1"))
+		($SET,"c",($NEXT_CHAR,($GET,"c"),"1"))
 	)
 )
 <root>"-->"<end_char>";\n"
 ($POP_DATA);
 
-<start_char>--><digit>;
-<end_char>--><digit>;
+<start_char>--><letter>;
+<end_char>--><letter>;
 
 <root>--><variable>;
 <expression>--><symbol><spaces>==><expression>--><symbol>;

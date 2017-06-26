@@ -1,0 +1,71 @@
+<rule>--><root><spaces>"-->"<spaces>"["<ss>"]"<spaces>";"<spaces>==><rule>-->
+($PUSH_DATA)
+($SET,"c",<ss>)
+($LOOP,
+	($IGNORE,
+		($NOT,
+			($EQ,($GET,"c"),"")
+		)
+	),
+	($IGNORE,
+		<root>"-->"($SUB_STR,($GET,"c"),"0","1")";\n"
+		($SET,"c",($SUB_STR,($GET,"c"),"1"))
+	)
+)
+($POP_DATA);
+
+<ss>-->"";
+<ss>--><s><ss>;
+<s>--><spacial>;
+<s>--><space>;
+<s>--><operator>;
+<s>--><digit>;
+<s>--><letter>;
+
+<root>--><variable>;
+<expression>--><symbol><spaces>==><expression>--><symbol>;
+<expression>--><symbol><spaces><expression>==><expression>--><symbol><expression>;
+<symbol>--><variable>;
+<symbol>--><constant>;
+<symbol>--><remark>;
+<symbol>--><s_expression>;
+<s_expression>-->"("<spaces><expression_list>")"==><s_expression>-->$LEFT_QUOTE<expression_list>$RIGHT_QUOTE;
+<expression_list>--><expression>;
+<expression_list>--><expression>","<spaces><expression_list>==><expression_list>--><expression>$SEPERATOR<expression_list>;
+<variable>-->"<"<identifier>">";
+<constant>-->'"'<string>'"';
+<constant>-->"'"<original_string>"'";
+<remark>-->"$"<identifier>;
+
+include "identifier.xyz"
+include "space.xyz"
+include "spacial.xyz"
+include "digit.xyz"
+include "letter.xyz"
+
+<operator>-->"+";
+<operator>-->"-";
+<operator>-->"*";
+<operator>-->"/";
+<operator>-->"%";
+<operator>-->"^";
+<operator>-->">";
+<operator>-->"=";
+<operator>-->"<";
+<operator>-->"#";
+<operator>-->",";
+<operator>-->":";
+<operator>-->";";
+<operator>-->".";
+<operator>-->"?";
+<operator>-->"!";
+<operator>-->"(";
+<operator>-->")";
+<operator>-->"{";
+<operator>-->"}";
+<operator>-->"`";
+<operator>-->"~";
+<operator>-->"@";
+<operator>-->"$";
+<operator>-->"&";
+<operator>-->"|";

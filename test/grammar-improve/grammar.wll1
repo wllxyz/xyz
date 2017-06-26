@@ -25,7 +25,24 @@
 <source_rule>--><rule>;
 <destination_rule>--><rule>;
 <rule>--><root><spaces>"-->"<spaces><expression>==><rule>--><root>"-->"<expression>;
-#TODO: <rule>--><root><spaces>"-->"<spaces>"["<start_char><spaces><end_char><spaces>"]"<spaces>==>
+<rule>--><root><spaces>"-->"<spaces>"["<start_char>"-"<end_char>"]"<spaces>==><rule>-->
+($PUSH_DATA)
+($SET,"c",<start_char>)
+($LOOP,
+	($IGNORE,
+		($NOT,
+			($EQ,($GET,"c"),<end_char>)
+		)
+	),
+	($IGNORE,
+		<root>"-->"($GET,"c")";\n"
+		($SET,"c",($NEXT_CHAR,($GET,"c"),"1"))
+	)
+)
+<root>"-->"<end_char>";\n"
+($POP_DATA);
+<start_char>--><character>;
+<end_char>--><character>;
 <root>--><variable>;
 <expression>--><symbol><spaces>==><expression>--><symbol>;
 <expression>--><symbol><spaces><expression>==><expression>--><symbol><expression>;
