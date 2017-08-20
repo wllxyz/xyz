@@ -59,13 +59,6 @@ bool WllLoader::TestLanguage(LanguageGrammar& wll_xyz_languages, bool& is_wll_xy
 
 WllLoader* WllLoaderFactory::CreateWllLoader(const std::vector<Symbols>& input_symbols)
 {
-	if( !input_symbols.empty() && input_symbols.front()==Symbols::REMARK_WLL0 )
-	{
-		return new Wll0Loader(input_symbols);
-	}
-	else
-	{
-		return new Wll1Loader(input_symbols);
-	}
+	return new Wll1Loader(input_symbols);
 }
 

@@ -8,8 +8,6 @@
 #include <queue>
 #include <fstream>
 #include "WllTrace.h"
-#include "Wll0Intepreter.h"
-#include "Wll1Intepreter.h"
 #include "Wll2Intepreter.h"
 #include "WllLoader.h"
 using namespace std;
