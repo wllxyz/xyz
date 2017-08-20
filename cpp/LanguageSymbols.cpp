@@ -88,6 +88,23 @@ Symbols::Symbols(SymbolTypes type,const char* remark)
 	this->value = Symbols::remark_table.GetIndexByName(remark);
 }
 
+Symbols::Symbols(SymbolTypes type)
+{
+	switch(type)
+	{
+	case LIST_SYMBOL:
+		this->object = new vector<Symbols>();
+		break;
+	case MAP_SYMBOL:
+		this->object = new map<string, Symbols>();
+		break;
+	default:
+		this->object = NULL;
+		break;
+	}
+	this->type = type;
+}
+
 bool Symbols::operator== (const Symbols& that) const
 {
 	return ((this->type == that.type) && (this->value == that.value));
@@ -97,6 +114,30 @@ bool Symbols::operator< (const Symbols& that) const
 {
 	//assert(this->type == that.type);
 	return (this->type < that.type || (this->type == that.type && this->value < that.value));
+}
+
+vector<Symbols>& Symbols::GetList()
+{
+	assert(this->type == LIST_SYMBOL);
+	return(*((vector<Symbols>*)this->object));
+}
+
+const vector<Symbols>& Symbols::GetList() const
+{
+	assert(this->type == LIST_SYMBOL);
+	return(*((const vector<Symbols>*)this->object));
+}
+
+map<string, Symbols>& Symbols::GetMap()
+{
+	assert(this->type == MAP_SYMBOL);
+	return(*((map<string, Symbols>*)this->object));
+}
+
+const map<string, Symbols>& Symbols::GetMap() const
+{
+	assert(this->type == MAP_SYMBOL);
+	return(*((const map<string, Symbols>*)this->object));
 }
 
 bool Symbols::IsVariable() const
@@ -114,25 +155,61 @@ bool Symbols::IsRemark() const
 	return this->type==REMARK_SYMBOL;
 }
 
-const char* Symbols::ToString() const
+string Symbols::ToString() const
 {
-    static char constant_char[2];
+	char tmp[2] = "";
+	string result = "";
 	switch(this->type)
 	{
 	case VARIABLE_SYMBOL:
-		return(Symbols::variable_table.GetNameByIndex(this->value).c_str());
+		return(Symbols::variable_table.GetNameByIndex(this->value));
 		break;
 	case REMARK_SYMBOL:
-		return(Symbols::remark_table.GetNameByIndex(this->value).c_str());
+		return(Symbols::remark_table.GetNameByIndex(this->value));
 		break;
 	case CONSTANT_SYMBOL:
-		constant_char[0]=char(this->value);
-		return constant_char;
+		tmp[0] = char(this->value);
+		return string(tmp);
 		break;
+	case LIST_SYMBOL:
+		{
+			result += "[";
+			const vector<Symbols>& l = this->GetList();
+			if(!l.empty())
+			{
+				vector<Symbols>::const_iterator i = l.begin();
+				result += i->ToString();
+				for(++i; i != l.end(); ++i)
+				{
+					result += ",";
+					result += i->ToString();
+				}
+			}
+			result +="]";
+			return result;
+		}
+		break;
+	case MAP_SYMBOL:
+		{
+			result += "{";
+			const map<string, Symbols>& l = this->GetMap();
+			if(!l.empty())
+			{
+				map<string, Symbols>::const_iterator i = l.begin();
+				result +=  i->first + "=>" + i->second.ToString();
+				for(++i; i != l.end(); ++i)
+				{
+					result += ",";
+					result +=  i->first + "=>" + i->second.ToString();
+				}
+			}
+			result +="}";
+			return result;
+		}
 	default:
 		break;
 	}
-	return NULL;
+	return "";
 }
 
 void Symbols::Display(ostream& o) const

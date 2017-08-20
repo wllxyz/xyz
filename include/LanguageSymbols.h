@@ -4,6 +4,7 @@
 #include "StringTable.h"
 #include <iostream>
 #include <vector>
+#include <map>
 using namespace std;
 using namespace Wll;
 
@@ -13,7 +14,10 @@ enum SymbolTypes
 	UNKNOW_SYMBOL,
 	VARIABLE_SYMBOL,
 	CONSTANT_SYMBOL,
-	REMARK_SYMBOL
+	REMARK_SYMBOL,
+	REF_SYMBOL,					//存储变量地址，为统一GET/SET 左值/右值语义
+	LIST_SYMBOL,
+	MAP_SYMBOL
 };
 
 //when type =
@@ -24,19 +28,28 @@ struct Symbols
 {
 public:
 	SymbolTypes type;
-	int value;
+	union {
+		int value;
+		void* object;
+	};
 public:
 	Symbols();
 	Symbols(const char* variable);
 	Symbols(char constant);
 	Symbols(SymbolTypes type,const char* remark);
+	Symbols(SymbolTypes type);
 	bool operator== (const Symbols& that) const;
 	bool operator< (const Symbols& that) const;
+public:
+	vector<Symbols>& GetList();
+	const vector<Symbols>& GetList() const;
+	map<string, Symbols>& GetMap();
+	const map<string, Symbols>& GetMap() const;
 public:
 	bool IsVariable()const;
 	bool IsConstant()const;
 	bool IsRemark()const;
-	const char* ToString()const;
+	string ToString()const;
 	virtual void Display(ostream& o) const;
 	void Dump(ostream& o) const;
 public:
