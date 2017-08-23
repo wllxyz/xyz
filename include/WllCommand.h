@@ -304,6 +304,27 @@ public:
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
+class ArrayCommand : public WllCommand
+{
+public:
+	ArrayCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
+class MapCommand : public WllCommand
+{
+public:
+	MapCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
+class IndexCommand : public WllCommand
+{
+public:
+	IndexCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
 class WllCommandFactory
 {
 public:

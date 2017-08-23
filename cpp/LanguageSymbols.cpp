@@ -1,5 +1,6 @@
 #include "LanguageSymbols.h"
 #include <cassert>
+#include <sstream>
 using namespace std;
 
 StringTable Symbols::variable_table;
@@ -59,6 +60,10 @@ const Symbols Symbols::PUSH_DATA(REMARK_SYMBOL,"$PUSH_DATA");
 const Symbols Symbols::POP_DATA(REMARK_SYMBOL,"$POP_DATA");
 const Symbols Symbols::PUSH(REMARK_SYMBOL,"$PUSH");
 const Symbols Symbols::POP(REMARK_SYMBOL,"$POP");
+//支持数据结构
+const Symbols Symbols::MAP(REMARK_SYMBOL,"$MAP");
+const Symbols Symbols::ARRAY(REMARK_SYMBOL,"$ARRAY");
+const Symbols Symbols::INDEX(REMARK_SYMBOL,"$INDEX");
 
 const Symbols Symbols::CAT(REMARK_SYMBOL,"$CAT");
 
@@ -206,6 +211,12 @@ string Symbols::ToString() const
 			result +="}";
 			return result;
 		}
+	case REF_SYMBOL:
+		{
+			stringstream ss;
+			ss<<this->object;
+			return ss.str();
+		}
 	default:
 		break;
 	}
@@ -214,33 +225,13 @@ string Symbols::ToString() const
 
 void Symbols::Display(ostream& o) const
 {
-	switch(this->type)
-	{
-	case VARIABLE_SYMBOL:
-		o<<Symbols::variable_table.GetNameByIndex(this->value);
-		break;
-	case REMARK_SYMBOL:
-		o<<Symbols::remark_table.GetNameByIndex(this->value);
-		break;
-	case CONSTANT_SYMBOL:
-		o<<char(this->value);
-		break;
-	default:
-		o<<"Unknow Symbols!!!";
-		break;
-	}
+	o<<this->ToString();
 }
 
 void Symbols::Dump(ostream& o) const
 {
 	switch(this->type)
 	{
-	case VARIABLE_SYMBOL:
-		o<<Symbols::variable_table.GetNameByIndex(this->value);
-		break;
-	case REMARK_SYMBOL:
-		o<<Symbols::remark_table.GetNameByIndex(this->value);
-		break;
 	case CONSTANT_SYMBOL:
 		switch(this->value)
 		{
@@ -265,7 +256,7 @@ void Symbols::Dump(ostream& o) const
 		}
 		break;
 	default:
-		o<<"Unknow Symbols!!!";
+		o<<this->ToString();
 		break;
 	}
 }

@@ -110,7 +110,11 @@ public:
 	static const Symbols POP_DATA;			//销毁本层变量空间并出栈
 	static const Symbols PUSH;				//表达式值压入参数栈顶
 	static const Symbols POP;				//参数栈顶值出栈到变量
-
+	//支持数据结构
+	static const Symbols ARRAY;				//创建Symbols(LIST_SYMBOL)数值变量
+	static const Symbols MAP;				//创建Symbols(MAP_SYMBOL)字典变量
+	static const Symbols INDEX;				//ARRAY/MAP寻址指令，返回REF_SYMBOL类型变量(地址类型)
+	
 	static const Symbols CAT;				//从文件中加载符号,支持INCLUDE特性
 };
 

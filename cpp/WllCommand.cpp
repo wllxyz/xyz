@@ -601,6 +601,30 @@ bool ShellCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
+Symbols* Index(Symbols* symbol, vector< vector<Symbols> >&parameters, int from, int to)
+{
+	int i = from;
+	while(i < to)
+	{
+		string index;
+		ToString(index,parameters[i]);
+		
+		if(symbol->type == LIST_SYMBOL)
+		{
+			int index_i;
+			String2Int(index,index_i);
+			symbol = &(symbol->GetList()[index_i]);
+		}
+		else if(symbol->type == MAP_SYMBOL)
+		{
+			symbol = &(symbol->GetMap()[index]);
+		}
+		
+		i++;
+	}
+	return symbol;
+}
+
 DefCommand::DefCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
@@ -609,7 +633,7 @@ DefCommand::DefCommand(Symbols cmd, std::vector< std::vector<Symbols> >& paramet
 
 bool DefCommand::Intepret(std::vector<Symbols>& result)
 {
-	assert(this->parameters.size() == 3);
+	assert(this->parameters.size() >= 3);
 	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
 	assert(!variable_table_stack->empty());
 
@@ -617,8 +641,18 @@ bool DefCommand::Intepret(std::vector<Symbols>& result)
 	ToString(variable_name, this->parameters[1]);
 
 	Symbols* symbol = variable_table_stack->Register(variable_name);
-	*symbol = Symbols(LIST_SYMBOL);
-	symbol->GetList()  = this->parameters[2];
+	symbol = Index(symbol, this->parameters, 2, this->parameters.size()-1);
+	
+	if(this->parameters[this->parameters.size()-1].size() == 1)
+	{
+		*symbol = this->parameters[this->parameters.size()-1][0];
+	}
+	else
+	{
+		*symbol = Symbols(LIST_SYMBOL);
+		symbol->GetList() = this->parameters[this->parameters.size()-1];
+	}
+	
 	return true;
 }
 
@@ -630,20 +664,26 @@ SetCommand::SetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& paramet
 
 bool SetCommand::Intepret(std::vector<Symbols>& result)
 {
-	assert(this->parameters.size() == 3);
+	assert(this->parameters.size() >= 3);
 	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
 	assert(!variable_table_stack->empty());
 
 	string variable_name;
 	ToString(variable_name, this->parameters[1]);
 
-	Symbols* symbol = variable_table_stack->Lookup(variable_name);
-	if(symbol == NULL)
+	Symbols* symbol = variable_table_stack->LookupOrRegister(variable_name);
+	symbol = Index(symbol, this->parameters, 2, this->parameters.size()-1);
+
+	if(this->parameters[this->parameters.size()-1].size() == 1)
 	{
-		symbol = variable_table_stack->Register(variable_name);
+		*symbol = this->parameters[this->parameters.size()-1][0];
 	}
-	*symbol = Symbols(LIST_SYMBOL);
-	symbol->GetList() = this->parameters[2];
+	else
+	{
+		*symbol = Symbols(LIST_SYMBOL);
+		symbol->GetList() = this->parameters[this->parameters.size()-1];
+	}
+	
 	return true;
 }
 
@@ -662,9 +702,18 @@ bool GetCommand::Intepret(std::vector<Symbols>& result)
 	string variable_name;
 	ToString(variable_name, this->parameters[1]);
 	Symbols* symbol = variable_table_stack->Lookup(variable_name);
+	symbol = Index(symbol, this->parameters, 2, this->parameters.size());
+	
 	if(symbol != NULL)
 	{
-		result += symbol->GetList();
+		if(symbol->type == LIST_SYMBOL)
+		{
+			result += symbol->GetList();
+		}
+		else
+		{
+			result.push_back(*symbol);
+		}
 	}
 	else
 	{
@@ -738,11 +787,8 @@ bool PopCommand::Intepret(std::vector<Symbols>& result)
 			string variable_name;
 			ToString(variable_name, this->parameters[i]);
 
-			Symbols* symbol = variable_table_stack->Lookup(variable_name);
-			if(symbol == NULL)
-			{
-				symbol = variable_table_stack->Register(variable_name);
-			}
+			Symbols* symbol = variable_table_stack->LookupOrRegister(variable_name);
+			
 			*symbol = Symbols(LIST_SYMBOL);
 			symbol->GetList() = parameter_stack->back();
 			parameter_stack->pop_back();			
@@ -861,6 +907,82 @@ bool CatCommand::Intepret(std::vector<Symbols>& result)
 	INFO("result="<<result);
 	input_file>>result;
 	INFO("result="<<result);
+	return true;
+}
+
+ArrayCommand::ArrayCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool ArrayCommand::Intepret(std::vector<Symbols>& result)
+{
+
+	assert(this->parameters.size() == 1 || this->parameters.size() == 2);
+	
+	Symbols symbol(LIST_SYMBOL);
+	//($ARRAY)
+	if(this->parameters.size() == 2)
+	{
+		//($ARRAY,<symbols>)
+		symbol.GetList() = this->parameters[1];
+	}
+	result.push_back(symbol);
+	return true;
+}
+
+MapCommand::MapCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool MapCommand::Intepret(std::vector<Symbols>& result)
+{
+
+	assert(this->parameters.size() == 1);
+	//($MAP)
+	result.push_back(Symbols(MAP_SYMBOL));
+	return true;
+}
+
+IndexCommand::IndexCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool IndexCommand::Intepret(std::vector<Symbols>& result)
+{
+
+	assert(this->parameters.size() == 3);
+	//($INDEX,ARRAY_OR_MAP_SYMBOL,index)
+	assert(this->parameters[1].size()==1);
+	Symbols symbol = this->parameters[1][0];
+	assert(symbol.type == LIST_SYMBOL || symbol.type == MAP_SYMBOL);
+	
+	string index;
+	ToString(index,this->parameters[2]);
+	
+	Symbols ref(REF_SYMBOL);
+	switch(symbol.type)
+	{
+	case LIST_SYMBOL:
+		{
+			int i;
+			String2Int(index,i);
+			ref.object = &(symbol.GetList()[i]);
+		}
+		break;
+	case MAP_SYMBOL:
+		ref.object = &(symbol.GetMap()[index]);
+		break;
+	default:
+		break;
+	}
+
+	result.push_back(ref);
 	return true;
 }
 
@@ -1034,7 +1156,20 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	{
 		command = new CatCommand(cmd, parameter_fields, intepreter);
 	}
+	else if(cmd == Symbols::ARRAY)
+	{
+		command = new ArrayCommand(cmd, parameter_fields, intepreter);
+	}
+	else if(cmd == Symbols::MAP)
+	{
+		command = new MapCommand(cmd, parameter_fields, intepreter);
+	}
+	else if(cmd == Symbols::INDEX)
+	{
+		command = new IndexCommand(cmd, parameter_fields, intepreter);
+	}
 
+	assert(command);
 	return command;
 }
 

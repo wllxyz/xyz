@@ -23,6 +23,7 @@ public:
 	bool empty() { return variable_stack.empty(); }
 	Symbols* Lookup(string variable_name);
 	Symbols* Register(string variable_name);
+	Symbols* LookupOrRegister(string variable_name);
 private:
 	vector< map<string, Symbols*> > variable_stack;
 };

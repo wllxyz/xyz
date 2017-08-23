@@ -46,3 +46,13 @@ Symbols* VariableStack::Register(string variable_name)
 	return top[variable_name] = new Symbols;
 }
 
+Symbols* VariableStack::LookupOrRegister(string variable_name)
+{
+	Symbols* symbol = this->Lookup(variable_name);
+	if(symbol == NULL)
+	{
+		symbol = this->Register(variable_name);
+	}
+	return symbol;
+}
+

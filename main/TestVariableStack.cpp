@@ -43,8 +43,12 @@ TEST(VariableStack, Test2)
 	VariableStack vs;
 	vs.Push();
 	Symbols* a = vs.Register("a");
-	*a = Symbols(MAP_SYMBOL);
+	*a = Symbols(LIST_SYMBOL);
+	a->GetList().push_back(Symbols('a'));
+	a->GetList().push_back(Symbols('b'));
+	cout<<"a="<<*a<<endl;
 	Symbols* b = vs.Register("b");
 	*b = *a;
+	cout<<"b="<<*b<<endl;
 }
 
