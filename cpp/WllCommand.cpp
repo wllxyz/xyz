@@ -959,45 +959,6 @@ bool MapCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-IndexCommand::IndexCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool IndexCommand::Intepret(std::vector<Symbols>& result)
-{
-
-	assert(this->parameters.size() == 3);
-	//($INDEX,ARRAY_OR_MAP_SYMBOL,index)
-	assert(this->parameters[1].size()==1);
-	Symbols symbol = this->parameters[1][0];
-	assert(symbol.type == LIST_SYMBOL || symbol.type == MAP_SYMBOL);
-	
-	string index;
-	ToString(index,this->parameters[2]);
-	
-	Symbols ref(REF_SYMBOL);
-	switch(symbol.type)
-	{
-	case LIST_SYMBOL:
-		{
-			int i;
-			String2Int(index,i);
-			ref.object = &(symbol.GetList()[i]);
-		}
-		break;
-	case MAP_SYMBOL:
-		ref.object = &(symbol.GetMap()[index]);
-		break;
-	default:
-		break;
-	}
-
-	result.push_back(ref);
-	return true;
-}
-
 WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 {
 	INFO("cmd="<<cmd);
@@ -1175,10 +1136,6 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	else if(cmd == Symbols::MAP)
 	{
 		command = new MapCommand(cmd, parameter_fields, intepreter);
-	}
-	else if(cmd == Symbols::INDEX)
-	{
-		command = new IndexCommand(cmd, parameter_fields, intepreter);
 	}
 
 	assert(command);

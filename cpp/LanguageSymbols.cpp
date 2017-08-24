@@ -1,4 +1,5 @@
 #include "LanguageSymbols.h"
+#include "SmartPointer.h"
 #include <cassert>
 #include <sstream>
 using namespace std;
@@ -63,7 +64,6 @@ const Symbols Symbols::POP(REMARK_SYMBOL,"$POP");
 //支持数据结构
 const Symbols Symbols::MAP(REMARK_SYMBOL,"$MAP");
 const Symbols Symbols::ARRAY(REMARK_SYMBOL,"$ARRAY");
-const Symbols Symbols::INDEX(REMARK_SYMBOL,"$INDEX");
 
 const Symbols Symbols::CAT(REMARK_SYMBOL,"$CAT");
 
@@ -99,13 +99,12 @@ Symbols::Symbols(SymbolTypes type)
 	{
 	case LIST_SYMBOL:
 	case STRING_SYMBOL:
-		this->object = new vector<Symbols>();
+		this->list_ptr = new vector<Symbols>();
 		break;
 	case MAP_SYMBOL:
-		this->object = new map<string, Symbols>();
+		this->map_ptr = new map<string, Symbols>();
 		break;
 	default:
-		this->object = NULL;
 		break;
 	}
 	this->type = type;
@@ -125,25 +124,25 @@ bool Symbols::operator< (const Symbols& that) const
 vector<Symbols>& Symbols::GetList()
 {
 	assert(this->type == LIST_SYMBOL || this->type == STRING_SYMBOL);
-	return(*((vector<Symbols>*)this->object));
+	return(*this->list_ptr);
 }
 
 const vector<Symbols>& Symbols::GetList() const
 {
 	assert(this->type == LIST_SYMBOL || this->type == STRING_SYMBOL);
-	return(*((const vector<Symbols>*)this->object));
+	return(*this->list_ptr);
 }
 
 map<string, Symbols>& Symbols::GetMap()
 {
 	assert(this->type == MAP_SYMBOL);
-	return(*((map<string, Symbols>*)this->object));
+	return(*this->map_ptr);
 }
 
 const map<string, Symbols>& Symbols::GetMap() const
 {
 	assert(this->type == MAP_SYMBOL);
-	return(*((const map<string, Symbols>*)this->object));
+	return(*this->map_ptr);
 }
 
 bool Symbols::IsVariable() const
@@ -215,12 +214,6 @@ string Symbols::ToString() const
 			}
 			result +="}";
 			return result;
-		}
-	case REF_SYMBOL:
-		{
-			stringstream ss;
-			ss<<this->object;
-			return ss.str();
 		}
 	default:
 		break;
