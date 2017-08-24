@@ -98,6 +98,7 @@ Symbols::Symbols(SymbolTypes type)
 	switch(type)
 	{
 	case LIST_SYMBOL:
+	case STRING_SYMBOL:
 		this->object = new vector<Symbols>();
 		break;
 	case MAP_SYMBOL:
@@ -123,13 +124,13 @@ bool Symbols::operator< (const Symbols& that) const
 
 vector<Symbols>& Symbols::GetList()
 {
-	assert(this->type == LIST_SYMBOL);
+	assert(this->type == LIST_SYMBOL || this->type == STRING_SYMBOL);
 	return(*((vector<Symbols>*)this->object));
 }
 
 const vector<Symbols>& Symbols::GetList() const
 {
-	assert(this->type == LIST_SYMBOL);
+	assert(this->type == LIST_SYMBOL || this->type == STRING_SYMBOL);
 	return(*((const vector<Symbols>*)this->object));
 }
 
@@ -175,6 +176,10 @@ string Symbols::ToString() const
 	case CONSTANT_SYMBOL:
 		tmp[0] = char(this->value);
 		return string(tmp);
+		break;
+	case STRING_SYMBOL:
+		::ToString(result,this->GetList());
+		return result;
 		break;
 	case LIST_SYMBOL:
 		{

@@ -15,7 +15,8 @@ enum SymbolTypes
 	VARIABLE_SYMBOL,
 	CONSTANT_SYMBOL,
 	REMARK_SYMBOL,
-	REF_SYMBOL,					//存储变量地址，为统一GET/SET 左值/右值语义
+	REF_SYMBOL,		//存储变量地址，为统一GET/SET 左值/右值语义
+	STRING_SYMBOL,		//内部打包解包类型，其存储和LIST_SYMBOL相同
 	LIST_SYMBOL,
 	MAP_SYMBOL
 };

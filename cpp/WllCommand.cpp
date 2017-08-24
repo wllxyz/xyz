@@ -609,10 +609,14 @@ Symbols* Index(Symbols* symbol, vector< vector<Symbols> >&parameters, int from, 
 		string index;
 		ToString(index,parameters[i]);
 		
-		if(symbol->type == LIST_SYMBOL)
+		if(symbol->type == LIST_SYMBOL || symbol->type == STRING_SYMBOL)
 		{
 			int index_i;
 			String2Int(index,index_i);
+			if(index_i >= symbol->GetList().size())
+			{
+				symbol->GetList().reserve(index_i+1);
+			}
 			symbol = &(symbol->GetList()[index_i]);
 		}
 		else if(symbol->type == MAP_SYMBOL)
@@ -649,7 +653,7 @@ bool DefCommand::Intepret(std::vector<Symbols>& result)
 	}
 	else
 	{
-		*symbol = Symbols(LIST_SYMBOL);
+		*symbol = Symbols(STRING_SYMBOL);
 		symbol->GetList() = this->parameters[this->parameters.size()-1];
 	}
 	
@@ -680,7 +684,7 @@ bool SetCommand::Intepret(std::vector<Symbols>& result)
 	}
 	else
 	{
-		*symbol = Symbols(LIST_SYMBOL);
+		*symbol = Symbols(STRING_SYMBOL);
 		symbol->GetList() = this->parameters[this->parameters.size()-1];
 	}
 	
@@ -695,7 +699,7 @@ GetCommand::GetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& paramet
 
 bool GetCommand::Intepret(std::vector<Symbols>& result)
 {
-	assert(this->parameters.size() == 2);
+	assert(this->parameters.size() >= 2);
 	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
 	assert(!variable_table_stack->empty());
 
@@ -706,7 +710,7 @@ bool GetCommand::Intepret(std::vector<Symbols>& result)
 	
 	if(symbol != NULL)
 	{
-		if(symbol->type == LIST_SYMBOL)
+		if(symbol->type == STRING_SYMBOL)
 		{
 			result += symbol->GetList();
 		}
@@ -789,8 +793,16 @@ bool PopCommand::Intepret(std::vector<Symbols>& result)
 
 			Symbols* symbol = variable_table_stack->LookupOrRegister(variable_name);
 			
-			*symbol = Symbols(LIST_SYMBOL);
-			symbol->GetList() = parameter_stack->back();
+			if(parameter_stack->back().size() == 1)
+			{
+				*symbol = parameter_stack->back()[0];
+			}
+			else
+			{
+				*symbol = Symbols(STRING_SYMBOL);
+				symbol->GetList() = parameter_stack->back();
+			}
+			
 			parameter_stack->pop_back();			
 		}
 		else
