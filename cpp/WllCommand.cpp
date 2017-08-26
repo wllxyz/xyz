@@ -601,7 +601,7 @@ bool ShellCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-Symbols* Index(Symbols* symbol, vector< vector<Symbols> >&parameters, int from, int to)
+Symbols* Index(Symbols* symbol, vector< vector<Symbols> >&parameters, int from, int to,bool write_flag=false)
 {
 	int i = from;
 	while(i < to)
@@ -609,13 +609,13 @@ Symbols* Index(Symbols* symbol, vector< vector<Symbols> >&parameters, int from, 
 		string index;
 		ToString(index,parameters[i]);
 		
-		if(symbol->type == LIST_SYMBOL || symbol->type == STRING_SYMBOL)
+		if(symbol->type == LIST_SYMBOL)
 		{
 			int index_i;
 			String2Int(index,index_i);
 			if(index_i >= symbol->GetList().size())
 			{
-				symbol->GetList().reserve(index_i+1);
+				symbol->GetList().resize(index_i+1);
 			}
 			symbol = &(symbol->GetList()[index_i]);
 		}
@@ -674,7 +674,7 @@ bool DefCommand::Intepret(std::vector<Symbols>& result)
 	ToString(variable_name, this->parameters[1]);
 
 	Symbols* symbol = variable_table_stack->Register(variable_name);
-	symbol = Index(symbol, this->parameters, 2, this->parameters.size()-1);
+	symbol = Index(symbol, this->parameters, 2, this->parameters.size()-1,true);
 	*symbol = Encode(this->parameters.back());
 	
 	return true;
@@ -696,7 +696,7 @@ bool SetCommand::Intepret(std::vector<Symbols>& result)
 	ToString(variable_name, this->parameters[1]);
 
 	Symbols* symbol = variable_table_stack->LookupOrRegister(variable_name);
-	symbol = Index(symbol, this->parameters, 2, this->parameters.size()-1);
+	symbol = Index(symbol, this->parameters, 2, this->parameters.size()-1,true);
 	*symbol = Encode(this->parameters.back());
 	
 	return true;
