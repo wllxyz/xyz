@@ -19,6 +19,7 @@
 #include <iostream>
 #include <fstream>
 #include <iterator>
+#include "IntepretException.h"
 using namespace std;
 using namespace Wll::Util;
 
@@ -613,15 +614,31 @@ Symbols* Index(Symbols* symbol, vector< vector<Symbols> >&parameters, int from, 
 		{
 			int index_i;
 			String2Int(index,index_i);
-			if(index_i >= symbol->GetList().size())
+			if(index_i == symbol->GetList().size())
 			{
-				symbol->GetList().resize(index_i+1);
+				if(write_flag)
+				{
+					symbol->GetList().resize(index_i+1);
+				}
+				else
+				{
+					throw IntepretException("read index["+index+"] out of range");
+				}
+			}
+			else if(index_i > symbol->GetList().size() || index_i < 0)
+			{
+				throw IntepretException("index["+index+"] out of range");
+				//throw IntepretException((write_flag?string("write"):string("read"))+" index["+index+"] out of range"); 
 			}
 			symbol = &(symbol->GetList()[index_i]);
 		}
 		else if(symbol->type == MAP_SYMBOL)
 		{
 			symbol = &(symbol->GetMap()[index]);
+		}
+		else
+		{
+			throw IntepretException("index with type other than LIST and MAP");
 		}
 		
 		i++;

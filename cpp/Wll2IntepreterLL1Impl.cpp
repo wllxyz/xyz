@@ -12,6 +12,7 @@
 #include "WllTrace.h"
 #include <cassert>
 #include "WllCommand.h"
+#include "IntepretException.h"
 
 Wll2IntepreterLL1Impl::Wll2IntepreterLL1Impl(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols, WllIntepreter* intepreter)
 :input_symbols(input_symbols),output_symbols(output_symbols),intepreter(intepreter)
@@ -113,7 +114,15 @@ bool Wll2IntepreterLL1Impl::IntepretSExpression(std::vector<Symbols>& result)
 			WllCommand* command = WllCommandFactory::CreateCommand(symbol, parameter_fields,this->intepreter);
 			assert(command!=NULL);
 			vector<Symbols> command_result;
-			retval = command->Intepret(command_result);
+			try{
+				retval = command->Intepret(command_result);
+			}
+			catch(IntepretException& e)
+			{
+				TERM_ERROR(e);
+				retval = false;
+			}
+			
 			INFO(symbol<<" command_result="<<command_result);
 			result += command_result;
 			delete command;

@@ -13,6 +13,7 @@
 #include "WllTrace.h"
 #include <cassert>
 #include "WllCommand.h"
+#include "IntepretException.h"
 
 bool Wll1Intepreter::IntepretWll(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols)
 {
@@ -67,8 +68,18 @@ bool Wll1Intepreter::IntepretWll(const std::vector<Symbols>& input_symbols,std::
 
 				WllCommand* command = WllCommandFactory::CreateCommand(symbol, parameter_fields,this);
 				assert(command!=NULL);
-				bool retval = command->Intepret(data_stack);
+				
+				bool retval;
+				try{
+					retval = command->Intepret(data_stack);
+				}
+				catch(IntepretException& e)
+				{
+					TERM_ERROR(e);
+					retval = false;
+				}
 				delete command;
+				
 				if(retval == false)
 				{
 					TERM_ERROR("Intepret command["<<symbol<<"], parameters["<<vector<Symbols>(parameters.begin(),parameters.end())<<"] failed!!!");
