@@ -1,5 +1,5 @@
 #include "LanguageSymbols.h"
-#include "SmartPointer.h"
+#include <memory>
 #include <cassert>
 #include <sstream>
 using namespace std;
@@ -99,10 +99,10 @@ Symbols::Symbols(SymbolTypes type)
 	{
 	case LIST_SYMBOL:
 	case STRING_SYMBOL:
-		this->list_ptr = new vector<Symbols>();
+		this->list_ptr = shared_ptr<vector<Symbols> >(new vector<Symbols>());
 		break;
 	case MAP_SYMBOL:
-		this->map_ptr = new map<string, Symbols>();
+		this->map_ptr = shared_ptr<map<string,Symbols> >(new map<string, Symbols>());
 		break;
 	default:
 		break;

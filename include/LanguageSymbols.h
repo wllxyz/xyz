@@ -2,7 +2,7 @@
 #define	LANGUAGE_SYMBOLS_H
 
 #include "StringTable.h"
-#include "SmartPointer.h"
+#include <memory>
 #include <iostream>
 #include <vector>
 #include <map>
@@ -33,8 +33,8 @@ public:
 		int value;
 	};
 public:
-	SmartPointer< vector<Symbols> > list_ptr;
-	SmartPointer< map<string, Symbols> > map_ptr;
+	shared_ptr< vector<Symbols> > list_ptr;
+	shared_ptr< map<string, Symbols> > map_ptr;
 public:
 	Symbols();
 	Symbols(const char* variable);

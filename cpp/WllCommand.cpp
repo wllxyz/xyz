@@ -629,6 +629,35 @@ Symbols* Index(Symbols* symbol, vector< vector<Symbols> >&parameters, int from, 
 	return symbol;
 }
 
+Symbols Encode(vector<Symbols>& value)
+{
+	Symbols symbol;
+	if(value.size() == 1)
+	{
+		symbol = value[0];
+	}
+	else
+	{
+		symbol = Symbols(STRING_SYMBOL);
+		symbol.GetList() = value;
+	}
+	return symbol;
+}
+
+vector<Symbols> Decode(Symbols& symbol)
+{
+	vector<Symbols> value;
+	if(symbol.type == STRING_SYMBOL)
+	{
+		value = symbol.GetList();
+	}
+	else
+	{
+		value.push_back(symbol);
+	}
+	return value;
+} 
+
 DefCommand::DefCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
@@ -646,16 +675,7 @@ bool DefCommand::Intepret(std::vector<Symbols>& result)
 
 	Symbols* symbol = variable_table_stack->Register(variable_name);
 	symbol = Index(symbol, this->parameters, 2, this->parameters.size()-1);
-	
-	if(this->parameters[this->parameters.size()-1].size() == 1)
-	{
-		*symbol = this->parameters[this->parameters.size()-1][0];
-	}
-	else
-	{
-		*symbol = Symbols(STRING_SYMBOL);
-		symbol->GetList() = this->parameters[this->parameters.size()-1];
-	}
+	*symbol = Encode(this->parameters.back());
 	
 	return true;
 }
@@ -677,16 +697,7 @@ bool SetCommand::Intepret(std::vector<Symbols>& result)
 
 	Symbols* symbol = variable_table_stack->LookupOrRegister(variable_name);
 	symbol = Index(symbol, this->parameters, 2, this->parameters.size()-1);
-
-	if(this->parameters[this->parameters.size()-1].size() == 1)
-	{
-		*symbol = this->parameters[this->parameters.size()-1][0];
-	}
-	else
-	{
-		*symbol = Symbols(STRING_SYMBOL);
-		symbol->GetList() = this->parameters[this->parameters.size()-1];
-	}
+	*symbol = Encode(this->parameters.back());
 	
 	return true;
 }
@@ -710,14 +721,7 @@ bool GetCommand::Intepret(std::vector<Symbols>& result)
 	
 	if(symbol != NULL)
 	{
-		if(symbol->type == STRING_SYMBOL)
-		{
-			result += symbol->GetList();
-		}
-		else
-		{
-			result.push_back(*symbol);
-		}
+		result += Decode(*symbol);
 	}
 	else
 	{
@@ -764,10 +768,10 @@ PushCommand::PushCommand(Symbols cmd, std::vector< std::vector<Symbols> >& param
 
 bool PushCommand::Intepret(std::vector<Symbols>& result)
 {
-	vector<vector<Symbols> >*parameter_stack = Singleton<vector<vector<Symbols> > >::GetInstance();
+	vector<Symbols>*parameter_stack = Singleton<vector<Symbols> >::GetInstance();
 	for(int i=1; i<this->parameters.size(); i++)
 	{
-		parameter_stack->push_back(this->parameters[i]);
+		parameter_stack->push_back(Encode(this->parameters[i]));
 	}
 	return true;
 }
@@ -781,7 +785,7 @@ PopCommand::PopCommand(Symbols cmd, std::vector< std::vector<Symbols> >& paramet
 
 bool PopCommand::Intepret(std::vector<Symbols>& result)
 {
-	vector<vector<Symbols> >*parameter_stack = Singleton<vector<vector<Symbols> > >::GetInstance();
+	vector<Symbols>*parameter_stack = Singleton<vector<Symbols> >::GetInstance();
 	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
 	assert(!variable_table_stack->empty());
 	for(int i = this->parameters.size()-1; i != 0; --i)
@@ -792,16 +796,7 @@ bool PopCommand::Intepret(std::vector<Symbols>& result)
 			ToString(variable_name, this->parameters[i]);
 
 			Symbols* symbol = variable_table_stack->LookupOrRegister(variable_name);
-			
-			if(parameter_stack->back().size() == 1)
-			{
-				*symbol = parameter_stack->back()[0];
-			}
-			else
-			{
-				*symbol = Symbols(STRING_SYMBOL);
-				symbol->GetList() = parameter_stack->back();
-			}
+			*symbol = parameter_stack->back();
 			
 			parameter_stack->pop_back();			
 		}
