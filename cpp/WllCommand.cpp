@@ -610,7 +610,7 @@ Symbols* Index(Symbols* symbol, vector< vector<Symbols> >&parameters, int from, 
 		string index;
 		ToString(index,parameters[i]);
 		
-		if(symbol->type == LIST_SYMBOL)
+		if(symbol->type == LIST_SYMBOL || symbol->type == STRING_SYMBOL)
 		{
 			int index_i;
 			String2Int(index,index_i);
