@@ -92,6 +92,39 @@ TEST(LanguageSymbolTest, Split)
 	}
 }
 
+TEST(LanguageSymbolTest, GetList)
+{
+	Symbols list(LIST_SYMBOL);
+	vector<Symbols>& l = list.GetList();
+	l.push_back(Symbols(LIST_SYMBOL));
+	l.push_back(Symbols('c'));
+	l.push_back(Symbols("abc"));
+	cout<<list.ToString()<<endl;
+}
+
+TEST(LanguageSymbolTest, GetMap)
+{
+	Symbols list(LIST_SYMBOL);
+	Symbols m2(MAP_SYMBOL);
+	vector<Symbols>& l = list.GetList();
+	map<string, Symbols>& m = m2.GetMap();
+
+	l.push_back(Symbols(LIST_SYMBOL));
+	l.push_back(Symbols('c'));
+	l.push_back(Symbols("abc"));
+
+	m["f1"] = list;
+	m["f2"] = Symbols(MAP_SYMBOL);
+	m["f2"].GetMap()["hello"] = Symbols("world");
+
+	cout<<m2.ToString()<<endl;
+
+	list = m2;
+
+	cout<<m2.ToString()<<endl;
+	cout<<list.ToString()<<endl;
+}
+
 GTEST_API_ int main(int argc, char **argv) 
 {
   testing::InitGoogleTest(&argc, argv);

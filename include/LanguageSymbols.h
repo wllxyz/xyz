@@ -2,8 +2,10 @@
 #define	LANGUAGE_SYMBOLS_H
 
 #include "StringTable.h"
+#include <memory>
 #include <iostream>
 #include <vector>
+#include <map>
 using namespace std;
 using namespace Wll;
 
@@ -13,7 +15,10 @@ enum SymbolTypes
 	UNKNOW_SYMBOL,
 	VARIABLE_SYMBOL,
 	CONSTANT_SYMBOL,
-	REMARK_SYMBOL
+	REMARK_SYMBOL,
+	STRING_SYMBOL,		//内部打包解包类型，其存储和LIST_SYMBOL相同
+	LIST_SYMBOL,
+	MAP_SYMBOL
 };
 
 //when type =
@@ -24,19 +29,30 @@ struct Symbols
 {
 public:
 	SymbolTypes type;
-	int value;
+	union {
+		int value;
+	};
+public:
+	shared_ptr< vector<Symbols> > list_ptr;
+	shared_ptr< map<string, Symbols> > map_ptr;
 public:
 	Symbols();
 	Symbols(const char* variable);
 	Symbols(char constant);
 	Symbols(SymbolTypes type,const char* remark);
+	Symbols(SymbolTypes type);
 	bool operator== (const Symbols& that) const;
 	bool operator< (const Symbols& that) const;
+public:
+	vector<Symbols>& GetList();
+	const vector<Symbols>& GetList() const;
+	map<string, Symbols>& GetMap();
+	const map<string, Symbols>& GetMap() const;
 public:
 	bool IsVariable()const;
 	bool IsConstant()const;
 	bool IsRemark()const;
-	const char* ToString()const;
+	string ToString()const;
 	virtual void Display(ostream& o) const;
 	void Dump(ostream& o) const;
 public:
@@ -97,7 +113,11 @@ public:
 	static const Symbols POP_DATA;			//销毁本层变量空间并出栈
 	static const Symbols PUSH;				//表达式值压入参数栈顶
 	static const Symbols POP;				//参数栈顶值出栈到变量
-
+	//支持数据结构
+	static const Symbols ARRAY;				//创建Symbols(LIST_SYMBOL)数值变量
+	static const Symbols MAP;				//创建Symbols(MAP_SYMBOL)字典变量
+	static const Symbols INDEX;				//ARRAY/MAP寻址指令，返回REF_SYMBOL类型变量(地址类型)
+	
 	static const Symbols CAT;				//从文件中加载符号,支持INCLUDE特性
 };
 

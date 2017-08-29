@@ -7,7 +7,7 @@
 
 #include "WllCommand.h"
 #include "ValueType.h"
-#include "VariableTable.h"
+#include "VariableStack.h"
 #include "Wll0Loader.h"
 #include "Wll1Loader.h"
 #include "Wll1Intepreter.h"
@@ -19,6 +19,7 @@
 #include <iostream>
 #include <fstream>
 #include <iterator>
+#include "IntepretException.h"
 using namespace std;
 using namespace Wll::Util;
 
@@ -601,6 +602,79 @@ bool ShellCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
+Symbols* Index(Symbols* symbol, vector< vector<Symbols> >&parameters, int from, int to,bool write_flag=false)
+{
+	int i = from;
+	while(i < to)
+	{
+		string index;
+		ToString(index,parameters[i]);
+		
+		if(symbol->type == LIST_SYMBOL || symbol->type == STRING_SYMBOL)
+		{
+			int index_i;
+			String2Int(index,index_i);
+			if(index_i == symbol->GetList().size())
+			{
+				if(write_flag)
+				{
+					symbol->GetList().resize(index_i+1);
+				}
+				else
+				{
+					throw IntepretException("read index["+index+"] out of range");
+				}
+			}
+			else if(index_i > symbol->GetList().size() || index_i < 0)
+			{
+				throw IntepretException("index["+index+"] out of range");
+				//throw IntepretException((write_flag?string("write"):string("read"))+" index["+index+"] out of range"); 
+			}
+			symbol = &(symbol->GetList()[index_i]);
+		}
+		else if(symbol->type == MAP_SYMBOL)
+		{
+			symbol = &(symbol->GetMap()[index]);
+		}
+		else
+		{
+			throw IntepretException("index with type other than LIST and MAP");
+		}
+		
+		i++;
+	}
+	return symbol;
+}
+
+Symbols Encode(vector<Symbols>& value)
+{
+	Symbols symbol;
+	if(value.size() == 1)
+	{
+		symbol = value[0];
+	}
+	else
+	{
+		symbol = Symbols(STRING_SYMBOL);
+		symbol.GetList() = value;
+	}
+	return symbol;
+}
+
+vector<Symbols> Decode(Symbols& symbol)
+{
+	vector<Symbols> value;
+	if(symbol.type == STRING_SYMBOL)
+	{
+		value = symbol.GetList();
+	}
+	else
+	{
+		value.push_back(symbol);
+	}
+	return value;
+} 
+
 DefCommand::DefCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
@@ -609,15 +683,17 @@ DefCommand::DefCommand(Symbols cmd, std::vector< std::vector<Symbols> >& paramet
 
 bool DefCommand::Intepret(std::vector<Symbols>& result)
 {
-	assert(this->parameters.size() == 3);
-	vector<VariableTable>* variable_table_stack = Singleton<vector<VariableTable> >::GetInstance();
+	assert(this->parameters.size() >= 3);
+	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
 	assert(!variable_table_stack->empty());
 
 	string variable_name;
 	ToString(variable_name, this->parameters[1]);
 
-	VariableTable& variable_table = variable_table_stack->back();
-	variable_table[variable_name] = this->parameters[2];
+	Symbols* symbol = variable_table_stack->Register(variable_name);
+	symbol = Index(symbol, this->parameters, 2, this->parameters.size()-1,true);
+	*symbol = Encode(this->parameters.back());
+	
 	return true;
 }
 
@@ -629,23 +705,17 @@ SetCommand::SetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& paramet
 
 bool SetCommand::Intepret(std::vector<Symbols>& result)
 {
-	assert(this->parameters.size() == 3);
-	vector<VariableTable>* variable_table_stack = Singleton<vector<VariableTable> >::GetInstance();
+	assert(this->parameters.size() >= 3);
+	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
 	assert(!variable_table_stack->empty());
 
 	string variable_name;
 	ToString(variable_name, this->parameters[1]);
-	for(vector<VariableTable>::reverse_iterator i = variable_table_stack->rbegin(); i != variable_table_stack->rend(); ++i)
-	{
-		if(i->Has(variable_name.substr(0,variable_name.find('.'))))
-		{
-			((*i)[variable_name]) = this->parameters[2];
-			return true;
-		}
-	}
 
-	VariableTable& variable_table = variable_table_stack->back();
-	variable_table[variable_name] = this->parameters[2];
+	Symbols* symbol = variable_table_stack->LookupOrRegister(variable_name);
+	symbol = Index(symbol, this->parameters, 2, this->parameters.size()-1,true);
+	*symbol = Encode(this->parameters.back());
+	
 	return true;
 }
 
@@ -657,23 +727,23 @@ GetCommand::GetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& paramet
 
 bool GetCommand::Intepret(std::vector<Symbols>& result)
 {
-	assert(this->parameters.size() == 2);
-	vector<VariableTable>* variable_table_stack = Singleton<vector<VariableTable> >::GetInstance();
+	assert(this->parameters.size() >= 2);
+	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
 	assert(!variable_table_stack->empty());
 
 	string variable_name;
 	ToString(variable_name, this->parameters[1]);
-	for(vector<VariableTable>::reverse_iterator i = variable_table_stack->rbegin(); i != variable_table_stack->rend(); ++i)
+	Symbols* symbol = variable_table_stack->Lookup(variable_name);
+	symbol = Index(symbol, this->parameters, 2, this->parameters.size());
+	
+	if(symbol != NULL)
 	{
-		if(i->Has(variable_name))
-		{
-			result += (((*i)[variable_name]).symbols);
-			INFO("value="<<(((*i)[variable_name])));
-			return true;
-		}
+		result += Decode(*symbol);
 	}
-
-	INFO("variable_name["<<variable_name<<"] not find in variable table stack, return empty");
+	else
+	{
+		INFO("variable_name["<<variable_name<<"] not find in variable table stack, return empty");
+	}
 	return true;
 }
 
@@ -686,8 +756,8 @@ PushDataCommand::PushDataCommand(Symbols cmd, std::vector< std::vector<Symbols> 
 bool PushDataCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size() == 1);
-	vector<VariableTable>* variable_table_stack = Singleton<vector<VariableTable> >::GetInstance();
-	variable_table_stack->push_back(VariableTable());
+	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
+	variable_table_stack->Push();
 	return true;
 }
 
@@ -700,9 +770,9 @@ PopDataCommand::PopDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >&
 bool PopDataCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size() == 1);
-	vector<VariableTable>* variable_table_stack = Singleton<vector<VariableTable> >::GetInstance();
+	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
 	if(variable_table_stack->empty())		return false;
-	variable_table_stack->pop_back();
+	variable_table_stack->Pop();
 	return true;
 }
 
@@ -715,10 +785,10 @@ PushCommand::PushCommand(Symbols cmd, std::vector< std::vector<Symbols> >& param
 
 bool PushCommand::Intepret(std::vector<Symbols>& result)
 {
-	vector<vector<Symbols> >*parameter_stack = Singleton<vector<vector<Symbols> > >::GetInstance();
+	vector<Symbols>*parameter_stack = Singleton<vector<Symbols> >::GetInstance();
 	for(int i=1; i<this->parameters.size(); i++)
 	{
-		parameter_stack->push_back(this->parameters[i]);
+		parameter_stack->push_back(Encode(this->parameters[i]));
 	}
 	return true;
 }
@@ -732,35 +802,20 @@ PopCommand::PopCommand(Symbols cmd, std::vector< std::vector<Symbols> >& paramet
 
 bool PopCommand::Intepret(std::vector<Symbols>& result)
 {
-	vector<vector<Symbols> >*parameter_stack = Singleton<vector<vector<Symbols> > >::GetInstance();
-	vector<VariableTable>* variable_table_stack = Singleton<vector<VariableTable> >::GetInstance();
+	vector<Symbols>*parameter_stack = Singleton<vector<Symbols> >::GetInstance();
+	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
 	assert(!variable_table_stack->empty());
-	VariableTable& variable_table = variable_table_stack->back();
 	for(int i = this->parameters.size()-1; i != 0; --i)
 	{
 		if(!parameter_stack->empty())
 		{
-			VariableNode::KeyType variable_name;
+			string variable_name;
 			ToString(variable_name, this->parameters[i]);
 
-			bool found = false;
-			for(vector<VariableTable>::reverse_iterator i = variable_table_stack->rbegin(); i != variable_table_stack->rend(); ++i)
-			{
-				if(i->Has(variable_name.substr(0,variable_name.find('.'))))
-				{
-					((*i)[variable_name]) = parameter_stack->back();
-					parameter_stack->pop_back();
-					found = true;
-					break;
-				}
-			}
-
-			if(!found)
-			{
-				VariableTable& variable_table = variable_table_stack->back();
-				variable_table[variable_name] = parameter_stack->back();
-				parameter_stack->pop_back();
-			}
+			Symbols* symbol = variable_table_stack->LookupOrRegister(variable_name);
+			*symbol = parameter_stack->back();
+			
+			parameter_stack->pop_back();			
 		}
 		else
 		{
@@ -876,6 +931,43 @@ bool CatCommand::Intepret(std::vector<Symbols>& result)
 	INFO("result="<<result);
 	input_file>>result;
 	INFO("result="<<result);
+	return true;
+}
+
+ArrayCommand::ArrayCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool ArrayCommand::Intepret(std::vector<Symbols>& result)
+{
+
+	assert(this->parameters.size() == 1 || this->parameters.size() == 2);
+	
+	Symbols symbol(LIST_SYMBOL);
+	//($ARRAY)
+	if(this->parameters.size() == 2)
+	{
+		//($ARRAY,<symbols>)
+		symbol.GetList() = this->parameters[1];
+	}
+	result.push_back(symbol);
+	return true;
+}
+
+MapCommand::MapCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool MapCommand::Intepret(std::vector<Symbols>& result)
+{
+
+	assert(this->parameters.size() == 1);
+	//($MAP)
+	result.push_back(Symbols(MAP_SYMBOL));
 	return true;
 }
 
@@ -1049,7 +1141,16 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	{
 		command = new CatCommand(cmd, parameter_fields, intepreter);
 	}
+	else if(cmd == Symbols::ARRAY)
+	{
+		command = new ArrayCommand(cmd, parameter_fields, intepreter);
+	}
+	else if(cmd == Symbols::MAP)
+	{
+		command = new MapCommand(cmd, parameter_fields, intepreter);
+	}
 
+	assert(command);
 	return command;
 }
 

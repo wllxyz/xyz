@@ -5,19 +5,20 @@
 	($PUSH_DATA)
 	($SET, "current_level", "0")
 	($SET, "code_index", "0")
-	($SET, "code", "")
+	($SET, "code", ($ARRAY))
 	<block>
 	($SET, "i", "0")
 	($LOOP, 
 		($IGNORE,($NOT, ($EQ, ($GET, "i"), ($GET, "code_index")))), 
 		($IGNORE,
 			($GET, "i") " : " 
-				($GET, "code."($GET, "i")".cmd") " " 
-				($GET, "code."($GET, "i")".op1") " " 
-				($GET, "code."($GET, "i")".op2") "\n" 
+				($GET, "code", ($GET, "i"), "cmd") " " 
+				($GET, "code", ($GET, "i"), "op1") " " 
+				($GET, "code", ($GET, "i"), "op2") "\n" 
 			($SET, "i", ($ADD, ($GET, "i"), "1"))
 		)
 	)
+	($GET, "code")"\n"
 	($POP_DATA);
 
 <block> -->
@@ -25,26 +26,31 @@
 ==>
 <block> -->
 	($PUSH_DATA)
-	($DEF, "ident_table", "")
+	($DEF, "ident_table", ($MAP))
 	($DEF, "storage", "0")
 	($SET, "current_level", ($ADD, ($GET, "current_level"), "1"))
 	($PUSH, ($GET, "code_index"))
-	($SET, "code."($GET, "code_index")".cmd", "JMP")
-	($SET, "code."($GET, "code_index")".op1", "0")
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index"), "cmd", "JMP")
+	($SET, "code", ($GET, "code_index"), "op1", "0")
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"))
 	<declaration_part>
 	($POP, "@1")
-	($SET, "code."($GET, "@1")".op2", ($GET, "code_index"))
-	($SET, "code."($GET, "code_index")".cmd", "INIT")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", ($GET, "storage"))
+	($SET, "code", ($GET, "@1"), "op2", ($GET, "code_index"))
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index"), "cmd", "INIT")
+	($SET, "code", ($GET, "code_index"), "op1", "0")
+	($SET, "code", ($GET, "code_index"), "op2", ($GET, "storage"))
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"))
 	<complex_statement>
-	($SET, "code."($GET, "code_index")".cmd", "RETURN")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", "0")
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index"), "cmd", "RETURN")
+	($SET, "code", ($GET, "code_index"), "op1", "0")
+	($SET, "code", ($GET, "code_index"), "op2", "0")
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"))
 	($SET, "current_level", ($SUB, ($GET, "current_level"), "1"))
+	($GET, "code")"\n"
+	($GET, "ident_table")"\n"
 	($POP_DATA);
 
 <declaration_part> -->
@@ -78,12 +84,13 @@
 <if_statement> -->
 	<condition_expression>
 	($PUSH, ($GET, "code_index"))
-	($SET, "code."($GET, "code_index")".cmd", "JPC")
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index"), "cmd", "JPC")
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"))
 	<statement>
 	($POP, "@1")
-	($SET, "code."($GET, "@1")".op1", "0")
-	($SET, "code."($GET, "@1")".op2", ($GET, "code_index"));
+	($SET, "code", ($GET, "@1"), "op1", "0")
+	($SET, "code", ($GET, "@1"), "op2", ($GET, "code_index"));
 
 <while_statement> -->
 	"$while"<space><spaces><condition_expression><space><spaces>"$do"<space><spaces><statement>
@@ -91,38 +98,42 @@
 <while_statement> -->
 	<condition_expression>
 	($PUSH, ($GET, "code_index"))
-	($SET, "code."($GET, "code_index")".cmd", "JPC")
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index"), "cmd", "JPC")
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"))
 	<statement>
 	($POP, "@1")
-	($SET, "code."($GET, "code_index")".cmd", "JMP")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", ($GET, "@1"))
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index"), "cmd", "JMP")
+	($SET, "code", ($GET, "code_index"), "op1", "0")
+	($SET, "code", ($GET, "code_index"), "op2", ($GET, "@1"))
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"))
-	($SET, "code."($GET, "@1")".op1", "0")
-	($SET, "code."($GET, "@1")".op2", ($GET, "code_index"));
+	($SET, "code", ($GET, "@1"), "op1", "0")
+	($SET, "code", ($GET, "@1"), "op2", ($GET, "code_index"));
 
 <read_statement>-->"$read""("<read_variable_list>")"
 ==>
 <read_statement>-->
 	($PUSH, ($GET, "code_index"))
-	($SET, "code."($GET, "code_index")".cmd", "READ")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", "0")
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index"), "cmd", "READ")
+	($SET, "code", ($GET, "code_index"), "op1", "0")
+	($SET, "code", ($GET, "code_index"), "op2", "0")
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"))
 	($SET, "read_variable_list_length", "0")
 	<read_variable_list>
 	($POP, "@1")
-	($SET, "code."($GET, "@1")".op2", ($GET, "read_variable_list_length"));
+	($SET, "code", ($GET, "@1"), "op2", ($GET, "read_variable_list_length"));
 
 <write_statement>-->"$write""("<write_expression_list>")"
 ==>
 <write_statement>-->
 	($SET, "write_expression_list_length", "0")
 	<write_expression_list>
-	($SET, "code."($GET, "code_index")".cmd", "WRITE")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", ($GET, "write_expression_list_length"))
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index"), "cmd", "WRITE")
+	($SET, "code", ($GET, "code_index"), "op1", "0")
+	($SET, "code", ($GET, "code_index"), "op2", ($GET, "write_expression_list_length"))
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"));
 
 <write_expression_list>--><write_expression>","<write_expression_list>==><write_expression_list>--><write_expression><write_expression_list>;
@@ -138,9 +149,10 @@
 ==>
 <assign_statement>-->
 	<expression>
-	($SET, "code."($GET, "code_index")".cmd", "STORE")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", <variable>)
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index"), "cmd", "STORE")
+	($SET, "code", ($GET, "code_index"), "op1", "0")
+	($SET, "code", ($GET, "code_index"), "op2", <variable>)
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"));
 
 <call_statement>--><function_name>"("<call_expression_list>")"
@@ -148,13 +160,16 @@
 <call_statement>-->
 	($SET, "call_expression_list_length", "0")
 	<call_expression_list>
-	($SET, "code."($GET, "code_index")".cmd", "PAR")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", ($GET, "call_expression_list_length"))
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index"), "cmd", "PAR")
+	($SET, "code", ($GET, "code_index"), "op1", "0")
+	($SET, "code", ($GET, "code_index"), "op2", ($GET, "call_expression_list_length"))
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"))
-	($SET, "code."($GET, "code_index")".cmd", "CALL")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", <function_name>)
+	
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index"), "cmd", "CALL")
+	($SET, "code", ($GET, "code_index"), "op1", "0")
+	($SET, "code", ($GET, "code_index"), "op2", <function_name>)
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"));
 
 <const_define_list>--><constant_define>==><const_define_list>--><constant_define>;
@@ -166,9 +181,10 @@
 <function_define>-->"@procedure"<space><spaces><function_name><parameter_define>";"<space><spaces><block>";"<space><spaces>
 ==>
 <function_define>-->
-	($SET, "ident_table."<function_name>".type", "procedure")
-	($SET, "ident_table."<function_name>".level", ($GET, "current_level"))
-	($SET, "ident_table."<function_name>".value", ($GET, "code_index"))
+	($SET, "ident_table", <function_name>, ($MAP))
+	($SET, "ident_table", <function_name>, "type", "procedure")
+	($SET, "ident_table", <function_name>, "level", ($GET, "current_level"))
+	($SET, "ident_table", <function_name>, "value", ($GET, "code_index"))
 	<parameter_define>
 	<block>;
 
@@ -190,9 +206,10 @@
 <read_variable>--><variable>
 ==>
 <read_variable>-->
-	($SET, "code."($GET, "code_index")".cmd", "STORE")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", <variable>)
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index"), "cmd", "STORE")
+	($SET, "code", ($GET, "code_index"), "op1", "0")
+	($SET, "code", ($GET, "code_index"), "op2", <variable>)
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"))
 	($SET, "read_variable_list_length", ($ADD, ($GET, "read_variable_list_length"), "1"));
 
@@ -206,16 +223,18 @@
 <constant_define>--><ident>"="<number>
 ==>
 <constant_define>-->
-	($SET, "ident_table."<ident>".type", "constant")
-	($SET, "ident_table."<ident>".level", ($GET, "current_level"))
-	($SET, "ident_table."<ident>".value", <number>);
+	($SET, "ident_table", <ident>, ($MAP))
+	($SET, "ident_table", <ident>, "type", "constant")
+	($SET, "ident_table", <ident>, "level", ($GET, "current_level"))
+	($SET, "ident_table", <ident>, "value", <number>);
 
 <variable_define>--><ident>
 ==>
 <variable_define>-->
-	($SET, "ident_table."<ident>".type", "variable")
-	($SET, "ident_table."<ident>".level", ($GET, "current_level"))
-	($SET, "ident_table."<ident>".value", ($GET, "storage"))
+	($SET, "ident_table", <ident>, ($MAP))
+	($SET, "ident_table", <ident>, "type", "variable")
+	($SET, "ident_table", <ident>, "level", ($GET, "current_level"))
+	($SET, "ident_table", <ident>, "value", ($GET, "storage"))
 	($SET, "storage", ($ADD, ($GET, "storage"), "1"));
 
 <function_name>--><ident>==><function_name>--><ident>;
@@ -230,49 +249,55 @@
 <compare_operation>-->">"
 ==>
 <compare_operation>-->
-	($SET, "code."($GET, "code_index")".cmd", "OPR")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", "GT")
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index") ,"cmd", "OPR")
+	($SET, "code", ($GET, "code_index") ,"op1", "0")
+	($SET, "code", ($GET, "code_index") ,"op2", "GT")
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"));
 
 <compare_operation>-->"="
 ==>
 <compare_operation>-->
-	($SET, "code."($GET, "code_index")".cmd", "OPR")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", "EQ")
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index") ,"cmd", "OPR")
+	($SET, "code", ($GET, "code_index") ,"op1", "0")
+	($SET, "code", ($GET, "code_index") ,"op2", "EQ")
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"));
 
 <compare_operation>-->"<"
 ==>
 <compare_operation>-->
-	($SET, "code."($GET, "code_index")".cmd", "OPR")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", "LT")
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index") ,"cmd", "OPR")
+	($SET, "code", ($GET, "code_index") ,"op1", "0")
+	($SET, "code", ($GET, "code_index") ,"op2", "LT")
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"));
 
 <compare_operation>-->">="
 ==>
 <compare_operation>-->
-	($SET, "code."($GET, "code_index")".cmd", "OPR")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", "GE")
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index") ,"cmd", "OPR")
+	($SET, "code", ($GET, "code_index") ,"op1", "0")
+	($SET, "code", ($GET, "code_index") ,"op2", "GE")
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"));
 
 <compare_operation>-->"#"
 ==>
 <compare_operation>-->
-	($SET, "code."($GET, "code_index")".cmd", "OPR")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", "NE")
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index") ,"cmd", "OPR")
+	($SET, "code", ($GET, "code_index") ,"op1", "0")
+	($SET, "code", ($GET, "code_index") ,"op2", "NE")
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"));
 
 <compare_operation>-->"<="
 ==>
 <compare_operation>-->
-	($SET, "code."($GET, "code_index")".cmd", "OPR")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", "LE")
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index") ,"cmd", "OPR")
+	($SET, "code", ($GET, "code_index") ,"op1", "0")
+	($SET, "code", ($GET, "code_index") ,"op2", "LE")
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"));
 
 <variable>--><ident>==><variable>--><ident>;
@@ -280,9 +305,10 @@
 <parameter>--><ident>
 ==>
 <parameter>-->
-	($SET, "ident_table."<ident>".type", "variable")
-	($SET, "ident_table."<ident>".level", ($ADD, ($GET, "current_level"), "1"))
-	($SET, "ident_table."<ident>".value", ($GET, "storage"))
+	($SET, "ident_table", <ident>, ($MAP))
+	($SET, "ident_table", <ident>, "type", "variable")
+	($SET, "ident_table", <ident>, "level", ($ADD, ($GET, "current_level"), "1"))
+	($SET, "ident_table", <ident>, "value", ($GET, "storage"))
 	($SET, "storage", ($ADD, ($GET, "storage"), "1"));
 
 <number>--><digit>==><number>--><digit>;
@@ -294,18 +320,20 @@
 ==>
 <term_list>-->
 	<term><term_list>
-	($SET, "code."($GET, "code_index")".cmd", "OPR")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", "ADD")
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index") ,"cmd", "OPR")
+	($SET, "code", ($GET, "code_index") ,"op1", "0")
+	($SET, "code", ($GET, "code_index") ,"op2", "ADD")
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"));
 
 <term_list>--><term>"-"<term_list>
 ==>
 <term_list>-->
 	<term><term_list>
-	($SET, "code."($GET, "code_index")".cmd", "OPR")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", "SUB")
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index") ,"cmd", "OPR")
+	($SET, "code", ($GET, "code_index") ,"op1", "0")
+	($SET, "code", ($GET, "code_index") ,"op2", "SUB")
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"));
 
 <term>--><factor_list>==><term>--><factor_list>;
@@ -314,18 +342,20 @@
 ==>
 <factor_list>-->
 	<factor><factor_list>
-	($SET, "code."($GET, "code_index")".cmd", "OPR")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", "MUL")
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index") ,"cmd", "OPR")
+	($SET, "code", ($GET, "code_index") ,"op1", "0")
+	($SET, "code", ($GET, "code_index") ,"op2", "MUL")
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"));
 
 <factor_list>--><factor>"/"<factor_list>
 ==>
 <factor_list>-->
 	<factor><factor_list>
-	($SET, "code."($GET, "code_index")".cmd", "OPR")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", "DIV")
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index") ,"cmd", "OPR")
+	($SET, "code", ($GET, "code_index") ,"op1", "0")
+	($SET, "code", ($GET, "code_index") ,"op2", "DIV")
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"));
 
 <factor_list>--><factor>==><factor_list>--><factor>;
@@ -333,17 +363,19 @@
 <factor>--><ident>
 ==>
 <factor>-->
-	($SET, "code."($GET, "code_index")".cmd", "LOAD")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", <ident>)
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index") ,"cmd", "LOAD")
+	($SET, "code", ($GET, "code_index") ,"op1", "0")
+	($SET, "code", ($GET, "code_index") ,"op2", <ident>)
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"));
 
 <factor>--><number>
 ==>
 <factor>-->
-	($SET, "code."($GET, "code_index")".cmd", "LIT")
-	($SET, "code."($GET, "code_index")".op1", "0")
-	($SET, "code."($GET, "code_index")".op2", <number>)
+	($SET, "code", ($GET, "code_index"), ($MAP))
+	($SET, "code", ($GET, "code_index") ,"cmd", "LIT")
+	($SET, "code", ($GET, "code_index") ,"op1", "0")
+	($SET, "code", ($GET, "code_index") ,"op2", <number>)
 	($SET, "code_index", ($ADD, ($GET, "code_index"), "1"));
 
 <factor>-->"("<expression>")"==><factor>--><expression>;

@@ -1,5 +1,7 @@
 #include "LanguageSymbols.h"
+#include <memory>
 #include <cassert>
+#include <sstream>
 using namespace std;
 
 StringTable Symbols::variable_table;
@@ -59,6 +61,9 @@ const Symbols Symbols::PUSH_DATA(REMARK_SYMBOL,"$PUSH_DATA");
 const Symbols Symbols::POP_DATA(REMARK_SYMBOL,"$POP_DATA");
 const Symbols Symbols::PUSH(REMARK_SYMBOL,"$PUSH");
 const Symbols Symbols::POP(REMARK_SYMBOL,"$POP");
+//支持数据结构
+const Symbols Symbols::MAP(REMARK_SYMBOL,"$MAP");
+const Symbols Symbols::ARRAY(REMARK_SYMBOL,"$ARRAY");
 
 const Symbols Symbols::CAT(REMARK_SYMBOL,"$CAT");
 
@@ -88,6 +93,23 @@ Symbols::Symbols(SymbolTypes type,const char* remark)
 	this->value = Symbols::remark_table.GetIndexByName(remark);
 }
 
+Symbols::Symbols(SymbolTypes type)
+{
+	switch(type)
+	{
+	case LIST_SYMBOL:
+	case STRING_SYMBOL:
+		this->list_ptr = shared_ptr<vector<Symbols> >(new vector<Symbols>());
+		break;
+	case MAP_SYMBOL:
+		this->map_ptr = shared_ptr<map<string,Symbols> >(new map<string, Symbols>());
+		break;
+	default:
+		break;
+	}
+	this->type = type;
+}
+
 bool Symbols::operator== (const Symbols& that) const
 {
 	return ((this->type == that.type) && (this->value == that.value));
@@ -97,6 +119,30 @@ bool Symbols::operator< (const Symbols& that) const
 {
 	//assert(this->type == that.type);
 	return (this->type < that.type || (this->type == that.type && this->value < that.value));
+}
+
+vector<Symbols>& Symbols::GetList()
+{
+	assert(this->type == LIST_SYMBOL || this->type == STRING_SYMBOL);
+	return(*this->list_ptr);
+}
+
+const vector<Symbols>& Symbols::GetList() const
+{
+	assert(this->type == LIST_SYMBOL || this->type == STRING_SYMBOL);
+	return(*this->list_ptr);
+}
+
+map<string, Symbols>& Symbols::GetMap()
+{
+	assert(this->type == MAP_SYMBOL);
+	return(*this->map_ptr);
+}
+
+const map<string, Symbols>& Symbols::GetMap() const
+{
+	assert(this->type == MAP_SYMBOL);
+	return(*this->map_ptr);
 }
 
 bool Symbols::IsVariable() const
@@ -114,56 +160,76 @@ bool Symbols::IsRemark() const
 	return this->type==REMARK_SYMBOL;
 }
 
-const char* Symbols::ToString() const
+string Symbols::ToString() const
 {
-    static char constant_char[2];
+	char tmp[2] = "";
+	string result = "";
 	switch(this->type)
 	{
 	case VARIABLE_SYMBOL:
-		return(Symbols::variable_table.GetNameByIndex(this->value).c_str());
+		return(Symbols::variable_table.GetNameByIndex(this->value));
 		break;
 	case REMARK_SYMBOL:
-		return(Symbols::remark_table.GetNameByIndex(this->value).c_str());
+		return(Symbols::remark_table.GetNameByIndex(this->value));
 		break;
 	case CONSTANT_SYMBOL:
-		constant_char[0]=char(this->value);
-		return constant_char;
+		tmp[0] = char(this->value);
+		return string(tmp);
 		break;
+	case STRING_SYMBOL:
+		::ToString(result,this->GetList());
+		return result;
+		break;
+	case LIST_SYMBOL:
+		{
+			result += "[";
+			const vector<Symbols>& l = this->GetList();
+			if(!l.empty())
+			{
+				vector<Symbols>::const_iterator i = l.begin();
+				result += i->ToString();
+				for(++i; i != l.end(); ++i)
+				{
+					result += ",";
+					result += i->ToString();
+				}
+			}
+			result +="]";
+			return result;
+		}
+		break;
+	case MAP_SYMBOL:
+		{
+			result += "{";
+			const map<string, Symbols>& l = this->GetMap();
+			if(!l.empty())
+			{
+				map<string, Symbols>::const_iterator i = l.begin();
+				result +=  i->first + "=>" + i->second.ToString();
+				for(++i; i != l.end(); ++i)
+				{
+					result += ",";
+					result +=  i->first + "=>" + i->second.ToString();
+				}
+			}
+			result +="}";
+			return result;
+		}
 	default:
 		break;
 	}
-	return NULL;
+	return "";
 }
 
 void Symbols::Display(ostream& o) const
 {
-	switch(this->type)
-	{
-	case VARIABLE_SYMBOL:
-		o<<Symbols::variable_table.GetNameByIndex(this->value);
-		break;
-	case REMARK_SYMBOL:
-		o<<Symbols::remark_table.GetNameByIndex(this->value);
-		break;
-	case CONSTANT_SYMBOL:
-		o<<char(this->value);
-		break;
-	default:
-		o<<"Unknow Symbols!!!";
-		break;
-	}
+	o<<this->ToString();
 }
 
 void Symbols::Dump(ostream& o) const
 {
 	switch(this->type)
 	{
-	case VARIABLE_SYMBOL:
-		o<<Symbols::variable_table.GetNameByIndex(this->value);
-		break;
-	case REMARK_SYMBOL:
-		o<<Symbols::remark_table.GetNameByIndex(this->value);
-		break;
 	case CONSTANT_SYMBOL:
 		switch(this->value)
 		{
@@ -188,7 +254,7 @@ void Symbols::Dump(ostream& o) const
 		}
 		break;
 	default:
-		o<<"Unknow Symbols!!!";
+		o<<this->ToString();
 		break;
 	}
 }
