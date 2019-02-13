@@ -1,18 +1,4 @@
-$print 2*3
-x=2
-$print x
-$print x*2+1
-n=10
-$while(n)
 {
-n=n-1
-$print n
-}
-f(x)=
-{
-2*x+1
-}
-$print f(x=0)
 g(n)=
 {
 $if(n)
@@ -24,4 +10,13 @@ $else
 1
 }
 }
-$print g(n=10)
+n=10
+$while(n)
+{
+n
+'\t'
+g(n=n)
+"\n"
+n=n-1
+}
+}
