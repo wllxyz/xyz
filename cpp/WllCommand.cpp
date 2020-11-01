@@ -19,6 +19,7 @@
 #include <iostream>
 #include <fstream>
 #include <iterator>
+#include "CompilerManager.h"
 #include "IntepretException.h"
 using namespace std;
 using namespace Wll::Util;
@@ -894,19 +895,8 @@ bool CallCommand::Intepret(std::vector<Symbols>& result)
 		//<update>
 		//return this->intepreter->compiler->Process(grammar_file_name, this->parameters[3], result, Symbols(start_symbol.c_str()));
 		//<as>
-		Compiler compiler;
-		ifstream input_grammar(grammar_file_name.c_str());
-		if(!input_grammar)
-		{
-			ERROR("open gramar file["<<grammar_file_name<<"] failed");
-			return false;
-		}
-		if(!compiler.Process(input_grammar, cout))
-		{
-			ERROR("process grammar_file_name["<<grammar_file_name<<"] failed");
-			return false;
-		}
-		return compiler.Process(this->parameters[3], result, Symbols(start_symbol.c_str()));
+        Compiler* compiler = Singleton<CompilerManager>().GetInstance()->CreateOrGetCompiler(grammar_file_name);
+		return compiler->Process(this->parameters[3], result, Symbols(start_symbol.c_str()));
 		//</update>
 	}
 	return false;
