@@ -36,7 +36,7 @@ public:
 	virtual bool Process(const std::string& grammar_file_name, const std::vector<Symbols>& input_symbols, std::vector<Symbols>& output_symbols, Symbols start_symbol);
 public:
 	//for debug display languages
-	virtual void DisplayLanguage();
+	virtual void DisplayLanguage(ostream& o);
 public:
 	LanguageGrammar languages;
 	//Strategy<WllLoader> loader_strategy;

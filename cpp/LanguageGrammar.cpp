@@ -60,10 +60,9 @@ Symbols LanguageGrammar::GetDefaultStartSymbol()
 
 ostream& operator<< (ostream& o, const LanguageGrammar& lg)
 {
-	size_t rule_no = 0;
 	for(vector<LanguageTranslations>::const_iterator it = lg.translation_rules.begin(); it != lg.translation_rules.end(); ++it)
 	{
-		o<<rule_no++<<":\t"<<*it<<endl;
+		o<<*it<<endl;
 	}
 	return o;
 }

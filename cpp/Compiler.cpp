@@ -119,8 +119,8 @@ bool Compiler::Process(const std::string& grammar_file_name, const std::vector<S
 }
 
 //for debug
-void Compiler::DisplayLanguage()
+void Compiler::DisplayLanguage(ostream& o)
 {
-	cout<<this->languages<<endl;
+	o<<this->languages;
 }
 

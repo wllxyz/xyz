@@ -79,7 +79,17 @@ int main(int argc,char** argv)
 			else if(cmd=="grammar")
 			{
 				cout<<"current loaded language rules:"<<endl;
-				compiler.DisplayLanguage();
+				compiler.DisplayLanguage(cout);
+			}
+			else if(cmd=="dump")
+			{
+				string file_name;
+				cin>>file_name;
+				ofstream output_file(file_name);
+				compiler.DisplayLanguage(output_file);
+				cout<<"["<<file_name<<"] dumped."<<endl;
+			} else {
+				cout<<"unknow command!!!"<<endl;
 			}
 		}while(true);
 
