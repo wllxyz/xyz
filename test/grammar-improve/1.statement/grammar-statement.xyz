@@ -40,7 +40,9 @@
 <statement>--><if_statement>==><statement>--><if_statement>;
 <statement>--><while_statement>==><statement>--><while_statement>;
 <assign_statement>--><identifier><spaces>"="<spaces><calc_expression>==><assign_statement>-->$LEFT_QUOTE$SET$SEPERATOR<identifier>$SEPERATOR<calc_expression>$RIGHT_QUOTE;
-<if_statement>-->"$if"<spaces>"("<spaces><logic_expression>")"<spaces><statement1><spaces>"$else"<spaces><statement2>==><if_statement>-->($COND, ($NOT, ($EQ, <logic_expression>, "0")), ($IGNORE,<statement1>), $TRUE, ($IGNORE,<statement2>));
+<if_statement>-->"$if"<spaces>"("<spaces><logic_expression>")"<spaces><statement1><spaces>==><if_statement>-->($COND, <logic_expression>, ($IGNORE,<statement1>));
+<if_statement>-->"$if"<spaces>"("<spaces><logic_expression>")"<spaces><statement1><spaces>"$else"<spaces><statement2>==><if_statement>-->($COND, <logic_expression>, ($IGNORE,<statement1>), $TRUE, ($IGNORE,<statement2>));
+<while_statement>-->"$while"<spaces>"("<spaces><logic_expression>")"<spaces><statement1><spaces>==><while_statement>-->($LOOP, ($IGNORE,<logic_expression>), ($IGNORE, <statement1>));
 <statement1>--><statement_expression>==><statement1>--><statement_expression>;
 <statement2>--><statement_expression>==><statement2>--><statement_expression>;
 <logic_expression>--><compare_expression>==><logic_expression>--><compare_expression>;
