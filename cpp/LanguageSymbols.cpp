@@ -70,7 +70,7 @@ const Symbols Symbols::CAT(REMARK_SYMBOL,"$CAT");
 
 Symbols::Symbols()
 {
-	this->type = UNKNOW_SYMBOL;
+	this->type = VOID_SYMBOL;
 	this->value = 0;
 }
 

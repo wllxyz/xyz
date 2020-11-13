@@ -533,7 +533,13 @@ LtCommand::LtCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter
 bool LtCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size() == 3);
-	result.push_back((this->parameters[1] < this->parameters[2]) ? Symbols::TRUE : Symbols::FALSE);
+	string param1;
+	string param2;
+	ToString(param1, this->parameters[1]);
+	ToString(param2, this->parameters[2]);
+	Integer a(param1);
+	Integer b(param2);
+	result.push_back((a < b) ? Symbols::TRUE : Symbols::FALSE);
 	return true;
 }
 

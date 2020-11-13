@@ -4,6 +4,7 @@
 	VARIABLE_SYMBOL,	-- 文法变量类型
 	CONSTANT_SYMBOL,	-- 文法常量类型
 	REMARK_SYMBOL,		-- 文法标记类型
+	S_EXP_SYMBOL,		-- S表达式类型
 	CHAR_SYMBOL,            -- 单个字符类型
 	INTEGER_SYMBOL,		-- 整数类型
 	LONG_SYMBOL,		-- 长整数类型
@@ -31,4 +32,20 @@
 	LONG_SYMBOL <= STRING_SYMBOL
 	FLOAT_SYMBOL <= STRING_SYMBOL
 	DOUBLE_SYMBOL <= STRING_SYMBOL
-			
+
+实现：
+	LanguageSymbols
+		type
+		union value
+		{
+			char c;
+			int i;
+			long l;
+			float f;
+			double d;
+			string s;
+			vector<LanguageSymbols> s_expression;
+			vector<LanguageSymbols> list;
+			map<string,LanguageSymbols> map;
+		}
+					

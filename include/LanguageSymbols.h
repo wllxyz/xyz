@@ -12,7 +12,7 @@ using namespace Wll;
 //Symbols
 enum SymbolTypes 
 {
-	UNKNOW_SYMBOL,
+	VOID_SYMBOL,
 	VARIABLE_SYMBOL,
 	CONSTANT_SYMBOL,
 	REMARK_SYMBOL,

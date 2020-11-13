@@ -1,8 +1,89 @@
 1. S-表达式
 	方便指令格式解析检查（当前wll语言选用格式）
+	(cmd,param1,...,paramN)
+	paramI 也可以是ｓ表达式 (cmd,...)
+	即表达式是嵌套结构
 
 2. 指令数据混合型(栈+堆)[栈-指令和中间计算结果 堆-存储变量]
 	前缀表达式（压栈）
+	+ * 1 + 2 3 4 = (+ (* 1 (+ 2 3)) 4)
 	后缀表达式（无需压栈）
+	2 3 + 1 * 4 +
+	
+	单栈模式解释执行指令:
+	对于输入指令序列：2 3 + 1 * 4 +
+	依次读入:
+	2 => 压栈
+	3 => 压栈
+	+ => 计算栈顶2+3=5压栈
+	1 => 压栈
+	* => 计算栈顶5*1=5压栈
+	4 => 压栈
+	+ => 计算5+4=9压栈
+	栈中最后剩下9
+	依次遍历栈队列，输出最终结果9
+	
+	其中指令的扫描只会从前往后扫描一遍，不回头
+	对于简单的表达式求值语句，单次正向扫描就够了，但是不适用于重复执行和转义执行的场景
+
+	对于输入指令序列: (LOOP (i<9) (s=s+i i=i+1))
+	@0: i get 9 < @2 jc @1: s get i get + s set i get 1 + i set @0 jmp @2:
+	data stack and code stack separate
+	code pointer point to where get code, and jmp command can change code pointer
+	
+	IGNORE_BEGIN
+	i
+	get
+	9
+	get
+	<
+	IGNORE_END
+	IGNORE_BEGIN
+	s
+	get
+	i
+	get
+	+
+	s
+	set
+	i
+	get
+	1
+	+
+	i
+	set
+	IGNORE_END
+	LOOP while execute stack(1) list and compare result!=0 execute stack(2)
+	
+	定义和调用函数
+	f(x,y)=x+y
+	f(1,2)
+	
+	IGNORE_BEGIN	
+	x
+	POP =>x
+	y
+	POP =>y
+	x
+	get
+	y
+	get
+	+
+	IGNORE_END
+	f
+	FUNCTION_DEFINE(SET)
+	
+	1
+	PUSH
+	2
+	PUSH
+	f
+	get
+	eval
+	
+	IGNORE_BEGIN 关闭求值开关,进入S_EXP_SYMBOL组装模式
+	IGNORE_END 重新开启求值开关,将组装的S_EXP_SYMBOL压栈
+	EVAL把栈顶符号取出重新依次压栈求值
+	
 	
 	
