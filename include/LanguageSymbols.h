@@ -12,13 +12,22 @@ using namespace Wll;
 //Symbols
 enum SymbolTypes 
 {
-	VOID_SYMBOL,
-	VARIABLE_SYMBOL,
-	CONSTANT_SYMBOL,
-	REMARK_SYMBOL,
+	VOID_SYMBOL,		//VOID类型，作为空类型
+	VARIABLE_SYMBOL,	//文法变量类型
+	CONSTANT_SYMBOL,	//文法常量类型
+	REMARK_SYMBOL,		//文法标记类型
+	
 	STRING_SYMBOL,		//内部打包解包类型，其存储和LIST_SYMBOL相同
-	LIST_SYMBOL,
-	MAP_SYMBOL
+	COMPACT_SYMBOL,		//S表达式类型(同之前的内部打包解包类型)
+	
+	CHAR_SYMBOL,            //单个字符类型
+	//STRING_SYMBOL,	//字符串类型
+	INTEGER_SYMBOL,		//整数类型
+	LONG_SYMBOL,		//长整数类型
+	FLOAT_SYMBOL,		//浮点数类型
+	DOUBLE_SYMBOL,		//双精度浮点数类型	
+	LIST_SYMBOL,		//数组类型
+	MAP_SYMBOL		//字典类型
 };
 
 //when type =
@@ -31,15 +40,31 @@ public:
 	SymbolTypes type;
 	union {
 		int value;
+		char c;
+		int i;
+		long l;
+		float f;
+		double d;
+		char* s;
+		vector<Symbols>* list;
+		map<string, Symbols>* m;		
 	};
 public:
-	shared_ptr< vector<Symbols> > list_ptr;
-	shared_ptr< map<string, Symbols> > map_ptr;
+	//shared_ptr< vector<Symbols> > list_ptr;
+	//shared_ptr< map<string, Symbols> > map_ptr;
 public:
 	Symbols();
+	Symbols(const Symbols& that);
+	virtual ~Symbols();
 	Symbols(const char* variable);
 	Symbols(char constant);
 	Symbols(SymbolTypes type,const char* remark);
+	Symbols(SymbolTypes symbol_type,char c);
+	Symbols(int i);
+	Symbols(long l);
+	Symbols(float f);
+	Symbols(double d);
+	Symbols(SymbolTypes symbol_type, vector<Symbols> symbols);
 	Symbols(SymbolTypes type);
 	bool operator== (const Symbols& that) const;
 	bool operator< (const Symbols& that) const;
@@ -120,6 +145,11 @@ public:
 	
 	static const Symbols CAT;				//从文件中加载符号,支持INCLUDE特性
 };
+
+bool operator== (const vector<Symbols>& a, const vector<Symbols>& b);
+bool operator< (const vector<Symbols>& a, const vector<Symbols>& b);
+bool operator== (const map<string,Symbols>& a, const map<string,Symbols>& b);
+bool operator< (const map<string,Symbols>& a, const map<string,Symbols>& b);
 
 istream& operator>> (istream& i,  vector<Symbols>& symbols);
 ostream& operator<< (ostream& o, const Symbols& symbol);

@@ -1,8 +1,13 @@
 #include "LanguageSymbols.h"
+#include "WllString.h"
 #include <memory>
 #include <cassert>
 #include <sstream>
+#include <cstring>
+#include <math.h>
+//#include <algorithm>
 using namespace std;
+using namespace Wll::Util;
 
 StringTable Symbols::variable_table;
 StringTable Symbols::remark_table;
@@ -74,6 +79,88 @@ Symbols::Symbols()
 	this->value = 0;
 }
 
+Symbols::Symbols(const Symbols& that)
+{
+	this->type = that.type;
+	switch(that.type)
+	{
+	case COMPACT_SYMBOL:
+	case LIST_SYMBOL:
+		if (that.list == NULL)
+		{
+			this->list = NULL;
+		}
+		else
+		{
+			this->list = new vector<Symbols>(that.list->size());
+			copy(that.list->begin(), that.list->end(), this->list->begin());
+		}
+		break;
+	case MAP_SYMBOL:
+		if (that.m == NULL)
+		{
+			this->m = NULL;
+		}
+		else
+		{
+			this->m = new map<string,Symbols>();
+			for(map<string,Symbols>::iterator i = that.m->begin(); i != that.m->end(); i++)
+			{
+				(*this->m)[i->first] = i->second;
+			}
+		}
+		break;
+	case CHAR_SYMBOL:
+		this->c = that.c;
+		break;
+	case INTEGER_SYMBOL:
+		this->i = that.i;
+		break;
+	case LONG_SYMBOL:
+		this->l = that.l;
+		break;
+	case FLOAT_SYMBOL:
+		this->f = that.f;
+		break;
+	case DOUBLE_SYMBOL:
+		this->d = that.d;
+		break;
+	case STRING_SYMBOL:
+		if (that.s == NULL)
+		{
+			this->s = NULL;
+		}
+		else
+		{
+			this->s = new char[strlen(that.s)+1];
+			strcpy(this->s,that.s);
+		}
+		break;
+	default:
+		this->value = that.value;
+		break;
+	}
+}
+
+Symbols::~Symbols()
+{
+	switch(this->type)
+	{
+	case COMPACT_SYMBOL:
+	case LIST_SYMBOL:
+		if (this->list != NULL) delete this->list;
+		break;
+	case MAP_SYMBOL:
+		if (this->m != NULL) delete this->m;
+		break;
+	case STRING_SYMBOL:
+		if (this->s != NULL) delete this->s;
+		break;
+	default:
+		break;
+	}
+}
+
 Symbols::Symbols(const char* variable)
 {
 	this->type = VARIABLE_SYMBOL;
@@ -93,16 +180,67 @@ Symbols::Symbols(SymbolTypes type,const char* remark)
 	this->value = Symbols::remark_table.GetIndexByName(remark);
 }
 
+Symbols::Symbols(SymbolTypes type, char c)
+{
+	assert(type == CHAR_SYMBOL || type == CONSTANT_SYMBOL);
+	
+	this->type = type;
+	switch(type)
+	{
+	case CHAR_SYMBOL:
+		this->c = c;
+		break;
+	case CONSTANT_SYMBOL:
+		this->value = c;
+		break;	
+	default:
+		throw "unknow symbol type";
+		break;
+	}
+}
+
+Symbols::Symbols(int i)
+{
+	this->type = INTEGER_SYMBOL;
+	this->i = i;
+}
+
+Symbols::Symbols(long l)
+{
+	this->type = LONG_SYMBOL;
+	this->l = l;
+}
+
+Symbols::Symbols(float f)
+{
+	this->type = FLOAT_SYMBOL;
+	this->f = f;
+}
+
+Symbols::Symbols(double d)
+{
+	this->type = DOUBLE_SYMBOL;
+	this->d = d;
+}
+
+Symbols::Symbols(SymbolTypes type, vector<Symbols> symbols)
+{
+	assert(type == COMPACT_SYMBOL || type == LIST_SYMBOL);
+	this->type = type;
+	this->list = new vector<Symbols>(symbols.size());
+	copy(symbols.begin(), symbols.end(), this->list->begin());
+}
+
 Symbols::Symbols(SymbolTypes type)
 {
 	switch(type)
 	{
 	case LIST_SYMBOL:
 	case STRING_SYMBOL:
-		this->list_ptr = shared_ptr<vector<Symbols> >(new vector<Symbols>());
+		this->list = new vector<Symbols>();
 		break;
 	case MAP_SYMBOL:
-		this->map_ptr = shared_ptr<map<string,Symbols> >(new map<string, Symbols>());
+		this->m = new map<string,Symbols>();
 		break;
 	default:
 		break;
@@ -112,37 +250,166 @@ Symbols::Symbols(SymbolTypes type)
 
 bool Symbols::operator== (const Symbols& that) const
 {
-	return ((this->type == that.type) && (this->value == that.value));
+	if (this->type != that.type) return false;
+	switch(this->type)
+	{
+	case COMPACT_SYMBOL:
+	case LIST_SYMBOL:
+		if (this->list == NULL && that.list == NULL) return true;
+		if (this->list == NULL || that.list == NULL) return false;
+		return (*this->list) == (*that.list);
+		break;
+	case MAP_SYMBOL:
+		if (this->m == NULL && that.m == NULL) return true;
+		if (this->m == NULL || that.m == NULL) return false;
+		return (*this->m) == (*that.m);
+		break;
+	case CHAR_SYMBOL:
+		return (this->c == that.c);
+		break;
+	case INTEGER_SYMBOL:
+		return (this->i == that.i);
+		break;
+	case LONG_SYMBOL:
+		return (this->l == that.l);
+		break;
+	case FLOAT_SYMBOL:
+		return fabs(this->f - that.f) < 1e-6;
+		break;
+	case DOUBLE_SYMBOL:
+		return fabs(this->d - that.d) < 1e-6;
+		break;
+	case STRING_SYMBOL:
+		if (that.s == NULL && this->s == NULL) return true;
+		if (that.s == NULL || this->s == NULL) return false;
+		return strcmp(this->s, that.s)==0;
+		break;
+	default:
+		return (this->value == that.value);
+		break;
+	}
 }
 
 bool Symbols::operator< (const Symbols& that) const
 {
-	//assert(this->type == that.type);
-	return (this->type < that.type || (this->type == that.type && this->value < that.value));
+	if (this->type < that.type) return true;
+	if (this->type > that.type) return false;
+	switch(this->type)
+	{
+	case COMPACT_SYMBOL:
+	case LIST_SYMBOL:
+		if (this->list == NULL && that.list == NULL) return false;
+		if (this->list == NULL) return true;
+		if (that.list == NULL) return false;
+		return (*this->list) < (*that.list);
+		break;
+	case MAP_SYMBOL:
+		if (this->m == NULL && that.m == NULL) return false;
+		if (this->m == NULL) return true;
+		if (that.m == NULL) return false;
+		return (*this->m) < (*that.m);
+		break;
+	case CHAR_SYMBOL:
+		return (this->c < that.c);
+		break;
+	case INTEGER_SYMBOL:
+		return (this->i < that.i);
+		break;
+	case LONG_SYMBOL:
+		return (this->l < that.l);
+		break;
+	case FLOAT_SYMBOL:
+		return this->f < that.f;
+		break;
+	case DOUBLE_SYMBOL:
+		return this->d < that.d;
+		break;
+	case STRING_SYMBOL:
+		if (that.s == NULL && this->s == NULL) return false;
+		if (this->s == NULL) return true;
+		if (that.s == NULL) return false;
+		return strcmp(this->s, that.s)<0;
+		break;
+	default:
+		return (this->value < that.value);
+		break;
+	}
+}
+
+bool operator== (const vector<Symbols>& a, const vector<Symbols>& b)
+{
+	vector<Symbols>::const_iterator ia = a.begin();
+	vector<Symbols>::const_iterator ib = b.begin();
+	for(; ia != a.end() && ib != b.end(); ia++, ib++)
+	{
+		if (!(*ia == *ib)) return false;
+	}
+	return (ia == a.end() && ib == b.end());	
+}
+
+bool operator< (const vector<Symbols>& a, const vector<Symbols>& b)
+{
+	vector<Symbols>::const_iterator ia = a.begin();
+	vector<Symbols>::const_iterator ib = b.begin();
+	for(; ia != a.end() && ib != b.end(); ia++, ib++)
+	{
+		if (*ia < *ib) return true;
+		if (!(*ia == *ib)) return false;
+	}
+	if (ia == a.end() && ib == b.end()) return false;
+	if (ia == a.end()) return true;
+	if (ib == b.end()) return false;
+	return false;	
+}
+
+bool operator== (const map<string,Symbols>& a, const map<string,Symbols>& b)
+{
+	map<string,Symbols>::const_iterator ia = a.begin();
+	map<string,Symbols>::const_iterator ib = b.begin();
+	for(; ia != a.end() && ib != b.end(); ia++, ib++)
+	{
+		if (!(ia->first == ib->first && ia->second == ib->second)) return false;
+	}
+	return (ia == a.end() && ib == b.end());
+}
+
+bool operator< (const map<string,Symbols>& a, const map<string,Symbols>& b)
+{
+	map<string,Symbols>::const_iterator ia = a.begin();
+	map<string,Symbols>::const_iterator ib = b.begin();
+	for(; ia != a.end() && ib != b.end(); ia++, ib++)
+	{
+		if (ia->first < ib->first || (ia->first == ib->first && ia->second < ib->second)) return true;
+		if (!(ia->first == ib->first && ia->second == ib->second)) return false;
+	}
+	if (ia == a.end() && ib == b.end()) return false;
+	if (ia == a.end()) return true;
+	if (ib == b.end()) return false;
+	return false;
 }
 
 vector<Symbols>& Symbols::GetList()
 {
 	assert(this->type == LIST_SYMBOL || this->type == STRING_SYMBOL);
-	return(*this->list_ptr);
+	return(*this->list);
 }
 
 const vector<Symbols>& Symbols::GetList() const
 {
 	assert(this->type == LIST_SYMBOL || this->type == STRING_SYMBOL);
-	return(*this->list_ptr);
+	return(*this->list);
 }
 
 map<string, Symbols>& Symbols::GetMap()
 {
 	assert(this->type == MAP_SYMBOL);
-	return(*this->map_ptr);
+	return(*this->m);
 }
 
 const map<string, Symbols>& Symbols::GetMap() const
 {
 	assert(this->type == MAP_SYMBOL);
-	return(*this->map_ptr);
+	return(*this->m);
 }
 
 bool Symbols::IsVariable() const
@@ -176,14 +443,51 @@ string Symbols::ToString() const
 		tmp[0] = char(this->value);
 		return string(tmp);
 		break;
-	case STRING_SYMBOL:
-		::ToString(result,this->GetList());
+	case CHAR_SYMBOL:
+		tmp[0] = char(this->c);
+		return string(tmp);
+		break;
+	case INTEGER_SYMBOL:
+		Int2String(this->i, result);
 		return result;
 		break;
+	case LONG_SYMBOL:
+		Long2String(this->l, result);
+		return result;
+		break;
+	case FLOAT_SYMBOL:
+		Float2String(this->f, result);
+		return result;
+		break;
+	case DOUBLE_SYMBOL:
+		Double2String(this->d, result);
+		return result;
+		break;			
+	case STRING_SYMBOL:
+		return string(this->s);
+		break;
+	case COMPACT_SYMBOL:
+		{
+			result += "(";
+			const vector<Symbols>& l = *this->list;
+			if(!l.empty())
+			{
+				vector<Symbols>::const_iterator i = l.begin();
+				result += i->ToString();
+				for(++i; i != l.end(); ++i)
+				{
+					result += ",";
+					result += i->ToString();
+				}
+			}
+			result +=")";
+			return result;
+		}
+		break;		
 	case LIST_SYMBOL:
 		{
 			result += "[";
-			const vector<Symbols>& l = this->GetList();
+			const vector<Symbols>& l = *this->list;
 			if(!l.empty())
 			{
 				vector<Symbols>::const_iterator i = l.begin();
@@ -201,7 +505,7 @@ string Symbols::ToString() const
 	case MAP_SYMBOL:
 		{
 			result += "{";
-			const map<string, Symbols>& l = this->GetMap();
+			const map<string, Symbols>& l = *this->m;
 			if(!l.empty())
 			{
 				map<string, Symbols>::const_iterator i = l.begin();
