@@ -75,7 +75,6 @@ const Symbols Symbols::CAT(REMARK_SYMBOL,"$CAT");
 
 Symbols::Symbols()
 {
-	cout<<"construct symbol: type=VOID, p="<<this<<endl;
 	this->type = VOID_SYMBOL;
 	this->value = 0;
 	
@@ -86,7 +85,6 @@ Symbols::Symbols()
 
 Symbols::Symbols(const Symbols& that)
 {
-	cout<<"copy construct symbol: type="<<that.type<<", p="<<this<<endl;
 	this->type = that.type;
 	switch(that.type)
 	{
@@ -123,7 +121,6 @@ Symbols::Symbols(const Symbols& that)
 
 Symbols& Symbols::operator= (const Symbols& that)
 {
-	cout<<"assign symbol: this="<<this<<", that="<<&that<<endl;
 	this->type = that.type;
 	switch(that.type)
 	{
@@ -182,7 +179,6 @@ Symbols& Symbols::operator= (const Symbols& that)
 
 Symbols::~Symbols()
 {
-	cout<<"destruct symbol: type="<<this->type<<", p="<<this<<endl;
 	switch(this->type)
 	{
 	case COMPACT_SYMBOL:
@@ -218,14 +214,12 @@ Symbols::Symbols(const char* variable)
 {
 	this->type = VARIABLE_SYMBOL;
 	this->value = Symbols::variable_table.GetIndexByName(variable);
-	cout<<"construct symbol: type=VARIABLE_SYMBOL, p="<<this<<endl;
 }
 
 Symbols::Symbols(char constant)
 {
 	this->type = CONSTANT_SYMBOL;
 	this->value = constant;
-	cout<<"construct symbol: type=CONSTANT_SYMBOL, p="<<this<<endl;
 }
 
 Symbols::Symbols(SymbolTypes type,const char* remark)
@@ -236,11 +230,9 @@ Symbols::Symbols(SymbolTypes type,const char* remark)
 	{
 	case REMARK_SYMBOL:
 		this->value = Symbols::remark_table.GetIndexByName(remark);
-		cout<<"construct symbol: type=REMARK_SYMBOL, p="<<this<<endl;
 		break;
 	case STRING_SYMBOL:
 		this->s = new shared_ptr<string>(new string(remark));
-		cout<<"construct symbol: type=STRING_SYMBOL, p="<<this<<endl;
 		break;
 	default:
 		throw "unknow symbol type";
@@ -257,11 +249,9 @@ Symbols::Symbols(SymbolTypes type, char c)
 	{
 	case CHAR_SYMBOL:
 		this->c = c;
-		cout<<"construct symbol: type=CHAR_SYMBOL, p="<<this<<endl;
 		break;
 	case CONSTANT_SYMBOL:
 		this->value = c;
-		cout<<"construct symbol: type=CONSTANT_SYMBOL, p="<<this<<endl;
 		break;	
 	default:
 		throw "unknow symbol type";
@@ -273,28 +263,24 @@ Symbols::Symbols(int i)
 {
 	this->type = INTEGER_SYMBOL;
 	this->i = i;
-	cout<<"construct symbol: type=INTEGER_SYMBOL, p="<<this<<endl;
 }
 
 Symbols::Symbols(long l)
 {
 	this->type = LONG_SYMBOL;
 	this->l = l;
-	cout<<"construct symbol: type=LONG_SYMBOL, p="<<this<<endl;
 }
 
 Symbols::Symbols(float f)
 {
 	this->type = FLOAT_SYMBOL;
 	this->f = f;
-	cout<<"construct symbol: type=FLOAT_SYMBOL, p="<<this<<endl;
 }
 
 Symbols::Symbols(double d)
 {
 	this->type = DOUBLE_SYMBOL;
 	this->d = d;
-	cout<<"construct symbol: type=DOUBLE_SYMBOL, p="<<this<<endl;
 }
 
 Symbols::Symbols(SymbolTypes type, vector<Symbols> symbols)
@@ -303,26 +289,21 @@ Symbols::Symbols(SymbolTypes type, vector<Symbols> symbols)
 	this->type = type;
 	this->list = new shared_ptr<vector<Symbols> >(new vector<Symbols>(symbols.size()));
 	copy(symbols.begin(), symbols.end(), (*this->list)->begin());
-	cout<<"construct symbol: type="<<type<<", p="<<this<<endl;
 }
 
 Symbols::Symbols(SymbolTypes type)
 {
-	cout<<"construct symbol: type="<<type<<", p="<<this<<endl;
 	switch(type)
 	{
 	case LIST_SYMBOL:
 	case COMPACT_SYMBOL:
 		this->list = new shared_ptr<vector<Symbols> >(new vector<Symbols>());
-		cout<<"construct symbol: type="<<type<<", p="<<this<<endl;
 		break;
 	case MAP_SYMBOL:
 		this->m = new shared_ptr<map<string,Symbols> >(new map<string,Symbols>());
-		cout<<"construct symbol: type=MAP_SYMBOL, p="<<this<<endl;
 		break;
 	case STRING_SYMBOL:
 		this->s = new shared_ptr<string>(new string());
-		cout<<"construct symbol: type=STRING_SYMBOL, p="<<this<<endl;
 		break;
 	default:
 		break;
