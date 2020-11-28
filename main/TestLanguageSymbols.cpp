@@ -8,6 +8,19 @@ using namespace Wll;
 using namespace std;
 #include "gtest/gtest.h"
 
+union A
+{
+	int value;
+	char c;
+	int i;
+	long l;
+	float f;
+	double d;
+	shared_ptr<string>* s;
+	shared_ptr< vector<Symbols> >* list;
+	shared_ptr< map<string, Symbols> >* m;		
+};
+
 TEST(LanguageSymbolTest, Construstor)
 {
 	Symbols unknow_symbol;
@@ -102,27 +115,25 @@ TEST(LanguageSymbolTest, GetList)
 	cout<<list.ToString()<<endl;
 }
 
+TEST(LanguageSymbolTest, StringSymbol)
+{
+	Symbols hi(STRING_SYMBOL, "hi");
+	cout<<hi<<endl;
+}
+
 TEST(LanguageSymbolTest, GetMap)
 {
-	Symbols list(LIST_SYMBOL);
 	Symbols m2(MAP_SYMBOL);
-	vector<Symbols>& l = list.GetList();
-	map<string, Symbols>& m = m2.GetMap();
-
-	l.push_back(Symbols(LIST_SYMBOL));
-	l.push_back(Symbols('c'));
-	l.push_back(Symbols("abc"));
-
-	m["f1"] = list;
-	m["f2"] = Symbols(MAP_SYMBOL);
-	m["f2"].GetMap()["hello"] = Symbols("world");
-
+	//Symbols m3(MAP_SYMBOL);
+	m2.GetMap()["f1"] = Symbols(10);
+	m2.GetMap()["f2"] = Symbols(10.23);
+	m2.GetMap()["f3"] = Symbols(MAP_SYMBOL);
+	m2.GetMap()["f3"].GetMap()["f31"] = Symbols('A');
 	cout<<m2.ToString()<<endl;
-
-	list = m2;
-
-	cout<<m2.ToString()<<endl;
-	cout<<list.ToString()<<endl;
+	cout<<sizeof(m2)<<endl;
+	cout<<sizeof(Symbols)<<endl;
+	cout<<sizeof(int)<<endl;
+	cout<<sizeof(A)<<endl;
 }
 
 GTEST_API_ int main(int argc, char **argv) 

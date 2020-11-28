@@ -37,7 +37,6 @@ enum SymbolTypes
 struct Symbols
 {
 public:
-	SymbolTypes type;
 	union {
 		int value;
 		char c;
@@ -45,17 +44,16 @@ public:
 		long l;
 		float f;
 		double d;
-		char* s;
-		vector<Symbols>* list;
-		map<string, Symbols>* m;		
+		shared_ptr<string>* s;
+		shared_ptr< vector<Symbols> >* list;
+		shared_ptr< map<string, Symbols> >* m;		
 	};
-public:
-	//shared_ptr< vector<Symbols> > list_ptr;
-	//shared_ptr< map<string, Symbols> > map_ptr;
+	SymbolTypes type;
 public:
 	Symbols();
 	Symbols(const Symbols& that);
-	virtual ~Symbols();
+	Symbols& operator= (const Symbols& that);
+	~Symbols();
 	Symbols(const char* variable);
 	Symbols(char constant);
 	Symbols(SymbolTypes type,const char* remark);
@@ -78,7 +76,7 @@ public:
 	bool IsConstant()const;
 	bool IsRemark()const;
 	string ToString()const;
-	virtual void Display(ostream& o) const;
+	void Display(ostream& o) const;
 	void Dump(ostream& o) const;
 public:
 	static StringTable variable_table;
