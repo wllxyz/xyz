@@ -124,16 +124,11 @@ TEST(LanguageSymbolTest, StringSymbol)
 TEST(LanguageSymbolTest, GetMap)
 {
 	Symbols m2(MAP_SYMBOL);
-	//Symbols m3(MAP_SYMBOL);
 	m2.GetMap()["f1"] = Symbols(10);
 	m2.GetMap()["f2"] = Symbols(10.23);
 	m2.GetMap()["f3"] = Symbols(MAP_SYMBOL);
 	m2.GetMap()["f3"].GetMap()["f31"] = Symbols('A');
 	cout<<m2.ToString()<<endl;
-	cout<<sizeof(m2)<<endl;
-	cout<<sizeof(Symbols)<<endl;
-	cout<<sizeof(int)<<endl;
-	cout<<sizeof(A)<<endl;
 }
 
 GTEST_API_ int main(int argc, char **argv) 

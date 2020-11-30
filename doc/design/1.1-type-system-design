@@ -48,4 +48,16 @@
 			vector<LanguageSymbols> list;
 			map<string,LanguageSymbols> map;
 		}
-					
+
+类型转换实现:
+	1. 任意类型ToString()方法输出打印支持
+	2. 显示类型转换:
+		CHAR_SYMBOL <= STRING_SYMBOL
+		INTEGER_SYMBOL <= STRING_SYMBOL
+		LONG_SYMBOL <= STRING_SYMBOL
+		FLOAT_SYMBOL <= STRING_SYMBOL
+		DOUBLE_SYMBOL <= STRING_SYMBOL
+		引入命令:
+			($CAST, <源Symbol类型>, <目标Symbol类型>, Symbols)
+
+						
