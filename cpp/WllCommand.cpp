@@ -967,6 +967,262 @@ bool MapCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
+Symbols CastTo(const Symbols& targetType, std::vector<Symbols>& values)
+{
+	assert(targetType.IsRemark());
+	Symbols value(values[0]);
+	
+	assert(targetType == Symbols::CHAR
+		|| targetType == Symbols::INTEGER
+		|| targetType == Symbols::LONG
+		|| targetType == Symbols::FLOAT
+		|| targetType == Symbols::DOUBLE
+		|| targetType == Symbols::STRING
+	);
+	
+	if(targetType == Symbols::CHAR)
+	{
+		//convert to char type
+		assert(value.type == INTEGER_SYMBOL || value.type == CONSTANT_SYMBOL || value.type == CHAR_SYMBOL);
+		if (value.type == INTEGER_SYMBOL)
+		{
+			return Symbols(CHAR_SYMBOL, char(value.i));
+		}
+		else if (value.type == CONSTANT_SYMBOL)
+		{
+			return Symbols(CHAR_SYMBOL, char(value.value));
+		}
+		else if (value.type == CHAR_SYMBOL)
+		{
+			return value;
+		}
+	} 
+	else if(targetType == Symbols::INTEGER)
+	{
+		//convert to integer type
+		assert(value.type == INTEGER_SYMBOL 
+			|| value.type == CHAR_SYMBOL
+			|| value.type == LONG_SYMBOL
+			|| value.type == FLOAT_SYMBOL
+			|| value.type == DOUBLE_SYMBOL
+			|| value.type == CONSTANT_SYMBOL
+			|| value.type == STRING_SYMBOL
+		);
+		switch(value.type)
+		{
+		case INTEGER_SYMBOL:
+			return(value);
+			break;
+		case CHAR_SYMBOL:
+			return(Symbols(int(value.c)));
+			break;
+		case LONG_SYMBOL:
+			return(Symbols(int(value.l)));
+			break;
+		case FLOAT_SYMBOL:
+			return(Symbols(int(value.f)));
+			break;
+		case DOUBLE_SYMBOL:
+			return(Symbols(int(value.d)));
+			break;
+		case CONSTANT_SYMBOL:
+			{
+				string s;
+				ToString(s, values);
+				int i;
+				String2Int(s,i);
+				return(Symbols(i));
+			}
+			break;
+		case STRING_SYMBOL:
+			{
+				int i;
+				String2Int(*(*(value.s)),i);
+				return(Symbols(i));
+			}
+			break;
+		default:
+			break;
+		}
+	}
+	else if(targetType == Symbols::LONG)
+	{
+		//convert to long type
+		assert(value.type == LONG_SYMBOL 
+			|| value.type == CHAR_SYMBOL
+			|| value.type == INTEGER_SYMBOL
+			|| value.type == FLOAT_SYMBOL
+			|| value.type == DOUBLE_SYMBOL
+			|| value.type == CONSTANT_SYMBOL
+			|| value.type == STRING_SYMBOL
+		);
+		switch(value.type)
+		{
+		case LONG_SYMBOL:
+			return(value);
+			break;
+		case CHAR_SYMBOL:
+			return(Symbols(long(value.c)));
+			break;
+		case INTEGER_SYMBOL:
+			return(Symbols(long(value.i)));
+			break;
+		case FLOAT_SYMBOL:
+			return(Symbols(long(value.f)));
+			break;
+		case DOUBLE_SYMBOL:
+			return(Symbols(long(value.d)));
+			break;
+		case CONSTANT_SYMBOL:
+			{
+				string s;
+				ToString(s, values);
+				long l;
+				String2Long(s,l);
+				return(Symbols(l));
+			}
+			break;
+		case STRING_SYMBOL:
+			{
+				long l;
+				String2Long(*(*(value.s)),l);
+				return(Symbols(l));
+			}
+			break;
+		default:
+			break;
+		}
+	}
+	else if(targetType == Symbols::FLOAT)
+	{
+		//convert to float type
+		assert(value.type == FLOAT_SYMBOL 
+			|| value.type == CHAR_SYMBOL
+			|| value.type == INTEGER_SYMBOL
+			|| value.type == LONG_SYMBOL
+			|| value.type == DOUBLE_SYMBOL
+			|| value.type == CONSTANT_SYMBOL
+			|| value.type == STRING_SYMBOL
+		);
+		switch(value.type)
+		{
+		case FLOAT_SYMBOL:
+			return(value);
+			break;
+		case CHAR_SYMBOL:
+			return(Symbols(float(value.c)));
+			break;
+		case INTEGER_SYMBOL:
+			return(Symbols(float(value.i)));
+			break;
+		case LONG_SYMBOL:
+			return(Symbols(float(value.l)));
+			break;
+		case DOUBLE_SYMBOL:
+			return(Symbols(float(value.d)));
+			break;
+		case CONSTANT_SYMBOL:
+			{
+				string s;
+				ToString(s, values);
+				float f;
+				String2Float(s,f);
+				return(Symbols(f));
+			}
+			break;
+		case STRING_SYMBOL:
+			{
+				float f;
+				String2Float(*(*(value.s)),f);
+				return(Symbols(f));
+			}
+			break;
+		default:
+			break;
+		}		
+	}
+	else if(targetType == Symbols::DOUBLE)
+	{
+		//convert to double type
+		assert(value.type == DOUBLE_SYMBOL 
+			|| value.type == CHAR_SYMBOL
+			|| value.type == INTEGER_SYMBOL
+			|| value.type == LONG_SYMBOL
+			|| value.type == FLOAT_SYMBOL
+			|| value.type == CONSTANT_SYMBOL
+			|| value.type == STRING_SYMBOL
+		);
+		switch(value.type)
+		{
+		case DOUBLE_SYMBOL:
+			return(value);
+			break;
+		case CHAR_SYMBOL:
+			return(Symbols(double(value.c)));
+			break;
+		case INTEGER_SYMBOL:
+			return(Symbols(double(value.i)));
+			break;
+		case LONG_SYMBOL:
+			return(Symbols(double(value.l)));
+			break;
+		case FLOAT_SYMBOL:
+			return(Symbols(double(value.f)));
+			break;
+		case CONSTANT_SYMBOL:
+			{
+				string s;
+				ToString(s, values);
+				double d;
+				String2Double(s,d);
+				return(Symbols(d));
+			}
+			break;
+		case STRING_SYMBOL:
+			{
+				double d;
+				String2Double(*(*(value.s)),d);
+				return(Symbols(d));
+			}
+			break;
+		default:
+			break;
+		}		
+	}
+	else if(targetType == Symbols::STRING)
+	{
+		//convert to string type
+		if(value.type == STRING_SYMBOL)
+		{
+			return(value);
+		}
+		else if(value.type == CONSTANT_SYMBOL)
+		{
+			string s;
+			ToString(s, values);
+			return(Symbols(STRING_SYMBOL, s.c_str()));
+		}
+		else
+		{
+			return(Symbols(STRING_SYMBOL, value.ToString().c_str()));
+		}
+	}
+	return Symbols();
+}
+
+CastCommand::CastCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool CastCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size() == 3);	
+	result.push_back(CastTo(this->parameters[1][0], this->parameters[2]));
+	return true;
+}
+
 WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 {
 	INFO("cmd="<<cmd);
@@ -1144,6 +1400,10 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	else if(cmd == Symbols::MAP)
 	{
 		command = new MapCommand(cmd, parameter_fields, intepreter);
+	}
+	else if(cmd == Symbols::CAST)
+	{
+		command = new CastCommand(cmd, parameter_fields, intepreter);
 	}
 
 	assert(command);

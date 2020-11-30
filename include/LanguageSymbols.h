@@ -142,6 +142,15 @@ public:
 	static const Symbols INDEX;				//ARRAY/MAP寻址指令，返回REF_SYMBOL类型变量(地址类型)
 	
 	static const Symbols CAT;				//从文件中加载符号,支持INCLUDE特性
+	//類型常量
+	static const Symbols CHAR;
+	static const Symbols INTEGER;
+	static const Symbols LONG;
+	static const Symbols FLOAT;
+	static const Symbols DOUBLE;
+	static const Symbols STRING;
+	
+	static const Symbols CAST;			//類型轉換
 };
 
 bool operator== (const vector<Symbols>& a, const vector<Symbols>& b);

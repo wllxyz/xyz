@@ -72,6 +72,14 @@ const Symbols Symbols::ARRAY(REMARK_SYMBOL,"$ARRAY");
 
 const Symbols Symbols::CAT(REMARK_SYMBOL,"$CAT");
 
+const Symbols Symbols::CHAR(REMARK_SYMBOL,"$CHAR");
+const Symbols Symbols::INTEGER(REMARK_SYMBOL,"$INTEGER");
+const Symbols Symbols::LONG(REMARK_SYMBOL,"$LONG");
+const Symbols Symbols::FLOAT(REMARK_SYMBOL,"$FLOAT");
+const Symbols Symbols::DOUBLE(REMARK_SYMBOL,"$DOUBLE");
+const Symbols Symbols::STRING(REMARK_SYMBOL,"$STRING");
+
+const Symbols Symbols::CAST(REMARK_SYMBOL,"$CAST");
 
 Symbols::Symbols()
 {

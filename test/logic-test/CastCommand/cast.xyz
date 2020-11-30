@@ -1,0 +1,2 @@
+<i>-->""==><o>-->($CAST,$FLOAT,($CAST, $INTEGER, "123"))" "($CAST, $INTEGER, ($CAST, $CHAR, "c"))" "($CAST, $LONG, "1234567")" "($CAST, $INTEGER, ($CAST, $FLOAT, "45.67"))" "
+($CAST, $LONG, ($CAST, $DOUBLE, "4567890.123"));
