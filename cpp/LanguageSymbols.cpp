@@ -11,6 +11,8 @@ using namespace Wll::Util;
 
 StringTable Symbols::variable_table;
 StringTable Symbols::remark_table;
+
+const Symbols Symbols::VOID;
 //支持文法解析
 const Symbols Symbols::NULL_SYMBOL(REMARK_SYMBOL,"$NULL");
 const Symbols Symbols::END_SYMBOL(REMARK_SYMBOL,"$END");
@@ -81,7 +83,7 @@ const Symbols Symbols::STRING(REMARK_SYMBOL,"$STRING");
 
 const Symbols Symbols::CAST(REMARK_SYMBOL,"$CAST");
 
-Symbols::Symbols()
+void Symbols::Init()
 {
 	this->type = VOID_SYMBOL;
 	this->value = 0;
@@ -91,7 +93,42 @@ Symbols::Symbols()
 	this->m = NULL;
 }
 
-Symbols::Symbols(const Symbols& that)
+void Symbols::Destroy()
+{
+	switch(this->type)
+	{
+	case COMPACT_SYMBOL:
+	case LIST_SYMBOL:
+		if (this->list != NULL) 
+		{
+			//(*this->list).reset();
+			delete this->list;
+			this->list = NULL;
+		}
+		break;
+	case MAP_SYMBOL:
+		if (this->m != NULL)
+		{
+			//(*this->m).reset();
+			delete this->m;
+			this->m = NULL;
+		}
+		break;
+	case STRING_SYMBOL:
+		if (this->s != NULL) 
+		{ 
+			delete this->s;
+			this->s = NULL;
+		}
+		break;
+	default:
+		break;
+	}
+	
+	this->Init();
+}
+
+void Symbols::Copy(const Symbols& that)
 {
 	this->type = that.type;
 	switch(that.type)
@@ -127,95 +164,32 @@ Symbols::Symbols(const Symbols& that)
 	}
 }
 
+Symbols::Symbols()
+{
+	this->type = VOID_SYMBOL;
+	this->value = 0;
+	
+	this->s = NULL;
+	this->list = NULL;
+	this->m = NULL;
+}
+
+Symbols::Symbols(const Symbols& that)
+{
+	this->Copy(that);
+}
+
 Symbols& Symbols::operator= (const Symbols& that)
 {
-	this->type = that.type;
-	switch(that.type)
-	{
-	case COMPACT_SYMBOL:
-	case LIST_SYMBOL:
-		if (this->list == NULL)
-		{
-			this->list = new shared_ptr< vector<Symbols> >(*that.list);
-		}
-		else
-		{
-			(*this->list) = (*that.list);
-		}
-		break;
-	case MAP_SYMBOL:
-		if (this->m == NULL)
-		{
-			this->m = new shared_ptr< map<string, Symbols> >(*that.m);
-		}
-		else
-		{
-			(*this->m) = (*that.m);
-		}
-		break;
-	case CHAR_SYMBOL:
-		this->c = that.c;
-		break;
-	case INTEGER_SYMBOL:
-		this->i = that.i;
-		break;
-	case LONG_SYMBOL:
-		this->l = that.l;
-		break;
-	case FLOAT_SYMBOL:
-		this->f = that.f;
-		break;
-	case DOUBLE_SYMBOL:
-		this->d = that.d;
-		break;
-	case STRING_SYMBOL:
-		if (this->s == NULL)
-		{
-			this->s = new shared_ptr<string>(*that.s);
-		}
-		else
-		{
-			(*this->s) = (*that.s);
-		}
-		break;
-	default:
-		this->value = that.value;
-		break;
-	}
+	if (this == &that) return *this;
+	this->Destroy();
+	this->Copy(that);
 	return *this;
 }
 
 Symbols::~Symbols()
 {
-	switch(this->type)
-	{
-	case COMPACT_SYMBOL:
-	case LIST_SYMBOL:
-		if (this->list != NULL) 
-		{
-			//(*this->list).reset();
-			delete this->list;
-			this->list = NULL;
-		}
-		break;
-	case MAP_SYMBOL:
-		if (this->m != NULL)
-		{
-			//(*this->m).reset();
-			delete this->m;
-			this->m = NULL;
-		}
-		break;
-	case STRING_SYMBOL:
-		if (this->s != NULL) 
-		{ 
-			delete this->s;
-			this->s = NULL;
-		}
-		break;
-	default:
-		break;
-	}
+	this->Destroy();
 }
 
 Symbols::Symbols(const char* variable)

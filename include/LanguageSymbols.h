@@ -14,18 +14,17 @@ enum SymbolTypes
 {
 	VOID_SYMBOL,		//VOID类型，作为空类型
 	VARIABLE_SYMBOL,	//文法变量类型
-	CONSTANT_SYMBOL,	//文法常量类型
 	REMARK_SYMBOL,		//文法标记类型
-	
-	STRING_SYMBOL,		//内部打包解包类型，其存储和LIST_SYMBOL相同
-	COMPACT_SYMBOL,		//S表达式类型(同之前的内部打包解包类型)
-	
+	CONSTANT_SYMBOL,	//文法常量类型
+	//自動類型轉換的順序是由低向高
 	CHAR_SYMBOL,            //单个字符类型
-	//STRING_SYMBOL,	//字符串类型
 	INTEGER_SYMBOL,		//整数类型
 	LONG_SYMBOL,		//长整数类型
 	FLOAT_SYMBOL,		//浮点数类型
-	DOUBLE_SYMBOL,		//双精度浮点数类型	
+	DOUBLE_SYMBOL,		//双精度浮点数类型
+	STRING_SYMBOL,		//字符串类型
+	
+	COMPACT_SYMBOL,		//S表达式类型(同之前的内部打包解包类型)	
 	LIST_SYMBOL,		//数组类型
 	MAP_SYMBOL		//字典类型
 };
@@ -49,6 +48,10 @@ public:
 		shared_ptr< map<string, Symbols> >* m;		
 	};
 	SymbolTypes type;
+private:
+	void Init();
+	void Destroy();
+	void Copy(const Symbols& that);
 public:
 	Symbols();
 	Symbols(const Symbols& that);
@@ -81,6 +84,8 @@ public:
 public:
 	static StringTable variable_table;
 	static StringTable remark_table;
+	
+	static const Symbols VOID;
 	//支持文法解析
 	static const Symbols NULL_SYMBOL;	//在文法表示中用空expression表示
 	static const Symbols END_SYMBOL;
