@@ -659,7 +659,7 @@ Symbols Encode(vector<Symbols>& value)
 	}
 	else
 	{
-		symbol = Symbols(STRING_SYMBOL);
+		symbol = Symbols(COMPACT_SYMBOL);
 		symbol.GetList() = value;
 	}
 	return symbol;
@@ -668,7 +668,7 @@ Symbols Encode(vector<Symbols>& value)
 vector<Symbols> Decode(Symbols& symbol)
 {
 	vector<Symbols> value;
-	if(symbol.type == STRING_SYMBOL)
+	if(symbol.type == COMPACT_SYMBOL)
 	{
 		value = symbol.GetList();
 	}
