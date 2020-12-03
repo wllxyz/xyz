@@ -100,6 +100,34 @@ TEST(CalculateTest, CastTo_FromConstantSymbols)
 	EXPECT_TRUE(ss == Symbols(STRING_SYMBOL, "12345.6789"));	
 }
 
+TEST(CalculateTest, CastTo_AutoTreateAsStringOrNumber)
+{
+	vector<Symbols> cs;
+	cs += string("123");
+	Symbols c = CastTo(cs,true);
+	EXPECT_TRUE(c == Symbols(123));
+	
+	vector<Symbols> ls;
+	ls.push_back(Symbols(123456789L));
+	Symbols l = CastTo(ls);
+	EXPECT_TRUE(l == Symbols(123456789L));
+	
+	vector<Symbols> fs;
+	fs.push_back(Symbols(12345.6789f));
+	Symbols f = CastTo(fs);
+	EXPECT_TRUE(f == Symbols(12345.6789f));
+	
+	vector<Symbols> ds;
+	ds.push_back(Symbols(12345.6789012345));
+	Symbols d = CastTo(ds);
+	EXPECT_TRUE(d == Symbols(12345.6789012345));
+	
+	vector<Symbols> s;
+	s.push_back(Symbols(STRING_SYMBOL,"12345.6789"));
+	Symbols ss = CastTo(s);
+	EXPECT_TRUE(ss == Symbols(STRING_SYMBOL, "12345.6789"));	
+}
+
 //Symbols Add(const Symbols& a, const Symbols& b);
 TEST(CalculateTest, Add)
 {

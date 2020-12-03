@@ -6,7 +6,7 @@
  */
 
 #include "WllCommand.h"
-#include "ValueType.h"
+//#include "ValueType.h"
 #include "VariableStack.h"
 #include "Wll0Loader.h"
 #include "Wll1Loader.h"
@@ -19,6 +19,7 @@
 #include <iostream>
 #include <fstream>
 #include <iterator>
+#include <cassert>
 #include "CompilerManager.h"
 #include "IntepretException.h"
 #include "Calculate.h"
@@ -256,15 +257,7 @@ bool AddCommand::Intepret(std::vector<Symbols>& result)
 	Symbols sum(CHAR_SYMBOL, char(0));
 	for(vector< vector<Symbols> >::iterator i = parameters.begin()+1; i != parameters.end(); ++i)
 	{
-		Symbols n;
-		if ((*i)[0].IsConstant())
-		{
-			n = CastToNumber(*i);
-		}
-		else
-		{
-			n = (*i)[0];
-		}
+		Symbols n = CastTo(*i, true);
 		AddTo(sum, n);
 	}
 
@@ -280,14 +273,12 @@ SubCommand::SubCommand(Symbols cmd, std::vector< std::vector<Symbols> >& paramet
 
 bool SubCommand::Intepret(std::vector<Symbols>& result)
 {
-	Integer sum("0");
+	Symbols sum(CHAR_SYMBOL, char(0));
 	for(vector< vector<Symbols> >::iterator i = parameters.begin()+1; i != parameters.end(); ++i)
 	{
-		string s;
-		ToString(s, *i);
-		Integer n(s);
-
-		if(i==parameters.begin()+1)
+		Symbols n = CastTo(*i, true);
+		
+		if (i == parameters.begin()+1)
 		{
 			sum = n;
 		}
@@ -297,10 +288,7 @@ bool SubCommand::Intepret(std::vector<Symbols>& result)
 		}
 	}
 
-	for(string::const_iterator i = sum.value.begin(); i != sum.value.end(); ++i)
-	{
-		result.push_back(Symbols(*i));
-	}
+	result.push_back(sum);
 	return true;
 }
 
@@ -312,27 +300,14 @@ MulCommand::MulCommand(Symbols cmd, std::vector< std::vector<Symbols> >& paramet
 
 bool MulCommand::Intepret(std::vector<Symbols>& result)
 {
-	Integer sum("0");
+	Symbols sum(CHAR_SYMBOL, char(1));
 	for(vector< vector<Symbols> >::iterator i = parameters.begin()+1; i != parameters.end(); ++i)
 	{
-		string s;
-		ToString(s, *i);
-		Integer n(s);
-
-		if(i==parameters.begin()+1)
-		{
-			sum = n;
-		}
-		else
-		{
-			sum *= n;
-		}
+		Symbols n = CastTo(*i, true);
+		sum *= n;
 	}
 
-	for(string::const_iterator i = sum.value.begin(); i != sum.value.end(); ++i)
-	{
-		result.push_back(Symbols(*i));
-	}
+	result.push_back(sum);
 	return true;
 }
 
@@ -344,14 +319,12 @@ DivCommand::DivCommand(Symbols cmd, std::vector< std::vector<Symbols> >& paramet
 
 bool DivCommand::Intepret(std::vector<Symbols>& result)
 {
-	Integer sum("0");
+	Symbols sum(CHAR_SYMBOL, char(0));
 	for(vector< vector<Symbols> >::iterator i = parameters.begin()+1; i != parameters.end(); ++i)
 	{
-		string s;
-		ToString(s, *i);
-		Integer n(s);
-
-		if(i==parameters.begin()+1)
+		Symbols n = CastTo(*i, true);
+		
+		if (i == parameters.begin()+1)
 		{
 			sum = n;
 		}
@@ -361,10 +334,7 @@ bool DivCommand::Intepret(std::vector<Symbols>& result)
 		}
 	}
 
-	for(string::const_iterator i = sum.value.begin(); i != sum.value.end(); ++i)
-	{
-		result.push_back(Symbols(*i));
-	}
+	result.push_back(sum);
 	return true;
 }
 
@@ -537,13 +507,36 @@ LtCommand::LtCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter
 bool LtCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size() == 3);
-	string param1;
-	string param2;
-	ToString(param1, this->parameters[1]);
-	ToString(param2, this->parameters[2]);
-	Integer a(param1);
-	Integer b(param2);
-	result.push_back((a < b) ? Symbols::TRUE : Symbols::FALSE);
+	Symbols a = CastTo(this->parameters[1]);
+	Symbols b = CastTo(this->parameters[2]);
+	
+	assert(a.type == CHAR_SYMBOL
+		|| a.type == INTEGER_SYMBOL
+		|| a.type == LONG_SYMBOL
+		|| a.type == FLOAT_SYMBOL
+		|| a.type == DOUBLE_SYMBOL
+		|| a.type == STRING_SYMBOL
+	);
+	
+	assert(b.type == CHAR_SYMBOL
+		|| b.type == INTEGER_SYMBOL
+		|| b.type == LONG_SYMBOL
+		|| b.type == FLOAT_SYMBOL
+		|| b.type == DOUBLE_SYMBOL
+		|| b.type == STRING_SYMBOL
+	);
+	
+	Symbols c(b);
+	if (a.type < c.type)
+	{
+		a = CastTo(c.type, a);
+	}
+	else if (a.type > c.type)
+	{
+		c = CastTo(a.type, c);
+	}	
+	
+	result.push_back((a < c) ? Symbols::TRUE : Symbols::FALSE);
 	return true;
 }
 
