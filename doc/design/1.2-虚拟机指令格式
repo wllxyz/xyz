@@ -25,7 +25,33 @@
 	
 	其中指令的扫描只会从前往后扫描一遍，不回头
 	对于简单的表达式求值语句，单次正向扫描就够了，但是不适用于重复执行和转义执行的场景
+	
+	上面的计算过程用数据－代码双栈模型描述如下：(栈底<-->栈顶)
+	------------------------------------------------------
+	CODE: + 4 * 1 + 3 2
+	DATA: 
+	
+	CODE: + 4 * 1 + 3
+	DATA: 2
+	
+	CODE: + 4 * 1 +
+	DATA: 2	3
+	
+	CODE: + 4 * 1
+	DATA: 5
+	
+	CODE: + 4 *
+	DATA: 5 1
+	
+	CODE: + 4
+	DATA: 6
+	
+	CODE: +
+	DATA: 6	4	
 
+	CODE:
+	DATA: 10
+	------------------------------------------------------
 	对于输入指令序列: (LOOP (i<9) (s=s+i i=i+1))
 	@0: i get 9 < @2 jc @1: s get i get + s set i get 1 + i set @0 jmp @2:
 	data stack and code stack separate
@@ -35,7 +61,6 @@
 	i
 	get
 	9
-	get
 	<
 	IGNORE_END
 	IGNORE_BEGIN
@@ -55,6 +80,50 @@
 	IGNORE_END
 	LOOP while execute stack(1) list and compare result!=0 execute stack(2)
 	
+	-------------------------------------------------
+	CODE: $LOOP $IGNORE_END $SET i + 1 $GET i $SET s + $GET i $GET s $IGNORE_BEGIN $IGNORE_END < 9 $GET i $IGNORE_BEGIN
+	DATA: 
+	STATE: ON
+	-------------------------------------------------
+
+	-------------------------------------------------
+	CODE: $LOOP $IGNORE_END $SET i + 1 $GET i $SET s + $GET i $GET s $IGNORE_BEGIN
+	DATA: (i $GET 9 <)
+	STATE: ON
+	-------------------------------------------------
+	
+	LOOP 的condition和body的两个COMPACT类型的参数入栈, 压入$LOOP_EVAL (body) condition
+	-------------------------------------------------
+	CODE: $LOOP
+	DATA: (i $GET 9 <) (s $GET i $GET + s $SET i $GET 1 + i $SET)
+	STATE: ON
+	-------------------------------------------------
+	
+	-------------------------------------------------
+	CODE: $LOOP (s $GET i $GET + s $SET i $GET 1 + i $SET) (i $GET 9 <) $LOOP_EVAL (s $GET i $GET + s $SET i $GET 1 + i $SET) < 9 $GET i
+	DATA: 
+	STATE: ON
+	-------------------------------------------------
+	
+	计算到$LOOP_EVAL时，condition的计算结果和(body)在数据栈顶, 如果condition的计算结果为真，则执行(body),否则弹出代码栈的$LOOP (body) (condition)三个Symbols
+	-------------------------------------------------
+	CODE: $LOOP (s $GET i $GET + s $SET i $GET 1 + i $SET) (i $GET 9 <) $LOOP_EVAL 
+	DATA: $TRUE (s $GET i $GET + s $SET i $GET 1 + i $SET)
+	STATE: ON
+	-------------------------------------------------
+	
+	-------------------------------------------------
+	CODE: $LOOP (s $GET i $GET + s $SET i $GET 1 + i $SET) (i $GET 9 <) $SET i + 1 $GET i $SET s + $GET i $GET s
+	DATA: 
+	STATE: ON
+	-------------------------------------------------
+	
+	-------------------------------------------------
+	CODE: $LOOP 
+	DATA: (i $GET 9 <) (s $GET i $GET + s $SET i $GET 1 + i $SET)
+	STATE: ON
+	-------------------------------------------------	
+				
 	定义和调用函数
 	f(x,y)=x+y
 	f(1,2)
@@ -85,5 +154,149 @@
 	IGNORE_END 重新开启求值开关,将组装的S_EXP_SYMBOL压栈
 	EVAL把栈顶符号取出重新依次压栈求值
 	
+	--------------------------------------------------
+	CODE: $SET f $IGNORE_END + $GET y $GET x $POP y $POP x $IGNORE_BEGIN
+	DATA: 
+	IGNORE_STATE_COUNT: 0
+	--------------------------------------------------
 	
+	遇到$IGNORE_BEGIN压栈，IGNORE_STATE_COUNT+1
+	--------------------------------------------------
+	CODE: $SET f $IGNORE_END + $GET y $GET x $POP y $POP x 
+	DATA: $IGNORE_BEGIN
+	IGNORE_STATE_COUNT: 1
+	--------------------------------------------------
 	
+	遇到$IGNORE_END压栈, IGNORE_STATE_COUNT - 1, 当IGNORE_STATE_COUNT = 0时, 弹出data_stack中和$IGNORE_END对应的$IGNORE_BEGIN之间的Symbols => COMPACT_SYMBOL
+	--------------------------------------------------
+	CODE: $SET f $IGNORE_END
+	DATA: $IGNORE_BEGIN x $POP y $POP x $GET y $GET + 
+	IGNORE_STATE_COUNT: 1
+	--------------------------------------------------
+	
+	--------------------------------------------------
+	CODE: $SET f 
+	DATA: (x $POP y $POP x $GET y $GET +)
+	IGNORE_STATE_COUNT: 0
+	--------------------------------------------------		
+	
+	--------------------------------------------------
+	CODE: $SET 
+	DATA: (x $POP y $POP x $GET y $GET +) f
+	IGNORE_STATE_COUNT: 0
+	--------------------------------------------------
+	
+	--------------------------------------------------
+	CODE: 
+	DATA: 
+	IGNORE_STATE_COUNT: 0
+	f = (x $POP y $POP x $GET y $GET +)
+	--------------------------------------------------
+	
+
+	调用函数代码分析：
+	2
+	PUSH
+	1
+	PUSH
+	f
+	get
+	eval
+	
+	--------------------------------------------------
+	CODE: $EVAL $GET f $PUSH 1 $PUSH 2
+	DATA: 
+	IGNORE_STATE_COUNT: 0
+	f = (x $POP y $POP x $GET y $GET +)
+	--------------------------------------------------
+	
+	--------------------------------------------------
+	CODE: $EVAL $GET f 
+	DATA: 2 1
+	IGNORE_STATE_COUNT: 0
+	f = (x $POP y $POP x $GET y $GET +)
+	--------------------------------------------------
+
+	--------------------------------------------------
+	CODE: $EVAL  
+	DATA: 2 1 (x $POP y $POP x $GET y $GET +)
+	IGNORE_STATE_COUNT: 0
+	f = (x $POP y $POP x $GET y $GET +)
+	--------------------------------------------------
+	
+	--------------------------------------------------
+	CODE: + $GET y $GET x $POP y $POP x 
+	DATA: 2 1 
+	IGNORE_STATE_COUNT: 0
+	f = (x $POP y $POP x $GET y $GET +)
+	--------------------------------------------------	
+	
+	--------------------------------------------------
+	CODE: + $GET y $GET x $POP y $POP
+	DATA: 2 1 x
+	IGNORE_STATE_COUNT: 0
+	f = (x $POP y $POP x $GET y $GET +)
+	--------------------------------------------------
+	
+	--------------------------------------------------
+	CODE: + $GET y $GET x $POP y 
+	DATA: 2 
+	IGNORE_STATE_COUNT: 0
+	f = (x $POP y $POP x $GET y $GET +)
+	x = 1
+	--------------------------------------------------
+	
+	--------------------------------------------------
+	CODE: + $GET y $GET x $POP
+	DATA: 2 y
+	IGNORE_STATE_COUNT: 0
+	f = (x $POP y $POP x $GET y $GET +)
+	x = 1
+	--------------------------------------------------				
+
+	--------------------------------------------------
+	CODE: + $GET y $GET x
+	DATA: 
+	IGNORE_STATE_COUNT: 0
+	f = (x $POP y $POP x $GET y $GET +)
+	x = 1
+	y = 2
+	--------------------------------------------------
+
+	--------------------------------------------------
+	CODE: + $GET y $GET x
+	DATA: 
+	IGNORE_STATE_COUNT: 0
+	f = (x $POP y $POP x $GET y $GET +)
+	x = 1
+	y = 2
+	--------------------------------------------------
+	
+	--------------------------------------------------
+	CODE: + $GET y 
+	DATA: 1
+	IGNORE_STATE_COUNT: 0
+	f = (x $POP y $POP x $GET y $GET +)
+	x = 1
+	y = 2
+	--------------------------------------------------	
+	
+	--------------------------------------------------
+	CODE: + 
+	DATA: 1 2
+	IGNORE_STATE_COUNT: 0
+	f = (x $POP y $POP x $GET y $GET +)
+	x = 1
+	y = 2
+	--------------------------------------------------
+	
+	--------------------------------------------------
+	CODE: 
+	DATA: 3
+	IGNORE_STATE_COUNT: 0
+	f = (x $POP y $POP x $GET y $GET +)
+	x = 1
+	y = 2
+	--------------------------------------------------
+
+									
