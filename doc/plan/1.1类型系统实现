@@ -1,0 +1,6 @@
+1. 实现基本算术类型的改造
+2. 改造之前STRING_SYMBOL内部打包类型=>COMPACT_SYMBOL
+3. LIST/MAP 实现REVIEW
+4. $QUOTE_LEFT=>($SEPERATOR=>,$QUOTE_RIGHT=>)调整
+
+

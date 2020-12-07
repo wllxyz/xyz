@@ -20,9 +20,9 @@
 <include_line>-->"include"<space><spaces><include_file>==><include_line>-->$LEFT_QUOTE$EXEC$SEPERATOR$LEFT_QUOTE$CALL$SEPERATOR"<wll0>"$SEPERATOR$LEFT_QUOTE$CAT$SEPERATOR<include_file>$RIGHT_QUOTE$RIGHT_QUOTE$RIGHT_QUOTE;
 <include_file>-->'"'<string>'"'==><include_file>--><string>;
 <translation>--><source_rule>"==>"<spaces><destination_rule>==><translation>-->$LEFT_QUOTE$TRANSLATION$SEPERATOR<source_rule>$SEPERATOR<destination_rule>$RIGHT_QUOTE;
-<translation>--><rule>==><translation>-->$LEFT_QUOTE$TRANSLATION$SEPERATOR$LEFT_QUOTE$SOURCE_RULE$SEPERATOR<rule>$RIGHT_QUOTE$SEPERATOR$LEFT_QUOTE$DESTINATION_RULE$SEPERATOR<rule>$RIGHT_QUOTE$RIGHT_QUOTE;
-<source_rule>--><rule>==><source_rule>-->$LEFT_QUOTE$SOURCE_RULE$SEPERATOR<rule>$RIGHT_QUOTE;
-<destination_rule>--><rule>==><destination_rule>-->$LEFT_QUOTE$DESTINATION_RULE$SEPERATOR<rule>$RIGHT_QUOTE;
+<translation>--><rule>==><translation>-->$LEFT_QUOTE$TRANSLATION$SEPERATOR<rule>$SEPERATOR<rule>$RIGHT_QUOTE;
+<source_rule>--><rule>==><source_rule>--><rule>;
+<destination_rule>--><rule>==><destination_rule>--><rule>;
 <rule>--><root><spaces>"-->"<spaces><expression>==><rule>-->$LEFT_QUOTE$RULE$SEPERATOR<root>$SEPERATOR$LEFT_QUOTE$IGNORE$SEPERATOR<expression>$RIGHT_QUOTE$RIGHT_QUOTE;
 <root>--><variable>==><root>--><variable>;
 <expression>--><symbol><spaces>==><expression>--><symbol>;

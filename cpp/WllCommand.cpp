@@ -41,11 +41,27 @@ Wll0Command::Wll0Command(Symbols cmd, std::vector< std::vector<Symbols> >& param
 bool Wll0Command::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
-	VariableContainer* container = Singleton<VariableContainer>::GetInstance();
-	this->intepreter->compiler->languages.translation_rules = container->translations;
+	//VariableContainer* container = Singleton<VariableContainer>::GetInstance();
+	//this->intepreter->compiler->languages.translation_rules = container->translations;
+	this->intepreter->compiler->languages.translation_rules.clear();
+	for(vector<Symbols>::const_iterator i = this->parameters[1].begin(); i != this->parameters[1].end(); ++i)
+	{
+		const map<string,Symbols>& m = (*i).GetMap();
+		
+		LanguageTranslations translation(
+			LanguageRules(
+				(m.at("source_rule").GetMap()).at("root"),
+				(m.at("source_rule").GetMap()).at("expression").GetList()
+			),
+			LanguageRules(
+				m.at("destination_rule").GetMap().at("root"),
+				m.at("destination_rule").GetMap().at("expression").GetList()			
+			)
+		);
+		this->intepreter->compiler->languages.translation_rules.push_back(translation);
+	}
+		
 	this->intepreter->compiler->languages.Initialize();
-	container->translations.clear();
-
 	return true;
 }
 
@@ -59,44 +75,21 @@ bool TranslationCommand::Intepret(std::vector<Symbols>& result)
 {
 	//($TRANSLATION, ($RULE, ($VARIABLE, $EXPRESSION)), ($RULE, ($VARIABLE, $EXPRESSION)))
 	assert(this->parameters.size()==3);
-	VariableContainer* container = Singleton<VariableContainer>::GetInstance();
-	container->translation.source_rule = container->source_rule;
-	container->translation.destination_rule = container->destination_rule;
-	container->translations.push_back(container->translation);
+	//VariableContainer* container = Singleton<VariableContainer>::GetInstance();
+	//container->translation.source_rule = container->source_rule;
+	//container->translation.destination_rule = container->destination_rule;
+	//container->translations.push_back(container->translation);
+	
+	assert(this->parameters[1][0].type == MAP_SYMBOL);
+	assert(this->parameters[2][0].type == MAP_SYMBOL);
+	Symbols translation(MAP_SYMBOL);
+	translation.GetMap()["source_rule"] = this->parameters[1][0];
+	translation.GetMap()["destination_rule"] = this->parameters[2][0];
+	result.push_back(translation);
+	
 	return true;
 }
 
-SourceRuleCommand::SourceRuleCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool SourceRuleCommand::Intepret(std::vector<Symbols>& result)
-{
-	//($RULE, ($VARIABLE, $EXPRESSION))
-	assert(this->parameters.size()==2);
-	VariableContainer* container = Singleton<VariableContainer>::GetInstance();
-	container->source_rule = container->rule;
-
-	return true;
-}
-
-DestinationRuleCommand::DestinationRuleCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool DestinationRuleCommand::Intepret(std::vector<Symbols>& result)
-{
-	//($RULE, ($VARIABLE, $EXPRESSION))
-	assert(this->parameters.size()==2);
-	VariableContainer* container = Singleton<VariableContainer>::GetInstance();
-	container->destination_rule = container->rule;
-
-	return true;
-}
 
 RuleCommand::RuleCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
@@ -108,9 +101,15 @@ bool RuleCommand::Intepret(std::vector<Symbols>& result)
 {
 	//($RULE, ($VARIABLE, $EXPRESSION))
 	assert(this->parameters.size()==3);
-	VariableContainer* container = Singleton<VariableContainer>::GetInstance();
-	container->rule.symbol = this->parameters[1][0];
-	container->rule.expression = this->parameters[2];
+	//VariableContainer* container = Singleton<VariableContainer>::GetInstance();
+	//container->rule.symbol = this->parameters[1][0];
+	//container->rule.expression = this->parameters[2];
+	assert(this->parameters[1].size()==1);
+	assert(this->parameters[1][0].IsVariable());
+	Symbols rule(MAP_SYMBOL);
+	rule.GetMap()["root"] = this->parameters[1][0];
+	rule.GetMap()["expression"] = Symbols(LIST_SYMBOL, this->parameters[2]);
+	result.push_back(rule);
 
 	return true;
 }
@@ -648,35 +647,6 @@ Symbols* Index(Symbols* symbol, vector< vector<Symbols> >&parameters, int from, 
 		i++;
 	}
 	return symbol;
-}
-
-Symbols Encode(vector<Symbols>& value)
-{
-	Symbols symbol;
-	if(value.size() == 1)
-	{
-		symbol = value[0];
-	}
-	else
-	{
-		symbol = Symbols(COMPACT_SYMBOL);
-		symbol.GetList() = value;
-	}
-	return symbol;
-}
-
-vector<Symbols> Decode(Symbols& symbol)
-{
-	vector<Symbols> value;
-	if(symbol.type == COMPACT_SYMBOL)
-	{
-		value = symbol.GetList();
-	}
-	else
-	{
-		value.push_back(symbol);
-	}
-	return value;
 } 
 
 DefCommand::DefCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
@@ -1003,14 +973,6 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	else if(cmd == Symbols::REMARK_TRANSLATION)
 	{
 		command = new TranslationCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::REMARK_SOURCE_RULE)
-	{
-		command = new SourceRuleCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::REMARK_DESTINATION_RULE)
-	{
-		command = new DestinationRuleCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::REMARK_RULE)
 	{

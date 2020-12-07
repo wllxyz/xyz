@@ -1,0 +1,9 @@
+S-表达式命令设计
+	$WLL0		加载自解释文法规则
+	$TRANSLATION	组装文法转换规则
+	$RULE		组装文法规则
+	$VARIABLE	组装文法变量
+	$CONSTANT	组装文法常量
+	$REMARK		组装文法特殊关键字
+	
+	$LIST		

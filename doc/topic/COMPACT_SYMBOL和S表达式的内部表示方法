@@ -1,0 +1,14 @@
+5. (vector<Symbos> symbos1, vector<Symbols> symbols2, ..., vector<Symbols> symbolN)
+格式调整为 => (Symbols symbo1 Symbols symbol2 ... Symbols symbolN)
+中间去除,分隔符号
+明确(vector<Symbols> symbols) => Symbols(COMPACT_SYMBOL, symbols)
+区分(symbol1, symbol2, ..., symbolN)和(symbol1 symbol2 ... symbolN)?
+(symbol1 symbol2 ... symbolN) = ($LIST, symbol1, symbol2, ..., symbolN)
+==================================
+在S表达式形式下
+COMPACT_SYMBOL默认不求值
+($EVAL, ($IGNORE, ($ADD, ($CAST, $INTEGER, "1"), ($CAST, $INTEGER, "2")), ($ADD, ($CAST, $INTEGER, "1"), ($CAST, $INTEGER, "2"))))
+
+$LIST和$IGNORE的区别：
+($LIST A B) = (A B)  A B 是求值后的结果
+($IGNORE A B) = A B  A B 是不求值的

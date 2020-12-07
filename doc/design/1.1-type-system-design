@@ -44,9 +44,9 @@
 			float f;
 			double d;
 			string s;
-			vector<LanguageSymbols> s_expression;
-			vector<LanguageSymbols> list;
-			map<string,LanguageSymbols> map;
+			shared_ptr<vector<LanguageSymbols> >* s_expression;
+			shared_ptr<vector<LanguageSymbols> >* list;
+			shared_ptr<map<string,LanguageSymbols> >* map;
 		}
 
 类型转换实现:
@@ -58,6 +58,6 @@
 		FLOAT_SYMBOL <= STRING_SYMBOL
 		DOUBLE_SYMBOL <= STRING_SYMBOL
 		引入命令:
-			($CAST, <源Symbol类型>, <目标Symbol类型>, Symbols)
+			($CAST, <目标Symbol类型>, Symbols)
 
 						

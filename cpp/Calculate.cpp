@@ -2,6 +2,7 @@
 #include "LanguageSymbols.h"
 #include "WllString.h"
 #include <cassert>
+#include <algorithm>
 using namespace Wll::Util;
 
 //CHAR_SYMBOL => Symbols::CHAR
@@ -694,5 +695,42 @@ const Symbols& operator%=(Symbols& a, const Symbols& b)
 	}
 	
 	return a;
+}
+
+Symbols Encode(vector<Symbols>& value)
+{
+	Symbols symbol;
+	if(value.size() == 1)
+	{
+		symbol = value[0];
+	}
+	else
+	{
+		symbol = Symbols(COMPACT_SYMBOL);
+		//symbol.GetList() = value;
+		for(vector<Symbols>::const_iterator i = value.begin(); i != value.end(); i++)
+		{
+			symbol.GetList().push_back(*i);
+		}
+	}
+	return symbol;
+}
+
+vector<Symbols> Decode(Symbols& symbol)
+{
+	vector<Symbols> value;
+	if(symbol.type == COMPACT_SYMBOL)
+	{
+		//value = symbol.GetList();
+		for(vector<Symbols>::const_iterator i = symbol.GetList().begin(); i != symbol.GetList().end(); i++)
+		{
+			value.push_back(*i);
+		}
+	}
+	else
+	{
+		value.push_back(symbol);
+	}
+	return value;
 }
 

@@ -62,4 +62,9 @@ const Symbols& operator/=(Symbols& a, const Symbols& b);
 Symbols operator%(const Symbols& a, const Symbols& b);
 const Symbols& operator%=(Symbols& a, const Symbols& b);
 
+//把长度大于1的Symbols自动打包成COMPACT_SYMBOL类型
+Symbols Encode(vector<Symbols>& value);
+//把COMPACT_SYMBOL类型的Symbols复原成vector<Symbols>数组
+vector<Symbols> Decode(Symbols& symbol);
+
 #endif //CALCULATE_H
