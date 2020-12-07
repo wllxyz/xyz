@@ -15,7 +15,7 @@
 #include "WllSingleton.h"
 #include "WllString.h"
 #include "LanguageAlgorithm.h"
-#include "VariableContainer.h"
+//#include "VariableContainer.h"
 #include <iostream>
 #include <fstream>
 #include <iterator>
