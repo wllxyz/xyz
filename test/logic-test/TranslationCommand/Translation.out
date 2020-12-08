@@ -1,1 +1,1 @@
-$TRUE
+{destination_rule=>{expression=>[<variable>,C,O,N,S,T,A,N,T,$REMARK],root=><variable>},source_rule=>{expression=>[<variable>,C,O,N,S,T,A,N,T,$REMARK],root=><variable>}}
