@@ -22,6 +22,20 @@ protected:
 	std::vector<LanguageTranslations>* translations;
 };
 
+class LoadTranslationsCommand : public WllCommand
+{
+public:
+	LoadTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
+class AddTranslationsCommand : public WllCommand
+{
+public:
+	AddTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
 class Wll0Command : public WllCommand
 {
 public:
@@ -61,6 +75,27 @@ class RemarkCommand : public WllCommand
 {
 public:
 	RemarkCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
+class EvalCommand : public WllCommand
+{
+public:
+	EvalCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
+class ExecCommand : public WllCommand
+{
+public:
+	ExecCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
+class IgnoreCommand : public WllCommand
+{
+public:
+	IgnoreCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
@@ -125,20 +160,6 @@ class SubStrCommand : public WllCommand
 {
 public:
 	SubStrCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
-
-class LoadTranslationsCommand : public WllCommand
-{
-public:
-	LoadTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
-
-class AddTranslationsCommand : public WllCommand
-{
-public:
-	AddTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
@@ -238,27 +259,6 @@ class PopCommand : public WllCommand
 {
 public:
 	PopCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
-
-class EvalCommand : public WllCommand
-{
-public:
-	EvalCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
-
-class ExecCommand : public WllCommand
-{
-public:
-	ExecCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
-
-class IgnoreCommand : public WllCommand
-{
-public:
-	IgnoreCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 

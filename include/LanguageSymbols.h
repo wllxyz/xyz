@@ -88,7 +88,7 @@ public:
 	static const Symbols VOID;
 	//支持文法解析
 	static const Symbols NULL_SYMBOL;	//在文法表示中用空expression表示
-	static const Symbols END_SYMBOL;
+	static const Symbols END_SYMBOL;	
 	//支持WLL0文法自解释
 	static const Symbols REMARK_WLL0;
 	static const Symbols REMARK_TRANSLATION;
@@ -109,7 +109,7 @@ public:
 	static const Symbols RIGHT_QUOTE;		//S表达式的右括号,用来界定前缀表达式
 	static const Symbols SEPERATOR;			//S表达式的参数分隔符号,用来分隔前缀表达式参数
 	static const Symbols LOAD_TRANSLATIONS;	//调用Wll0Loader加载文法规则
-	static const Symbols ADD_TRANSLATIONS;	//调用Wll0Loader加载文法规则,和LOAD_TRANSLATIONS的区别是ADD_TRANSLATIONS不会清空之前的文法规则
+	static const Symbols ADD_TRANSLATIONS;	//调用Wll0Loader加载文法规则,和LOAD_TRANSLATIONS的区别是ADD_TRANSLATIONS不会清空之前的文法规则	
 	//支持Ｓ表达式求值
 	static const Symbols LIST;
 	static const Symbols APPEND;

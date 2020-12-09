@@ -32,6 +32,30 @@ WllCommand::WllCommand(Symbols cmd, std::vector< std::vector<Symbols> >& paramet
 
 }
 
+LoadTranslationsCommand::LoadTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool LoadTranslationsCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size()==2);
+	return LoadLanguage(this->parameters[1], this->intepreter->compiler->languages, false);
+}
+
+AddTranslationsCommand::AddTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool AddTranslationsCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size()==2);
+	return LoadLanguage(this->parameters[1], this->intepreter->compiler->languages, true);
+}
+
 Wll0Command::Wll0Command(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
@@ -160,6 +184,46 @@ bool RemarkCommand::Intepret(std::vector<Symbols>& result)
 	ToString(remark_name, this->parameters[1]);
 	Symbols remark(REMARK_SYMBOL, remark_name.c_str());
 	result.push_back(remark);
+	return true;
+}
+
+EvalCommand::EvalCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool EvalCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size()==2);
+	return this->intepreter->IntepretWll(this->parameters[1], result);
+}
+
+ExecCommand::ExecCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool ExecCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size()==2);
+	return this->intepreter->IntepretWll(this->parameters[1], result);
+}
+
+IgnoreCommand::IgnoreCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+bool IgnoreCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size()==2);
+	for(vector<Symbols>::const_iterator i = this->parameters[1].begin(); i != this->parameters[1].end(); ++i)
+	{
+		result.push_back(*i);
+	}
 	return true;
 }
 
@@ -377,30 +441,6 @@ bool SubStrCommand::Intepret(std::vector<Symbols>& result)
 	}
 
 	return true;
-}
-
-LoadTranslationsCommand::LoadTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool LoadTranslationsCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size()==2);
-	return LoadLanguage(this->parameters[1], this->intepreter->compiler->languages, false);
-}
-
-AddTranslationsCommand::AddTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool AddTranslationsCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size()==2);
-	return LoadLanguage(this->parameters[1], this->intepreter->compiler->languages, true);
 }
 
 CondCommand::CondCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
@@ -767,46 +807,6 @@ bool PopCommand::Intepret(std::vector<Symbols>& result)
 			ERROR("PopCommand Intepret error: pop when parameter_stack is empty");
 			return false;
 		}
-	}
-	return true;
-}
-
-EvalCommand::EvalCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool EvalCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size()==2);
-	return this->intepreter->IntepretWll(this->parameters[1], result);
-}
-
-ExecCommand::ExecCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool ExecCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size()==2);
-	return this->intepreter->IntepretWll(this->parameters[1], result);
-}
-
-IgnoreCommand::IgnoreCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool IgnoreCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size()==2);
-	for(vector<Symbols>::const_iterator i = this->parameters[1].begin(); i != this->parameters[1].end(); ++i)
-	{
-		result.push_back(*i);
 	}
 	return true;
 }

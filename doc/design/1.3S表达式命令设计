@@ -1,10 +1,13 @@
 S-表达式命令设计
+运算方式加载文法：
 	$WLL0		加载自解释文法规则
 	$TRANSLATION	组装文法转换规则
 	$RULE		组装文法规则
 	$VARIABLE	组装文法变量
 	$CONSTANT	组装文法常量
 	$REMARK		组装文法特殊关键字
+直接加载规则字符串：
+	$
 	
 	$LIST		($LIST, A, B,...,Z) = (A, B, ..., Z)
 		A B ... Z n $LIST = COMPACT(A B ... Z)
