@@ -6,4 +6,29 @@ S-表达式命令设计
 	$CONSTANT	组装文法常量
 	$REMARK		组装文法特殊关键字
 	
-	$LIST		
+	$LIST		($LIST, A, B,...,Z) = (A, B, ..., Z)
+		A B ... Z n $LIST = COMPACT(A B ... Z)
+	$APPEND		($APPEND, (A, B), (C, D)) = (A, B, C, D)
+		(A B) (C D) $APPEND = (A B C D)
+	$CAR		($CAR, (A B)) = A
+		(A B) $CAR = A
+	$CDR		($CDR, (A B)) = (B)
+		(A B) $CDR = (B)
+	$ADD		($ADD, 1, 2) = 3
+		1 2 $ADD = 3
+	$SUB		($SUB, 9, 1) = 8
+		9 1 $SUB = 8
+	$MUL		($MUL, 1, 2) = 2
+		1 2 $MUL = 2
+	$DIV		($DIV, 9, 3) = 3
+		9 3 $DIV
+	
+	
+	S-表达式的两种等价表达形式：
+		($LIST, A, B)
+		COMPACT_SYMBOL($LIST A B)
+		什么时候求值
+		什么时候当做原子符号压栈处理
+		取决于求值状态
+		
+	

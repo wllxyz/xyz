@@ -121,7 +121,6 @@ public:
 	static const Symbols MUL;				//整数乘,1..n个参数
 	static const Symbols DIV;				//整数除,1..n个参数
 	static const Symbols SUB_STR;		//取子串,from,size,1或2個參數
-	static const Symbols NEXT_CHAR;	//返回字符的後n個字符, 1或2個參數
 	static const Symbols TRUE;				//逻辑真
 	static const Symbols FALSE;				//逻辑假
 	static const Symbols COND;				//条件控制

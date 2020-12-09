@@ -128,13 +128,6 @@ public:
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
-class NextCharCommand : public WllCommand
-{
-public:
-	NextCharCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
-
 class LoadTranslationsCommand : public WllCommand
 {
 public:

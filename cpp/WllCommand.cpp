@@ -379,35 +379,6 @@ bool SubStrCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-NextCharCommand::NextCharCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool NextCharCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size()==2 || this->parameters.size()==3);
-
-	string str;
-	ToString(str, this->parameters[1]);
-	assert(str.size()==1);
-	char c = str[0];
-
-	int n = 1;
-	if(this->parameters.size()==3)
-	{
-		string next_n;
-		ToString(next_n, this->parameters[2]);
-		String2Int(next_n, n);
-	}
-
-	c += n;
-
-	result.push_back(Symbols(c));
-	return true;
-}
-
 LoadTranslationsCommand::LoadTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
@@ -1025,10 +996,6 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	else if(cmd == Symbols::SUB_STR)
 	{
 		command = new SubStrCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::NEXT_CHAR)
-	{
-		command = new NextCharCommand(cmd,parameter_fields,intepreter);
 	}
 	else if(cmd == Symbols::COND)
 	{
