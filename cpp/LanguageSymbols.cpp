@@ -766,3 +766,10 @@ const std::string& ToString (std::string& str, const std::vector<Symbols>& symbo
 	return str;
 }
 
+void AssertSymbolsType(vector<Symbols> symbols, SymbolTypes symbol_type)
+{
+	for(vector<Symbols>::const_iterator i = symbols.begin(); i != symbols.end(); i++)
+	{
+		assert(i->type == symbol_type);
+	}
+}

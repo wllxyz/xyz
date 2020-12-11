@@ -6,7 +6,6 @@
  */
 
 #include "WllCommand.h"
-//#include "ValueType.h"
 #include "VariableStack.h"
 #include "Wll0Loader.h"
 #include "Wll1Loader.h"
@@ -15,7 +14,6 @@
 #include "WllSingleton.h"
 #include "WllString.h"
 #include "LanguageAlgorithm.h"
-//#include "VariableContainer.h"
 #include <iostream>
 #include <fstream>
 #include <iterator>
@@ -25,6 +23,7 @@
 #include "Calculate.h"
 using namespace std;
 using namespace Wll::Util;
+
 
 WllCommand::WllCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* wll_intepreter)
 : command(cmd), parameters(parameter_fields), intepreter(wll_intepreter)
@@ -151,6 +150,8 @@ VariableCommand::VariableCommand(Symbols cmd, std::vector< std::vector<Symbols> 
 bool VariableCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
+	AssertSymbolsType(this->parameters[1], CONSTANT_SYMBOL);
+
 	string variable_name;
 	ToString(variable_name, this->parameters[1]);
 	Symbols variable(variable_name.c_str());
@@ -169,24 +170,26 @@ ConstantCommand::ConstantCommand(Symbols cmd, std::vector< std::vector<Symbols> 
 bool ConstantCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
-	for(vector<Symbols>::const_iterator i = this->parameters[1].begin(); i != this->parameters[1].end(); ++i)
-	{
-		assert(i->IsConstant());
-	}
+	AssertSymbolsType(this->parameters[1], CONSTANT_SYMBOL);
+
 	result += this->parameters[1];
 
 	return true;
 }
 
+//($REMARK, SYMBOLS)
 RemarkCommand::RemarkCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
+//compose constants as name of a remark symbol(REMARK_SYMBOL)
 bool RemarkCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
+	AssertSymbolsType(this->parameters[1], CONSTANT_SYMBOL);
+
 	string remark_name;
 	ToString(remark_name, this->parameters[1]);
 	Symbols remark(REMARK_SYMBOL, remark_name.c_str());
@@ -194,12 +197,14 @@ bool RemarkCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
+//($EVAL, SYMBOLS)
 EvalCommand::EvalCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
+//evalue symbols' result, whether execute evalue or not is controlled by ignore state
 bool EvalCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
@@ -212,34 +217,37 @@ ExecCommand::ExecCommand(Symbols cmd, std::vector< std::vector<Symbols> >& param
 
 }
 
+//evalue symbols' result, execute evalue will always do, regardness ignore state
 bool ExecCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
 	return this->intepreter->IntepretWll(this->parameters[1], result);
 }
 
+//($IGNORE, SYMBOLS)
 IgnoreCommand::IgnoreCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
+//($IGNORE, SYMBOLS) = (SYMBOLS)
 bool IgnoreCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
-	for(vector<Symbols>::const_iterator i = this->parameters[1].begin(); i != this->parameters[1].end(); ++i)
-	{
-		result.push_back(*i);
-	}
+	result += this->parameters[1];
+
 	return true;
 }
 
+//($LIST, SYMBOL, ... , SYMBOL)
 ListCommand::ListCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
+//($LIST, SYMBOL, ... , SYMBOL) = (SYMBOL, ... , SYMBOL)
 bool ListCommand::Intepret(std::vector<Symbols>& result)
 {
 	ComposeSList(this->parameters.begin()+1, this->parameters.end(), result);
@@ -247,15 +255,18 @@ bool ListCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
+//($APPEND, SYMBOLS, SYMBOLS)
 AppendCommand::AppendCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
+//($APPEND, (A,B), (C,D)) = (A,B,C,D)
 bool AppendCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==3);
+
 	vector<vector<Symbols> > fields1,fields2;
 	SplitSList(this->parameters[1], fields1);
 	SplitSList(this->parameters[2], fields2);
@@ -266,24 +277,20 @@ bool AppendCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
+//($CAR, SYMBOLS)
 CarCommand::CarCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
+//($CAR, SYMBOLS) = ($COND, ((),()), (($ATOM SYMBOLS), ()), ((X,Y),X))
 bool CarCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
-	vector<Symbols>& e = this->parameters[1];
-	if(e.empty()) return true;
-
-	if(!(e.front()==Symbols::LEFT_QUOTE && e.back()==Symbols::RIGHT_QUOTE)) return true;
 
 	vector<vector<Symbols> > fields;
-	SplitParameters(e.begin()+1, e.end()-1, fields);
-
-	if(!fields.empty())
+	if (SplitSList(this->parameters[1], fields) > 0)
 	{
 		result += fields.front();
 	}
@@ -291,120 +298,106 @@ bool CarCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
+//($CDR, SYMBOLS)
 CdrCommand::CdrCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
+//($CDR, (A, B, C)) = (B, C)
 bool CdrCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
-	vector<Symbols>& e = this->parameters[1];
-	if(e.empty()) return true;
-
-	if(!(e.front()==Symbols::LEFT_QUOTE && e.back()==Symbols::RIGHT_QUOTE)) return true;
 
 	vector<vector<Symbols> > fields;
-	SplitParameters(e.begin()+1, e.end()-1, fields);
-
-	if(fields.size()>1)
+	if (SplitSList(this->parameters[1], fields) > 1)
 	{
-		ComposeSList(fields.begin()+1, fields.end(), result);
+		vector<Symbols> tail;
+		ComposeSList(fields.begin()+1, fields.end(), tail);
+		result += tail;
 	}
 
 	return true;
 }
 
+//($ADD, SYMBOLS, SYMBOLS)
 AddCommand::AddCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
+//($ADD, SYMBOLS, SYMBOLS) = SYMBOLS + SYMBOLS
 bool AddCommand::Intepret(std::vector<Symbols>& result)
 {
-	Symbols sum(CHAR_SYMBOL, char(0));
-	for(vector< vector<Symbols> >::iterator i = parameters.begin()+1; i != parameters.end(); ++i)
-	{
-		Symbols n = CastTo(*i, true);
-		AddTo(sum, n);
-	}
+	assert(this->parameters.size() == 3);
 
-	result.push_back(sum);
+	Symbols n1 = CastTo(this->parameters[1], true);
+	Symbols n2 = CastTo(this->parameters[2], true);
+	AddTo(n1, n2);
+	result.push_back(n1);
+
 	return true;
 }
 
+//($SUB, SYMBOLS, SYMBOLS)
 SubCommand::SubCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
+//($SUB, SYMBOLS, SYMBOLS) = SYMBOLS - SYMBOLS
 bool SubCommand::Intepret(std::vector<Symbols>& result)
 {
-	Symbols sum(CHAR_SYMBOL, char(0));
-	for(vector< vector<Symbols> >::iterator i = parameters.begin()+1; i != parameters.end(); ++i)
-	{
-		Symbols n = CastTo(*i, true);
-		
-		if (i == parameters.begin()+1)
-		{
-			sum = n;
-		}
-		else
-		{
-			sum -= n;
-		}
-	}
+	assert(this->parameters.size() == 3);
 
-	result.push_back(sum);
+	Symbols n1 = CastTo(this->parameters[1], true);
+	Symbols n2 = CastTo(this->parameters[2], true);
+	n1 -= n2;
+	result.push_back(n1);
+
 	return true;
 }
 
+//($MUL, SYMBOLS, SYMBOLS)
 MulCommand::MulCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
+//($MUL, SYMBOLS, SYMBOLS) = SYMBOLS * SYMBOLS
 bool MulCommand::Intepret(std::vector<Symbols>& result)
 {
-	Symbols sum(CHAR_SYMBOL, char(1));
-	for(vector< vector<Symbols> >::iterator i = parameters.begin()+1; i != parameters.end(); ++i)
-	{
-		Symbols n = CastTo(*i, true);
-		sum *= n;
-	}
+	assert(this->parameters.size() == 3);
 
-	result.push_back(sum);
+	Symbols n1 = CastTo(this->parameters[1], true);
+	Symbols n2 = CastTo(this->parameters[2], true);
+	n1 *= n2;
+	result.push_back(n1);
+
 	return true;
 }
 
+//($DIV, SYMBOLS, SYMBOLS)
 DivCommand::DivCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
+//($DIV, SYMBOLS, SYMBOLS) = SYMBOLS / SYMBOLS
 bool DivCommand::Intepret(std::vector<Symbols>& result)
 {
-	Symbols sum(CHAR_SYMBOL, char(0));
-	for(vector< vector<Symbols> >::iterator i = parameters.begin()+1; i != parameters.end(); ++i)
-	{
-		Symbols n = CastTo(*i, true);
-		
-		if (i == parameters.begin()+1)
-		{
-			sum = n;
-		}
-		else
-		{
-			sum /= n;
-		}
-	}
+	assert(this->parameters.size() == 3);
 
-	result.push_back(sum);
+	Symbols n1 = CastTo(this->parameters[1], true);
+	Symbols n2 = CastTo(this->parameters[2], true);
+	n1 /= n2;
+	result.push_back(n1);
+
 	return true;
 }
 

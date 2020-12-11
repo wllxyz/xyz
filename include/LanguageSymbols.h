@@ -187,5 +187,7 @@ std::vector<Symbols>& operator+= (std::vector<Symbols>& a, const std::vector<Sym
 std::vector<Symbols>& operator+= (std::vector<Symbols>& a, const std::string& b);
 const std::string& ToString (std::string& str, const std::vector<Symbols>& symbols);
 
+void AssertSymbolsType(vector<Symbols> symbols, SymbolTypes symbol_type);
+
 #endif	//LANGUAGE_SYMBOLS_H
 
