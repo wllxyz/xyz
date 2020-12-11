@@ -32,41 +32,46 @@ WllCommand::WllCommand(Symbols cmd, std::vector< std::vector<Symbols> >& paramet
 
 }
 
+//($LOAD_TRANSLATION, SYMBOLS)
 LoadTranslationsCommand::LoadTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
+//load SYMBOLS by WllLoader to replace current languages
 bool LoadTranslationsCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
 	return LoadLanguage(this->parameters[1], this->intepreter->compiler->languages, false);
 }
 
+//($ADD_TRANSLATIONS, SYMBOLS)
 AddTranslationsCommand::AddTranslationsCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
+//load SYMBOLS by WllLoader append into current languages
 bool AddTranslationsCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
 	return LoadLanguage(this->parameters[1], this->intepreter->compiler->languages, true);
 }
 
+//($WLL0, SYMBOLS)
 Wll0Command::Wll0Command(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
+//load SYMBOLS of TRANSLATION(MAP_SYMBOL) to replace current languages
 bool Wll0Command::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
-	//VariableContainer* container = Singleton<VariableContainer>::GetInstance();
-	//this->intepreter->compiler->languages.translation_rules = container->translations;
+
 	this->intepreter->compiler->languages.translation_rules.clear();
 	for(vector<Symbols>::const_iterator i = this->parameters[1].begin(); i != this->parameters[1].end(); ++i)
 	{
@@ -89,23 +94,22 @@ bool Wll0Command::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
+//($TRANSLATION, MAP_SYMBOL, MAP_SYMBOL)
 TranslationCommand::TranslationCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
+//compose source_rule(MAP_SYMBOL) and destination_rule(MAP_SYMBOL) as translation(MAP_SYMBOL)
 bool TranslationCommand::Intepret(std::vector<Symbols>& result)
 {
-	//($TRANSLATION, ($RULE, ($VARIABLE, $EXPRESSION)), ($RULE, ($VARIABLE, $EXPRESSION)))
 	assert(this->parameters.size()==3);
-	//VariableContainer* container = Singleton<VariableContainer>::GetInstance();
-	//container->translation.source_rule = container->source_rule;
-	//container->translation.destination_rule = container->destination_rule;
-	//container->translations.push_back(container->translation);
-	
+	assert(this->parameters[1].size() == 1);
+	assert(this->parameters[2].size() == 1);
 	assert(this->parameters[1][0].type == MAP_SYMBOL);
 	assert(this->parameters[2][0].type == MAP_SYMBOL);
+
 	Symbols translation(MAP_SYMBOL);
 	translation.GetMap()["source_rule"] = this->parameters[1][0];
 	translation.GetMap()["destination_rule"] = this->parameters[2][0];
@@ -114,22 +118,20 @@ bool TranslationCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-
+//($RULE, VARIABLE_SYMBOL, SYMBOLS)
 RuleCommand::RuleCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
+//compose root_symbol(VARIABLE_SYMBOL) and expression(SYMBOLS) as rule(MAP_SYMBOL)
 bool RuleCommand::Intepret(std::vector<Symbols>& result)
 {
-	//($RULE, ($VARIABLE, $EXPRESSION))
 	assert(this->parameters.size()==3);
-	//VariableContainer* container = Singleton<VariableContainer>::GetInstance();
-	//container->rule.symbol = this->parameters[1][0];
-	//container->rule.expression = this->parameters[2];
 	assert(this->parameters[1].size()==1);
 	assert(this->parameters[1][0].IsVariable());
+
 	Symbols rule(MAP_SYMBOL);
 	rule.GetMap()["root"] = this->parameters[1][0];
 	rule.GetMap()["expression"] = Symbols(LIST_SYMBOL, this->parameters[2]);
@@ -138,12 +140,14 @@ bool RuleCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
+//($VARIABLE, SYMBOLS)
 VariableCommand::VariableCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
+//compose constants as name of a variable(VARAIBLE_SYMBOL) 
 bool VariableCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
@@ -154,19 +158,22 @@ bool VariableCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
+//($CONSTANT, SYMBOLS)
 ConstantCommand::ConstantCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
+//keep input symbols(SYMBOLS) as constants
 bool ConstantCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
 	for(vector<Symbols>::const_iterator i = this->parameters[1].begin(); i != this->parameters[1].end(); ++i)
 	{
-		result.push_back(*i);
+		assert(i->IsConstant());
 	}
+	result += this->parameters[1];
 
 	return true;
 }
@@ -977,26 +984,22 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	{
 		command = new CdrCommand(cmd,parameter_fields,intepreter);
 	}
-	else if(cmd == Symbols::ADD)
+	else if(cmd == Symbols::EVAL)
 	{
-		command = new AddCommand(cmd,parameter_fields,intepreter);
-	}//ADD
-	else if(cmd == Symbols::SUB)
-	{
-		command = new SubCommand(cmd,parameter_fields,intepreter);
-	}//SUB
-	else if(cmd == Symbols::MUL)
-	{
-		command = new MulCommand(cmd,parameter_fields,intepreter);
-	}//MUL
-	else if(cmd == Symbols::DIV)
-	{
-		command = new DivCommand(cmd,parameter_fields,intepreter);
-	}//DIV
-	else if(cmd == Symbols::SUB_STR)
-	{
-		command = new SubStrCommand(cmd,parameter_fields,intepreter);
+		command = new EvalCommand(cmd,parameter_fields,intepreter);
 	}
+	else if(cmd == Symbols::EXEC)
+	{
+		command = new ExecCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::REMARK_IGNORE)
+	{
+		command = new IgnoreCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::CALL)
+	{
+		command = new CallCommand(cmd,parameter_fields,intepreter);
+	}	
 	else if(cmd == Symbols::COND)
 	{
 		command = new CondCommand(cmd,parameter_fields,intepreter);
@@ -1005,30 +1008,6 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	{
 		command = new LoopCommand(cmd,parameter_fields,intepreter);
 	}//LOOP
-	else if(cmd == Symbols::EQ)
-	{
-		command = new EqCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::LT)
-	{
-		command = new LtCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::AND)
-	{
-		command = new AndCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::OR)
-	{
-		command = new OrCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::NOT)
-	{
-		command = new NotCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::SHELL)
-	{
-		command = new ShellCommand(cmd,parameter_fields,intepreter);
-	}
 	else if(cmd == Symbols::DEF)
 	{
 		command = new DefCommand(cmd,parameter_fields,intepreter);
@@ -1057,26 +1036,6 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	{
 		command = new PopCommand(cmd,parameter_fields,intepreter);
 	}
-	else if(cmd == Symbols::EVAL)
-	{
-		command = new EvalCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::EXEC)
-	{
-		command = new ExecCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::REMARK_IGNORE)
-	{
-		command = new IgnoreCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::CALL)
-	{
-		command = new CallCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::CAT)
-	{
-		command = new CatCommand(cmd, parameter_fields, intepreter);
-	}
 	else if(cmd == Symbols::ARRAY)
 	{
 		command = new ArrayCommand(cmd, parameter_fields, intepreter);
@@ -1085,10 +1044,59 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	{
 		command = new MapCommand(cmd, parameter_fields, intepreter);
 	}
+	else if(cmd == Symbols::SUB_STR)
+	{
+		command = new SubStrCommand(cmd,parameter_fields,intepreter);
+	}
 	else if(cmd == Symbols::CAST)
 	{
 		command = new CastCommand(cmd, parameter_fields, intepreter);
+	}	
+	else if(cmd == Symbols::ADD)
+	{
+		command = new AddCommand(cmd,parameter_fields,intepreter);
+	}//ADD
+	else if(cmd == Symbols::SUB)
+	{
+		command = new SubCommand(cmd,parameter_fields,intepreter);
+	}//SUB
+	else if(cmd == Symbols::MUL)
+	{
+		command = new MulCommand(cmd,parameter_fields,intepreter);
+	}//MUL
+	else if(cmd == Symbols::DIV)
+	{
+		command = new DivCommand(cmd,parameter_fields,intepreter);
+	}//DIV
+	else if(cmd == Symbols::EQ)
+	{
+		command = new EqCommand(cmd,parameter_fields,intepreter);
 	}
+	else if(cmd == Symbols::LT)
+	{
+		command = new LtCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::AND)
+	{
+		command = new AndCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::OR)
+	{
+		command = new OrCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::NOT)
+	{
+		command = new NotCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::SHELL)
+	{
+		command = new ShellCommand(cmd,parameter_fields,intepreter);
+	}
+	else if(cmd == Symbols::CAT)
+	{
+		command = new CatCommand(cmd, parameter_fields, intepreter);
+	}
+
 
 	assert(command);
 	return command;

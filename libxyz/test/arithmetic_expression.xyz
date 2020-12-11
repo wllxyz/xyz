@@ -1,0 +1,14 @@
+<i>--><arithmetic_expression>"\n";
+<arithmetic_expression>--><arithmetic_expression>"+"<arithmetic_term>		==>		<arithmetic_expression>-->($ADD, <arithmetic_expression>, <arithmetic_term>);
+<arithmetic_expression>--><arithmetic_expression>"-"<arithmetic_term>		==>		<arithmetic_expression>-->($SUB, <arithmetic_expression>, <arithmetic_term>);
+<arithmetic_expression>--><arithmetic_term>		==>		<arithmetic_expression>--><arithmetic_term>;
+<arithmetic_term>--><arithmetic_factor>		==>		<arithmetic_term>--><arithmetic_factor>;
+<arithmetic_term>--><arithmetic_term>"*"<arithmetic_factor>		==>		<arithmetic_term>-->($MUL, <arithmetic_term>, <arithmetic_factor>);
+<arithmetic_term>--><arithmetic_term>"/"<arithmetic_factor>		==>		<arithmetic_term>-->($DIV, <arithmetic_term>, <arithmetic_factor>);
+<arithmetic_factor>--><variable>		==>		<arithmetic_factor>-->($GET, <variable>);
+<arithmetic_factor>--><integer>		==>		<arithmetic_factor>--><integer>;
+<arithmetic_factor>-->"("<arithmetic_expression>")"		==>		<arithmetic_factor>--><arithmetic_expression>;
+<arithmetic_factor>--><function_call>		==>		<arithmetic_factor>--><function_call>;
+<integer>--><digit>	==>		<integer>--><digit>;
+<integer>--><digit><integer>	==>		<integer>--><digit><integer>;
+include "digit.xyz"

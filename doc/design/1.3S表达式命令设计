@@ -1,13 +1,16 @@
 S-表达式命令设计
 运算方式加载文法：
-	$WLL0		加载自解释文法规则
-	$TRANSLATION	组装文法转换规则
-	$RULE		组装文法规则
-	$VARIABLE	组装文法变量
-	$CONSTANT	组装文法常量
+	$WLL0		加载自解释文法规则	($WLL0 ($TRANSLATION ...) ($TRANSLATION ...)) => 
+	$TRANSLATION	组装文法转换规则	($TRANSLATION ($RULE ...) ($RULE ...)) => MAP_SYMBOL
+	$RULE		组装文法规则		($RULE VARIABLE_SYMBOL COMPACT_SYMBOL) => MAP_SYMBOL
+	$VARIABLE	组装文法变量		($VARIABLE CONSTANT_SYMBOL ... CONSTANT_SYMBOL) => VARIABLE_SYMBOL
+	$CONSTANT	组装文法常量		($CONSTANT 
 	$REMARK		组装文法特殊关键字
 直接加载规则字符串：
-	$
+	$LOAD_TRANSLATIONS 加载文法规则
+	$ADD_TRANSLATIONS 添加文法规则
+	
+	
 	
 	$LIST		($LIST, A, B,...,Z) = (A, B, ..., Z)
 		A B ... Z n $LIST = COMPACT(A B ... Z)
