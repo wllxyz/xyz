@@ -1,0 +1,16 @@
+<i>-->""==><o>-->
+($PUSH_DATA)
+($SET, "A", ($ARRAY))
+($SET, "I", "0")
+($LOOP, 
+	($IGNORE,
+		($LT, ($GET,"I"),"9")
+	),
+	($IGNORE,
+		($SET, "A", ($GET,"I"), ($GET,"I"))
+		($SET, "I", ($ADD,($GET,"I"),"1"))
+	)
+)
+($GET, "A")
+($GET, "A", "0")
+($POP_DATA);

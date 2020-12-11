@@ -1,0 +1,6 @@
+<i>-->""==><o>-->
+($PUSH_DATA)
+($SET,"str1","123456")
+($SET,"str1","6","7")
+($GET,"str1")
+($POP_DATA);

@@ -1,0 +1,15 @@
+<i>-->""==><o>-->
+($PUSH_DATA)
+($SET,"a",($ARRAY,"123456"))
+"a="($GET,"a")"\n"
+($PUSH_DATA)
+($SET,"b",($GET,"a"))
+"b="($GET,"b")"\n"
+($POP_DATA)
+($SET,"c",($MAP))
+"c="($GET,"c")"\n"
+($SET,"d",($GET,"c"))
+"d="($GET,"d")"\n"
+($ARRAY,($ARRAY,"AB")($ARRAY,"12"))
+($ARRAY)
+($POP_DATA);
