@@ -37,4 +37,11 @@ S-表达式命令设计
 		什么时候当做原子符号压栈处理
 		取决于求值状态
 		
-	
+
+=====================================================================
+1. 後綴表達式求值實現
+1a. (SYMBOLS,SYMBOLS,SYMBOLS)的S表達式在求值之前統一處理成嵌套的COMPACT-S-EXPRESSION的緊湊形式
+1b. 所有WllCommand算子的運算結果返回類型值都必須是單一SYMBOL,結果爲SYMBOLS的轉換爲COMPACT_SYMBOL
+1c. WllInterpret中SYMBOLS的運算結果爲SYMBOLS的，也轉換爲COMPACT-S-EXPRESSION的緊湊形式
+1d. ($IGNORE, SYMBOL, ... , SYMBOL)的COMPACT-S-EXPRESSION的求值結果爲COMPACT(SYMBOL, ... , SYMBOL),應該不需要引入$IGNORE_BEGIN, $IGNORE_END的範圍操作符號
+1e. ? $EXEC的語義實現 ? EXEC的語義和執行環境的關係？

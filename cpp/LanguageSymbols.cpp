@@ -97,6 +97,7 @@ void Symbols::Destroy()
 	switch(this->type)
 	{
 	case COMPACT_SYMBOL:
+	case S_EXP_SYMBOL:
 	case LIST_SYMBOL:
 		if (this->list != NULL) 
 		{
@@ -133,6 +134,7 @@ void Symbols::Copy(const Symbols& that)
 	switch(that.type)
 	{
 	case COMPACT_SYMBOL:
+	case S_EXP_SYMBOL:
 	case LIST_SYMBOL:
 		this->list = new shared_ptr< vector<Symbols> >(*that.list);
 		break;
@@ -266,7 +268,7 @@ Symbols::Symbols(double d)
 
 Symbols::Symbols(SymbolTypes type, vector<Symbols> symbols)
 {
-	assert(type == COMPACT_SYMBOL || type == LIST_SYMBOL);
+	assert(type == COMPACT_SYMBOL || type == S_EXP_SYMBOL || type == LIST_SYMBOL);
 	this->type = type;
 	this->list = new shared_ptr<vector<Symbols> >(new vector<Symbols>(symbols.size()));
 	copy(symbols.begin(), symbols.end(), (*this->list)->begin());
@@ -277,6 +279,7 @@ Symbols::Symbols(SymbolTypes type)
 	switch(type)
 	{
 	case LIST_SYMBOL:
+	case S_EXP_SYMBOL:
 	case COMPACT_SYMBOL:
 		this->list = new shared_ptr<vector<Symbols> >(new vector<Symbols>());
 		break;
@@ -298,6 +301,7 @@ bool Symbols::operator== (const Symbols& that) const
 	switch(this->type)
 	{
 	case COMPACT_SYMBOL:
+	case S_EXP_SYMBOL:
 	case LIST_SYMBOL:
 		return this->GetList() == that.GetList();
 		break;
@@ -335,6 +339,7 @@ bool Symbols::operator< (const Symbols& that) const
 	switch(this->type)
 	{
 	case COMPACT_SYMBOL:
+	case S_EXP_SYMBOL:
 	case LIST_SYMBOL:
 		return this->GetList() < that.GetList();
 		break;
@@ -419,13 +424,13 @@ bool operator< (const map<string,Symbols>& a, const map<string,Symbols>& b)
 
 vector<Symbols>& Symbols::GetList()
 {
-	assert(this->type == LIST_SYMBOL || this->type == COMPACT_SYMBOL);
+	assert(this->type == LIST_SYMBOL || this->type == S_EXP_SYMBOL || this->type == COMPACT_SYMBOL);
 	return(*(*(this->list)));
 }
 
 const vector<Symbols>& Symbols::GetList() const
 {
-	assert(this->type == LIST_SYMBOL || this->type == COMPACT_SYMBOL);
+	assert(this->type == LIST_SYMBOL || this->type == S_EXP_SYMBOL || this->type == COMPACT_SYMBOL);
 	return(*(*(this->list)));
 }
 
@@ -496,6 +501,19 @@ string Symbols::ToString() const
 		return *(*this->s);
 		break;
 	case COMPACT_SYMBOL:
+		{
+			const vector<Symbols>& l = this->GetList();
+			if(!l.empty())
+			{
+				for(vector<Symbols>::const_iterator i = l.begin(); i != l.end(); ++i)
+				{
+					result += i->ToString();
+				}
+			}
+			return result;
+		}
+		break;	
+	case S_EXP_SYMBOL:
 		{
 			result += "(";
 			const vector<Symbols>& l = this->GetList();
@@ -772,4 +790,41 @@ void AssertSymbolsType(vector<Symbols> symbols, SymbolTypes symbol_type)
 	{
 		assert(i->type == symbol_type);
 	}
+}
+
+bool CompactSExpression(const std::vector<Symbols>& input_symbols, Symbols& compacted_input_symbols)
+{
+	assert(compacted_input_symbols.type == COMPACT_SYMBOL);
+
+	vector<Symbols*> current_compected_symbol_stack;
+	Symbols* current_compected_symbol = &compacted_input_symbols;
+
+	for (std::vector<Symbols>::const_iterator i = input_symbols.begin(); i != input_symbols.end(); i++) 
+	{
+		if (*i == Symbols::LEFT_QUOTE)
+		{
+			current_compected_symbol_stack.push_back(current_compected_symbol);
+			current_compected_symbol = new Symbols(S_EXP_SYMBOL);
+		}
+		else if (*i == Symbols::RIGHT_QUOTE)
+		{
+			if (current_compected_symbol_stack.empty()) return false;
+			
+			Symbols* parent_compect_symbol = current_compected_symbol_stack.back();
+			parent_compect_symbol->GetList().push_back(*current_compected_symbol);
+			delete current_compected_symbol;
+			current_compected_symbol = parent_compect_symbol;
+			current_compected_symbol_stack.pop_back();
+		}
+		else if (*i == Symbols::SEPERATOR)
+		{
+			//do nothing but skip the seperator symbol
+		}
+		else
+		{
+			current_compected_symbol->GetList().push_back(*i);	
+		}
+	}
+
+	return true;
 }

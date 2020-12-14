@@ -24,7 +24,8 @@ enum SymbolTypes
 	DOUBLE_SYMBOL,		//双精度浮点数类型
 	STRING_SYMBOL,		//字符串类型
 	
-	COMPACT_SYMBOL,		//S表达式类型(同之前的内部打包解包类型)	
+	COMPACT_SYMBOL,		//(同之前的内部打包解包类型)
+	S_EXP_SYMBOL,		//S表达式类型
 	LIST_SYMBOL,		//数组类型
 	MAP_SYMBOL		//字典类型
 };
@@ -188,6 +189,7 @@ std::vector<Symbols>& operator+= (std::vector<Symbols>& a, const std::string& b)
 const std::string& ToString (std::string& str, const std::vector<Symbols>& symbols);
 
 void AssertSymbolsType(vector<Symbols> symbols, SymbolTypes symbol_type);
-
+//把輸入input_symbols轉換爲內部緊湊表示形式(EXPRESSION => COMPACT_SYMBOL, s表達式(A,B,C) => S_EXP_SYMBOL)
+bool CompactSExpression(const std::vector<Symbols>& input_symbols, Symbols& compacted_input_symbols);
 #endif	//LANGUAGE_SYMBOLS_H
 
