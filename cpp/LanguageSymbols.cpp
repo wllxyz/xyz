@@ -798,19 +798,43 @@ bool CompactSExpression(const std::vector<Symbols>& input_symbols, Symbols& comp
 
 	vector<Symbols*> current_compected_symbol_stack;
 	Symbols* current_compected_symbol = &compacted_input_symbols;
+	int deepth = 0;
 
 	for (std::vector<Symbols>::const_iterator i = input_symbols.begin(); i != input_symbols.end(); i++) 
 	{
 		if (*i == Symbols::LEFT_QUOTE)
 		{
+			deepth++;
 			current_compected_symbol_stack.push_back(current_compected_symbol);
 			current_compected_symbol = new Symbols(S_EXP_SYMBOL);
+			current_compected_symbol_stack.push_back(current_compected_symbol);
+			current_compected_symbol = new Symbols(COMPACT_SYMBOL);
 		}
 		else if (*i == Symbols::RIGHT_QUOTE)
 		{
-			if (current_compected_symbol_stack.empty()) return false;
+			deepth--;
+			if (deepth < 0) return false;
 			
 			Symbols* parent_compect_symbol = current_compected_symbol_stack.back();
+			assert(parent_compect_symbol->type == S_EXP_SYMBOL);
+
+			if (current_compected_symbol->GetList().size() == 1)
+			{
+				parent_compect_symbol->GetList().push_back(current_compected_symbol->GetList()[0]);
+			}
+			else
+			{
+				if (!current_compected_symbol->GetList().empty() || !parent_compect_symbol->GetList().empty())
+				{
+					parent_compect_symbol->GetList().push_back(*current_compected_symbol);
+				}
+			}
+			delete current_compected_symbol;
+			current_compected_symbol = parent_compect_symbol;
+			current_compected_symbol_stack.pop_back();
+
+			parent_compect_symbol = current_compected_symbol_stack.back();
+			assert(parent_compect_symbol->type == COMPACT_SYMBOL);
 			parent_compect_symbol->GetList().push_back(*current_compected_symbol);
 			delete current_compected_symbol;
 			current_compected_symbol = parent_compect_symbol;
@@ -818,10 +842,24 @@ bool CompactSExpression(const std::vector<Symbols>& input_symbols, Symbols& comp
 		}
 		else if (*i == Symbols::SEPERATOR)
 		{
-			//do nothing but skip the seperator symbol
+			if (deepth == 0) return false;
+
+			Symbols* parent_compect_symbol = current_compected_symbol_stack.back();
+			assert(parent_compect_symbol->type == S_EXP_SYMBOL);
+
+			if (current_compected_symbol->GetList().size() == 1)
+			{
+				parent_compect_symbol->GetList().push_back(current_compected_symbol->GetList()[0]);
+			}
+			else
+			{
+				parent_compect_symbol->GetList().push_back(*current_compected_symbol);
+			}
+			current_compected_symbol->GetList().clear();
 		}
 		else
 		{
+			assert(current_compected_symbol->type == COMPACT_SYMBOL);
 			current_compected_symbol->GetList().push_back(*i);	
 		}
 	}

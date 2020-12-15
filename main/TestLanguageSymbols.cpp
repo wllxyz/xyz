@@ -131,6 +131,102 @@ TEST(LanguageSymbolTest, GetMap)
 	cout<<m2.ToString()<<endl;
 }
 
+TEST(LanguageSymbolTest, CompactSExpression)
+{
+	vector<Symbols> input_symbols;
+	input_symbols.push_back(Symbols::LEFT_QUOTE);
+	input_symbols.push_back(Symbols::RIGHT_QUOTE);
+
+	Symbols output_symbol(COMPACT_SYMBOL);
+	Symbols expect_output_symbol(COMPACT_SYMBOL);
+	expect_output_symbol.GetList().push_back(Symbols(S_EXP_SYMBOL));
+	EXPECT_TRUE(CompactSExpression(input_symbols, output_symbol));
+	EXPECT_TRUE(output_symbol == expect_output_symbol);
+
+	vector<Symbols> input_symbols2;
+	input_symbols2.push_back(Symbols::LEFT_QUOTE);
+		input_symbols2.push_back(Symbols::REMARK_WLL0);
+	input_symbols2.push_back(Symbols::SEPERATOR);
+		input_symbols2.push_back(Symbols::LEFT_QUOTE);
+			input_symbols2.push_back(Symbols::REMARK_TRANSLATION);
+		input_symbols2.push_back(Symbols::SEPERATOR);
+			input_symbols2.push_back(Symbols::LEFT_QUOTE);
+				input_symbols2.push_back(Symbols::REMARK_RULE);
+			input_symbols2.push_back(Symbols::SEPERATOR);
+				input_symbols2.push_back(Symbols::LEFT_QUOTE);
+					input_symbols2.push_back(Symbols::REMARK_VARIABLE);
+				input_symbols2.push_back(Symbols::SEPERATOR);
+					input_symbols2.push_back(Symbols("<i>"));
+				input_symbols2.push_back(Symbols::RIGHT_QUOTE);
+			input_symbols2.push_back(Symbols::SEPERATOR);
+				input_symbols2.push_back(Symbols::LEFT_QUOTE);
+					input_symbols2.push_back(Symbols::REMARK_CONSTANT);
+				input_symbols2.push_back(Symbols::SEPERATOR);
+				input_symbols2.push_back(Symbols::RIGHT_QUOTE);				
+			input_symbols2.push_back(Symbols::RIGHT_QUOTE);
+		input_symbols2.push_back(Symbols::SEPERATOR);
+			input_symbols2.push_back(Symbols::LEFT_QUOTE);
+				input_symbols2.push_back(Symbols::REMARK_RULE);
+			input_symbols2.push_back(Symbols::SEPERATOR);
+				input_symbols2.push_back(Symbols::LEFT_QUOTE);
+					input_symbols2.push_back(Symbols::REMARK_VARIABLE);
+				input_symbols2.push_back(Symbols::SEPERATOR);
+					input_symbols2.push_back(Symbols("<o>"));
+				input_symbols2.push_back(Symbols::RIGHT_QUOTE);
+			input_symbols2.push_back(Symbols::SEPERATOR);
+				input_symbols2.push_back(Symbols::LEFT_QUOTE);
+					input_symbols2.push_back(Symbols::ADD);
+				input_symbols2.push_back(Symbols::SEPERATOR);
+					input_symbols2.push_back(Symbols('0'));
+				input_symbols2.push_back(Symbols::SEPERATOR);
+					input_symbols2.push_back(Symbols('1'));
+					input_symbols2.push_back(Symbols('0'));
+				input_symbols2.push_back(Symbols::RIGHT_QUOTE);			
+			input_symbols2.push_back(Symbols::RIGHT_QUOTE);
+		input_symbols2.push_back(Symbols::RIGHT_QUOTE);	
+	input_symbols2.push_back(Symbols::RIGHT_QUOTE);
+
+	Symbols output_symbol2(COMPACT_SYMBOL);
+	Symbols expect_output_symbol2(COMPACT_SYMBOL);
+	Symbols wll0(S_EXP_SYMBOL);
+		Symbols translation(S_EXP_SYMBOL);
+			Symbols source_rule(S_EXP_SYMBOL);
+				Symbols i_variable(S_EXP_SYMBOL);
+					i_variable.GetList().push_back(Symbols::REMARK_VARIABLE);
+					i_variable.GetList().push_back(Symbols("<i>"));
+				Symbols empty_constant(S_EXP_SYMBOL);
+					empty_constant.GetList().push_back(Symbols::REMARK_CONSTANT);
+					empty_constant.GetList().push_back(Symbols(COMPACT_SYMBOL));
+				source_rule.GetList().push_back(Symbols::REMARK_RULE);
+				source_rule.GetList().push_back(i_variable);
+				source_rule.GetList().push_back(empty_constant);
+			Symbols destination_rule(S_EXP_SYMBOL);
+				Symbols o_variable(S_EXP_SYMBOL);
+					o_variable.GetList().push_back(Symbols::REMARK_VARIABLE);
+					o_variable.GetList().push_back(Symbols("<o>"));
+				Symbols add(S_EXP_SYMBOL);
+					add.GetList().push_back(Symbols::ADD);
+					add.GetList().push_back(Symbols('0'));
+					Symbols numbers(COMPACT_SYMBOL);
+						numbers.GetList().push_back(Symbols('1'));
+						numbers.GetList().push_back(Symbols('0'));
+					add.GetList().push_back(numbers);
+				destination_rule.GetList().push_back(Symbols::REMARK_RULE);
+				destination_rule.GetList().push_back(o_variable);
+				destination_rule.GetList().push_back(add);
+			translation.GetList().push_back(Symbols::REMARK_TRANSLATION);
+			translation.GetList().push_back(source_rule);
+			translation.GetList().push_back(destination_rule);
+		wll0.GetList().push_back(Symbols::REMARK_WLL0);
+		wll0.GetList().push_back(translation);
+	expect_output_symbol2.GetList().push_back(wll0);
+
+	EXPECT_TRUE(CompactSExpression(input_symbols2, output_symbol2));
+	cout<<output_symbol2<<endl;
+	cout<<expect_output_symbol2<<endl;
+	EXPECT_TRUE(output_symbol2 == expect_output_symbol2);	
+}
+
 GTEST_API_ int main(int argc, char **argv) 
 {
   testing::InitGoogleTest(&argc, argv);
