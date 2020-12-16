@@ -505,7 +505,10 @@ EqCommand::EqCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter
 bool EqCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size() == 3);
-	result.push_back((this->parameters[1] == this->parameters[2]) ? Symbols::TRUE : Symbols::FALSE);
+	Symbols n1 = CastTo(this->parameters[1], true);
+	Symbols n2 = CastTo(this->parameters[2], true);
+
+	result.push_back(Equal(n1, n2) ? Symbols::TRUE : Symbols::FALSE);
 	return true;
 }
 
@@ -517,36 +520,10 @@ LtCommand::LtCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter
 bool LtCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size() == 3);
-	Symbols a = CastTo(this->parameters[1]);
-	Symbols b = CastTo(this->parameters[2]);
-	
-	assert(a.type == CHAR_SYMBOL
-		|| a.type == INTEGER_SYMBOL
-		|| a.type == LONG_SYMBOL
-		|| a.type == FLOAT_SYMBOL
-		|| a.type == DOUBLE_SYMBOL
-		|| a.type == STRING_SYMBOL
-	);
-	
-	assert(b.type == CHAR_SYMBOL
-		|| b.type == INTEGER_SYMBOL
-		|| b.type == LONG_SYMBOL
-		|| b.type == FLOAT_SYMBOL
-		|| b.type == DOUBLE_SYMBOL
-		|| b.type == STRING_SYMBOL
-	);
-	
-	Symbols c(b);
-	if (a.type < c.type)
-	{
-		a = CastTo(c.type, a);
-	}
-	else if (a.type > c.type)
-	{
-		c = CastTo(a.type, c);
-	}	
-	
-	result.push_back((a < c) ? Symbols::TRUE : Symbols::FALSE);
+	Symbols n1 = CastTo(this->parameters[1], true);
+	Symbols n2 = CastTo(this->parameters[2], true);
+
+	result.push_back(LessThan(n1, n2) ? Symbols::TRUE : Symbols::FALSE);
 	return true;
 }
 

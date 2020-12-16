@@ -697,6 +697,74 @@ const Symbols& operator%=(Symbols& a, const Symbols& b)
 	return a;
 }
 
+bool Equal(const Symbols& a, const Symbols& b)
+{
+	assert(a.type == CHAR_SYMBOL
+		|| a.type == INTEGER_SYMBOL
+		|| a.type == LONG_SYMBOL
+		|| a.type == FLOAT_SYMBOL
+		|| a.type == DOUBLE_SYMBOL
+	);
+	
+	assert(b.type == CHAR_SYMBOL
+		|| b.type == INTEGER_SYMBOL
+		|| b.type == LONG_SYMBOL
+		|| b.type == FLOAT_SYMBOL
+		|| b.type == DOUBLE_SYMBOL
+	);
+	
+	Symbols c;
+	if (a.type < b.type)
+	{
+		c = CastTo(b.type, a);
+		return (c == b);
+	}
+	else if (a.type > b.type)
+	{
+		c = CastTo(a.type, b);
+		return (a == c);
+	}
+	else
+	{
+		return (a == b);
+	}
+	
+}
+
+bool LessThan(const Symbols& a, const Symbols& b)
+{
+	assert(a.type == CHAR_SYMBOL
+		|| a.type == INTEGER_SYMBOL
+		|| a.type == LONG_SYMBOL
+		|| a.type == FLOAT_SYMBOL
+		|| a.type == DOUBLE_SYMBOL
+	);
+	
+	assert(b.type == CHAR_SYMBOL
+		|| b.type == INTEGER_SYMBOL
+		|| b.type == LONG_SYMBOL
+		|| b.type == FLOAT_SYMBOL
+		|| b.type == DOUBLE_SYMBOL
+	);
+	
+	Symbols c;
+	if (a.type < b.type)
+	{
+		c = CastTo(b.type, a);
+		return (c < b);
+	}
+	else if (a.type > b.type)
+	{
+		c = CastTo(a.type, b);
+		return (a < c);
+	}
+	else
+	{
+		return (a < b);
+	}
+	
+}
+
 Symbols Encode(vector<Symbols>& value)
 {
 	Symbols symbol;
