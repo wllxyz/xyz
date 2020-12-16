@@ -134,13 +134,10 @@ bool Wll2IntepreterCompactLL1Impl::IntepretSExpression(const Symbols& s_exp_symb
 	}
 	else
 	{
-		result.push_back(s_exp_symbol);
+		ComposeSList(parameter_fields.begin(), parameter_fields.end(),result);
 	}
 
 	this->eval_switch = local_eval_switch;
 
 	return retval;
 }
-
-
-
