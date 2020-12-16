@@ -45,3 +45,4 @@ S-表达式命令设计
 1c. WllInterpret中SYMBOLS的運算結果爲SYMBOLS的，也轉換爲COMPACT-S-EXPRESSION的緊湊形式
 1d. ($IGNORE, SYMBOL, ... , SYMBOL)的COMPACT-S-EXPRESSION的求值結果爲COMPACT(SYMBOL, ... , SYMBOL),應該不需要引入$IGNORE_BEGIN, $IGNORE_END的範圍操作符號
 1e. ? $EXEC的語義實現 ? EXEC的語義和執行環境的關係？
+1f. $EXEC命令沒法繞開，必須實現, ???在後綴表達式環境下怎麼實現???
