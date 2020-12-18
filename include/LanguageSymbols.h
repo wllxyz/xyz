@@ -103,6 +103,7 @@ public:
 	static const Symbols REMARK_CONSTANT;
 	static const Symbols REMARK_REMARK;
 	//支持S表达式求解(WLL1文法自解释)
+	static const Symbols COMPACT;
 	static const Symbols REMARK_IGNORE;		//忽略$IGNORE$LEFT_QUOTE...$RIGHT_QUOTE括号内的符号的求值
 	static const Symbols EVAL;				//执行求值动作,受外部$IGNORE制约
 	static const Symbols EXEC;				//执行求值动作,不受外部$IGNORE制约
