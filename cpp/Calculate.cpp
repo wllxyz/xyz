@@ -765,23 +765,31 @@ bool LessThan(const Symbols& a, const Symbols& b)
 	
 }
 
-Symbols Encode(vector<Symbols>& value)
+Symbols Encode(vector<Symbols>& value, bool force)
 {
-	Symbols symbol;
 	if(value.size() == 1)
 	{
-		symbol = value[0];
+		if (force)
+		{
+			Symbols symbol(COMPACT_SYMBOL);
+			symbol.GetList().push_back(value[0]);
+			return symbol;
+		}
+		else
+		{
+			return value[0];
+		}
 	}
 	else
 	{
-		symbol = Symbols(COMPACT_SYMBOL);
+		Symbols symbol(COMPACT_SYMBOL);
 		//symbol.GetList() = value;
 		for(vector<Symbols>::const_iterator i = value.begin(); i != value.end(); i++)
 		{
 			symbol.GetList().push_back(*i);
 		}
+		return symbol;
 	}
-	return symbol;
 }
 
 vector<Symbols> Decode(Symbols& symbol)
@@ -802,3 +810,50 @@ vector<Symbols> Decode(Symbols& symbol)
 	return value;
 }
 
+void Flat(const Symbols& compacted_symbol, vector<Symbols>& flated_symbols)
+{
+	vector<Symbols> flat_stack;
+	flat_stack.push_back(compacted_symbol);
+
+	while (!flat_stack.empty())
+	{
+		Symbols symbol = flat_stack.back();
+		flat_stack.pop_back();
+
+		if (symbol.type == COMPACT_SYMBOL)
+		{
+			for (vector<Symbols>::const_reverse_iterator i = symbol.GetList().rbegin(); i != symbol.GetList().rend(); i++)
+			{
+				flat_stack.push_back(*i);
+			}
+		}
+		else
+		{
+			flated_symbols.push_back(symbol);
+		}
+	}
+}
+
+void Flat(const vector<Symbols>& symbols, vector<Symbols>& flated_symbols)
+{
+	vector<Symbols> flat_stack(symbols.size());
+	copy(symbols.rbegin(), symbols.rend(), flat_stack.begin());
+
+	while (!flat_stack.empty())
+	{
+		Symbols symbol = flat_stack.back();
+		flat_stack.pop_back();
+
+		if (symbol.type == COMPACT_SYMBOL)
+		{
+			for (vector<Symbols>::const_reverse_iterator i = symbol.GetList().rbegin(); i != symbol.GetList().rend(); i++)
+			{
+				flat_stack.push_back(*i);
+			}
+		}
+		else
+		{
+			flated_symbols.push_back(symbol);
+		}
+	}
+}
