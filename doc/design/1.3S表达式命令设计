@@ -10,8 +10,6 @@ S-表达式命令设计
 	$LOAD_TRANSLATIONS 加载文法规则
 	$ADD_TRANSLATIONS 添加文法规则
 	
-	
-	
 	$LIST		($LIST, A, B,...,Z) = (A, B, ..., Z)
 		A B ... Z n $LIST = COMPACT(A B ... Z)
 	$APPEND		($APPEND, (A, B), (C, D)) = (A, B, C, D)
