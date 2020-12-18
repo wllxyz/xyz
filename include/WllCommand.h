@@ -99,6 +99,13 @@ public:
 	virtual bool Intepret(std::vector<Symbols>& result);
 };
 
+class CompactCommand : public WllCommand
+{
+public:
+	CompactCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter);
+	virtual bool Intepret(std::vector<Symbols>& result);
+};
+
 class ListCommand : public WllCommand
 {
 public:
