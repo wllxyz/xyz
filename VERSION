@@ -1,0 +1,2 @@
+# date : branch-name : desciption
+2020-12-18 : 2.0.0-S表达式解释器和后缀表达式解释器对照实验功能 : STEP1-Wll2IntepreterCompactLL1Impl和Wll2IntepreterLL1Impl实现对WLL2原文法的解释执行(使用CompactSExpression内部格式转换后执行)
