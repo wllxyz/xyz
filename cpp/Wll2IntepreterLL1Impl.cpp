@@ -13,6 +13,7 @@
 #include <cassert>
 #include "WllCommand.h"
 #include "IntepretException.h"
+#include "Calculate.h"
 
 Wll2IntepreterLL1Impl::Wll2IntepreterLL1Impl(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols, WllIntepreter* intepreter)
 :input_symbols(input_symbols),output_symbols(output_symbols),intepreter(intepreter)
