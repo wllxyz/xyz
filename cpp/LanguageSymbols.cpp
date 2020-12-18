@@ -29,6 +29,7 @@ const Symbols Symbols::REMARK_VARIABLE(REMARK_SYMBOL,"$VARIABLE");
 const Symbols Symbols::REMARK_CONSTANT(REMARK_SYMBOL,"$CONSTANT");
 const Symbols Symbols::REMARK_REMARK(REMARK_SYMBOL,"$REMARK");
 const Symbols Symbols::REMARK_IGNORE(REMARK_SYMBOL,"$IGNORE");
+const Symbols Symbols::COMPACT(REMARK_SYMBOL,"$COMPACT");
 //支持S表达式求解(WLL1文法自解释)
 const Symbols Symbols::EVAL(REMARK_SYMBOL,"$EVAL");
 const Symbols Symbols::EXEC(REMARK_SYMBOL,"$EXEC");
