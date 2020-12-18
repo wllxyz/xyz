@@ -133,7 +133,7 @@ bool RuleCommand::Intepret(std::vector<Symbols>& result)
 
 	Symbols rule(MAP_SYMBOL);
 	rule.GetMap()["root"] = this->parameters[1][0];
-	rule.GetMap()["expression"] = Symbols(LIST_SYMBOL, this->parameters[2]);
+	rule.GetMap()["expression"] = (this->parameters[2].size() == 1 && this->parameters[2][0].type == COMPACT_SYMBOL) ? this->parameters[2][0] : Encode(this->parameters[2]);
 	result.push_back(rule);
 
 	return true;
@@ -236,6 +236,26 @@ bool IgnoreCommand::Intepret(std::vector<Symbols>& result)
 {
 	assert(this->parameters.size()==2);
 	result += this->parameters[1];
+
+	return true;
+}
+
+//($COMPACT, SYMBOL, SYMBOL)
+CompactCommand::CompactCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+: WllCommand(cmd,parameter_fields,intepreter)
+{
+
+}
+
+//($COMPACT, SYMBOL) = COMPACT_SYMBOL
+bool CompactCommand::Intepret(std::vector<Symbols>& result)
+{
+	assert(this->parameters.size() == 3);
+	
+	Symbols compacted_symbol(COMPACT_SYMBOL);
+	Flat(this->parameters[1], compacted_symbol.GetList());
+	Flat(this->parameters[2], compacted_symbol.GetList());
+	result.push_back(compacted_symbol);
 
 	return true;
 }
@@ -962,6 +982,10 @@ WllCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vect
 	{
 		command = new ExecCommand(cmd,parameter_fields,intepreter);
 	}
+	else if(cmd == Symbols::COMPACT)
+	{
+		command = new CompactCommand(cmd,parameter_fields,intepreter);
+	}	
 	else if(cmd == Symbols::REMARK_IGNORE)
 	{
 		command = new IgnoreCommand(cmd,parameter_fields,intepreter);
