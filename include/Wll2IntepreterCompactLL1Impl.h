@@ -20,6 +20,7 @@ public:
 	virtual bool IntepretWll();
 protected:
 	const std::vector<Symbols>& input_symbols;
+	std::vector<Symbols> code_stack;
 	std::vector<Symbols>& output_symbols;
 	WllIntepreter* intepreter;
 	bool eval_switch;
@@ -31,6 +32,7 @@ protected:
 	//<quote-expression>-->$LEFT_QUOTE<expression-list>$RIGHT_QUOTE
 	//<expression-list>--><expression>
 	//<expression-list>--><expression>$SEPERATOR<expression-list>
+public:
 	bool IntepretExpression(const Symbols& compact_symbol, std::vector<Symbols>& result);
 	bool IntepretSExpression(const Symbols& s_exp_symbol, std::vector<Symbols>& result);
 };
