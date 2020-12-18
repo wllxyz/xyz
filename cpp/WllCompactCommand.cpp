@@ -26,64 +26,40 @@ using namespace std;
 using namespace Wll::Util;
 
 
-WllCompactCommand::WllCompactCommand(Symbols cmd, WllIntepreter* wll_intepreter)
-: command(cmd), intepreter(wll_intepreter)
-{
-
-}
-
-//($LOAD_TRANSLATION, SYMBOLS)
-LoadTranslationsCommand::LoadTranslationsCommand(Symbols cmd, WllIntepreter* intepreter)
-: WllCompactCommand(cmd, intepreter)
-{
-
-}
-
 //load SYMBOLS by WllLoader to replace current languages
-bool LoadTranslationsCommand::Intepret(std::vector<Symbols>& result)
+//$LOAD_TRANSLATION(COMPACT_SYMBOL) => VOID_SYMBOL
+inline bool IntepretLoadTranslationsCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
-	assert(result.size() >= 1);
-	Symbols compacted_symbol = result.back();
-	result.pop_back();
+	assert(data_stack.size() >= 1);
+	Symbols compacted_symbol = data_stack.back();
+	data_stack.pop_back();
 	assert(compacted_symbol.type == COMPACT_SYMBOL);
 
-	return LoadLanguage(compacted_symbol.GetList(), this->intepreter->compiler->languages, false);
-}
-
-//($ADD_TRANSLATIONS, SYMBOLS)
-AddTranslationsCommand::AddTranslationsCommand(Symbols cmd, WllIntepreter* intepreter)
-: WllCompactCommand(cmd, intepreter)
-{
-
+	return LoadLanguage(compacted_symbol.GetList(), intepreter->compiler->languages, false);
 }
 
 //load SYMBOLS by WllLoader append into current languages
-bool AddTranslationsCommand::Intepret(std::vector<Symbols>& result)
+//$ADD_TRANSLATION(COMPACT_SYMBOL) => VOID_SYMBOL
+inline bool IntepretAddTranslationsCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
-	assert(result.size() >= 1);
-	Symbols compacted_symbol = result.back();
-	result.pop_back();
+	assert(data_stack.size() >= 1);
+	Symbols compacted_symbol = data_stack.back();
+	data_stack.pop_back();
 	assert(compacted_symbol.type == COMPACT_SYMBOL);
 
-	return LoadLanguage(compacted_symbol.GetList(), this->intepreter->compiler->languages, true);
-}
-
-//($WLL0, SYMBOLS)
-Wll0Command::Wll0Command(Symbols cmd, WllIntepreter* intepreter)
-: WllCompactCommand(cmd, intepreter)
-{
-
+	return LoadLanguage(compacted_symbol.GetList(), intepreter->compiler->languages, true);
 }
 
 //load SYMBOLS of TRANSLATION(MAP_SYMBOL) to replace current languages
-bool Wll0Command::Intepret(std::vector<Symbols>& result)
+//$WLL0(COMPACT_SYMBOL) => VOID_SYMBOL
+inline bool IntepretWll0Command(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
-	assert(result.size() >= 1);
-	Symbols compacted_symbol = result.back();
-	result.pop_back();
+	assert(data_stack.size() >= 1);
+	Symbols compacted_symbol = data_stack.back();
+	data_stack.pop_back();
 	assert(compacted_symbol.type == COMPACT_SYMBOL);
 
-	this->intepreter->compiler->languages.translation_rules.clear();
+	intepreter->compiler->languages.translation_rules.clear();
 	const vector<Symbols>& symbols = compacted_symbol.GetList();
 	for(vector<Symbols>::const_iterator i = symbols.cbegin(); i != symbols.cend(); ++i)
 	{
@@ -99,300 +75,247 @@ bool Wll0Command::Intepret(std::vector<Symbols>& result)
 				m.at("destination_rule").GetMap().at("expression").GetList()			
 			)
 		);
-		this->intepreter->compiler->languages.translation_rules.push_back(translation);
+		intepreter->compiler->languages.translation_rules.push_back(translation);
 	}
 		
-	this->intepreter->compiler->languages.Initialize();
+	intepreter->compiler->languages.Initialize();
 	return true;
 }
 
-//($TRANSLATION, MAP_SYMBOL, MAP_SYMBOL)
-TranslationCommand::TranslationCommand(Symbols cmd, WllIntepreter* intepreter)
-: WllCompactCommand(cmd, intepreter)
-{
-
-}
 
 //compose source_rule(MAP_SYMBOL) and destination_rule(MAP_SYMBOL) as translation(MAP_SYMBOL)
-bool TranslationCommand::Intepret(std::vector<Symbols>& result)
+//$TRANSLATION(MAP_SYMBOL,MAP_SYMBOL) => MAP_SYMBOL
+inline bool IntepretTranslationCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
-	assert(result.size() >= 2);
-	Symbols destination_rule = result.back();
-	result.pop_back();
-	Symbols source_rule = result.back();
-	result.pop_back();
+	assert(data_stack.size() >= 2);
+	Symbols destination_rule = data_stack.back();
+	data_stack.pop_back();
+	Symbols source_rule = data_stack.back();
+	data_stack.pop_back();
 	assert(source_rule.type == MAP_SYMBOL);
 	assert(destination_rule.type == MAP_SYMBOL);
 
 	Symbols translation(MAP_SYMBOL);
 	translation.GetMap()["source_rule"] = source_rule;
 	translation.GetMap()["destination_rule"] = destination_rule;
-	result.push_back(translation);
+	data_stack.push_back(translation);
 	
 	return true;
 }
 
-//($RULE, VARIABLE_SYMBOL, SYMBOLS)
-RuleCommand::RuleCommand(Symbols cmd, WllIntepreter* intepreter)
-: WllCompactCommand(cmd, intepreter)
-{
-
-}
-
 //compose root_symbol(VARIABLE_SYMBOL) and expression(SYMBOLS) as rule(MAP_SYMBOL)
-bool RuleCommand::Intepret(std::vector<Symbols>& result)
+//$RULE(VARIABLE_SYMBOL,COMPACT_SYMBOL) => MAP_SYMBOL
+inline bool IntepretRuleCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
-	assert(result.size() >= 2);
-	Symbols root = result.back();
-	result.pop_back();
-	Symbols expression = result.back();
-	result.pop_back();
+	assert(data_stack.size() >= 2);
+	Symbols root = data_stack.back();
+	data_stack.pop_back();
+	Symbols expression = data_stack.back();
+	data_stack.pop_back();
 	assert(root.IsVariable());
 	assert(expression.type == COMPACT_SYMBOL);
 
 	Symbols rule(MAP_SYMBOL);
 	rule.GetMap()["root"] = root;
 	rule.GetMap()["expression"] = expression;
-	result.push_back(rule);
+	data_stack.push_back(rule);
 
 	return true;
 }
 
-//($VARIABLE, SYMBOLS)
-VariableCommand::VariableCommand(Symbols cmd, WllIntepreter* intepreter)
-: WllCompactCommand(cmd, intepreter)
-{
-
-}
 
 //compose constants as name of a variable(VARAIBLE_SYMBOL) 
-bool VariableCommand::Intepret(std::vector<Symbols>& result)
+//$VARIABLE(COMPACT_SYMBOL) => VARIABLE_SYMBOL
+inline bool IntepretVariableCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
-	assert(result.size() >= 1);
-	Symbols compacted_symbol = result.back();
-	result.pop_back();
+	assert(data_stack.size() >= 1);
+	Symbols compacted_symbol = data_stack.back();
+	data_stack.pop_back();
 	assert(compacted_symbol.type == COMPACT_SYMBOL);
 	AssertSymbolsType(compacted_symbol.GetList(), CONSTANT_SYMBOL);
 
 	string variable_name;
 	ToString(variable_name, compacted_symbol.GetList());
 	Symbols variable(variable_name.c_str());
-	result.push_back(variable);
+	data_stack.push_back(variable);
 
 	return true;
 }
 
-//($CONSTANT, SYMBOLS)
-ConstantCommand::ConstantCommand(Symbols cmd, WllIntepreter* intepreter)
-: WllCompactCommand(cmd, intepreter)
-{
-
-}
 
 //keep input symbols(SYMBOLS) as constants
-bool ConstantCommand::Intepret(std::vector<Symbols>& result)
+//$CONSTANT(COMPACT_SYMBOL) => COMPACT_SYMBOL
+inline bool IntepretConstantCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
-	assert(result.size() >= 1);
-	Symbols& constants = result.back();
+	assert(data_stack.size() >= 1);
+	Symbols& constants = data_stack.back();
 	assert(constants.type == COMPACT_SYMBOL);
 	AssertSymbolsType(constants.GetList(), CONSTANT_SYMBOL);
 
 	return true;
 }
 
-//($REMARK, SYMBOLS)
-RemarkCommand::RemarkCommand(Symbols cmd, WllIntepreter* intepreter)
-: WllCompactCommand(cmd, intepreter)
-{
-
-}
-
 //compose constants as name of a remark symbol(REMARK_SYMBOL)
-bool RemarkCommand::Intepret(std::vector<Symbols>& result)
+//$REMARK(COMPACT_SYMBOL) => VARIABLE_SYMBOL
+inline bool IntepretRemarkCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
-	assert(result.size() >= 1);
-	Symbols compacted_symbol = result.back();
-	result.pop_back();
+	assert(data_stack.size() >= 1);
+	Symbols compacted_symbol = data_stack.back();
+	data_stack.pop_back();
 	assert(compacted_symbol.type == COMPACT_SYMBOL);
 	AssertSymbolsType(compacted_symbol.GetList(), CONSTANT_SYMBOL);
 
 	string remark_name;
 	ToString(remark_name, compacted_symbol.GetList());
 	Symbols remark(REMARK_SYMBOL, remark_name.c_str());
-	result.push_back(remark);
+	data_stack.push_back(remark);
 
 	return true;
-}
-
-//($EVAL, SYMBOLS)
-EvalCommand::EvalCommand(Symbols cmd, WllIntepreter* intepreter)
-: WllCompactCommand(cmd, intepreter)
-{
-
 }
 
 //evalue symbols' result, whether execute evalue or not is controlled by ignore state
-bool EvalCommand::Intepret(std::vector<Symbols>& result)
+////$EVAL(ANY_SYMBOL) => SYMBOLS(AUTO COMPACT TO COMPACT_SYMBOL)
+inline bool IntepretEvalCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
-	assert(result.size() >= 1);
-	Symbols symbol = result.back();
-	result.pop_back(); 
+	assert(data_stack.size() >= 1);
+	Symbols symbol = data_stack.back();
+	data_stack.pop_back(); 
 
 	if (symbol.type == COMPACT_SYMBOL)
 	{
-		Wll2IntepreterCompactLL1Impl* intepreter = (Wll2IntepreterCompactLL1Impl*)(this->intepreter);
-		return intepreter->IntepretExpression(symbol, result);
+		Wll2IntepreterCompactLL1Impl* i = (Wll2IntepreterCompactLL1Impl*)(intepreter);
+		return i->IntepretExpression(symbol, data_stack);
 	}
 	else if (symbol.type == S_EXP_SYMBOL)
 	{
-		Wll2IntepreterCompactLL1Impl* intepreter = (Wll2IntepreterCompactLL1Impl*)(this->intepreter);
-		return intepreter->IntepretSExpression(symbol, result);		
+		Wll2IntepreterCompactLL1Impl* i = (Wll2IntepreterCompactLL1Impl*)(intepreter);
+		return i->IntepretSExpression(symbol, data_stack);		
 	}
 	else
 	{
-		result.push_back(symbol);
+		data_stack.push_back(symbol);
 		return true;
 	}
-}
-
-//($EXEC, COMPACT_SYMBOL)
-ExecCommand::ExecCommand(Symbols cmd,  WllIntepreter* intepreter)
-: WllCompactCommand(cmd, intepreter)
-{
-
 }
 
 //evalue symbols' result, execute evalue will always do, regardness ignore state
-bool ExecCommand::Intepret(std::vector<Symbols>& result)
+//$EXEC(ANY_SYMBOL) => SYMBOLS(AUTO COMPACT TO COMPACT_SYMBOL)
+inline bool IntepretExecCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 {
-	assert(result.size() >= 1);
-	Symbols symbol = result.back();
-	result.pop_back(); 
-
-	if (symbol.type == COMPACT_SYMBOL)
-	{
-		Wll2IntepreterCompactLL1Impl* intepreter = (Wll2IntepreterCompactLL1Impl*)(this->intepreter);
-		return intepreter->IntepretExpression(symbol, result);
-	}
-	else if (symbol.type == S_EXP_SYMBOL)
-	{
-		Wll2IntepreterCompactLL1Impl* intepreter = (Wll2IntepreterCompactLL1Impl*)(this->intepreter);
-		return intepreter->IntepretSExpression(symbol, result);		
-	}
-	else
-	{
-		result.push_back(symbol);
-		return true;
-	}
+	//SAME AS EVAL COMMAND EXCEPT EXEC TIME
+	return IntepretEvalCommand(data_stack, intepreter);
 }
 
-//($IGNORE, SYMBOLS)
-IgnoreCommand::IgnoreCommand(Symbols cmd, WllIntepreter* intepreter)
-: WllCompactCommand(cmd, intepreter)
+//$IGNORE(ANY_SYMBOL) => ANY_SYMBOL
+inline bool IntepretIgnoreCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 {
-
-}
-
-//($IGNORE, SYMBOLS) = (SYMBOLS)
-bool IgnoreCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(result.size() >= 1);
+	assert(data_stack.size() >= 1);
 
 	return true;
 }
 
-//($LIST, SYMBOL, SYMBOL)
-ListCommand::ListCommand(Symbols cmd, WllIntepreter* intepreter)
-: WllCompactCommand(cmd, intepreter)
+//$COMPACT(ANY_SYMBOL,ANY_SYMBOL) => COMPACT_SYMBOL
+inline bool IntepretCompactCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
+	assert(data_stack.size() >= 2);
+	Symbols data2 = data_stack.back();
+	data_stack.pop_back();
+	Symbols data1 = data_stack.back();
+	data_stack.pop_back();
+	
+	Symbols compacted_symbol(COMPACT_SYMBOL);
+	Flat(data1, compacted_symbol.GetList());
+	Flat(data2, compacted_symbol.GetList());
+	data_stack.push_back(compacted_symbol);
 
+	return true;	
 }
 
-//($LIST, A, B, ... , N, n) = (A, B, ... , N)
-bool ListCommand::Intepret(std::vector<Symbols>& result)
+//$LIST ($LIST, A, B, ... , N, n) = (A, B, ... , N)
+//$LIST(ANY_SYMBOL, ... , ANY_SYMBOL, n) = S_EXP_SYMBOL
+inline bool IntepretListCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
-	assert(result.size() >= 1);
-	Symbols n = result.back();
-	result.pop_back();
+	assert(data_stack.size() >= 1);
+	Symbols n = data_stack.back();
+	data_stack.pop_back();
 	assert(n.type == INTEGER_SYMBOL);
-	assert(result.size() >= n.i);
+	assert(data_stack.size() >= n.i);
 
 	Symbols list(S_EXP_SYMBOL);
 	list.GetList().resize(n.i);
 	for(vector<Symbols>::reverse_iterator i = list.GetList().rbegin(); i != list.GetList().rend(); i++)
 	{
-		*i = result.back();
-		result.pop_back();
+		*i = data_stack.back();
+		data_stack.pop_back();
 	}
-	result.push_back(list);
+	data_stack.push_back(list);
 
 	return true;
 }
 
-//($APPEND, SYMBOLS, SYMBOLS)
-AppendCommand::AppendCommand(Symbols cmd, WllIntepreter* intepreter)
-: WllCompactCommand(cmd, intepreter)
+//$APPEND(S_EXP_SYMBOL, S_EXP_SYMBOL) = S_EXP_SYMBOL
+//($APPEND, (A,B), (C,D)) = (A, B, C, D)
+inline bool IntepretAppendCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
-
-}
-
-//($APPEND, (A,B), (C,D)) = (A,B,C,D)
-bool AppendCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(result.size() >= 2);
-	Symbols tail_list = result.back();
-	result.pop_back();
-	Symbols head_list = result.back();
-	result.pop_back();
+	assert(data_stack.size() >= 2);
+	Symbols tail_list = data_stack.back();
+	data_stack.pop_back();
+	Symbols head_list = data_stack.back();
+	data_stack.pop_back();
 	assert(head_list.type == S_EXP_SYMBOL);
 	assert(tail_list.type == S_EXP_SYMBOL);
 
 	Symbols list(head_list);
 	list.GetList() += tail_list.GetList();
-	result.push_back(list);
+	data_stack.push_back(list);
 
 	return true;
 }
 
-//($CAR, SYMBOLS)
-CarCommand::CarCommand(Symbols cmd, WllIntepreter* intepreter)
-: WllCompactCommand(cmd, intepreter)
+//$CAR(ANY_SYMBOL) = S_EXP_SYMBOL|NIL
+//($CAR, (A,B,C)) = A
+inline bool IntepretCarCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
+	assert(data_stack.size() >= 1);
+	Symbols symbol = data_stack.back();
+	data_stack.pop_back();
 
-}
-
-//($CAR, SYMBOLS) = ($COND, ((),()), (($ATOM SYMBOLS), ()), ((X,Y),X))
-bool CarCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size()==2);
-
-	vector<vector<Symbols> > fields;
-	if (SplitSList(this->parameters[1], fields) > 0)
+	if ((symbol.type == S_EXP_SYMBOL || symbol.type == COMPACT_SYMBOL) && (symbol.GetList().size() > 0))
 	{
-		result += fields.front();
+		data_stack.push_back(symbol.GetList().front());
+	}
+	else if (symbol.type == STRING_SYMBOL && (*symbol.s)->size() > 0)
+	{
+		data_stack.push_back(Symbols(CONSTANT_SYMBOL, (*symbol.s)->front()));
+	}
+	else
+	{
+		data_stack.push_back(Symbols(COMPACT_SYMBOL));
 	}
 
 	return true;
 }
 
-//($CDR, SYMBOLS)
-CdrCommand::CdrCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
+//$CDR(ANY_SYMBOL) = S_EXP_SYMBOL|NIL
+//($CDR, (A,B,C)) = (B, C)
+inline bool IntepretCdrCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
+	assert(data_stack.size() >= 1);
+	Symbols symbol = data_stack.back();
+	data_stack.pop_back();
 
-}
-
-//($CDR, (A, B, C)) = (B, C)
-bool CdrCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size()==2);
-
-	vector<vector<Symbols> > fields;
-	if (SplitSList(this->parameters[1], fields) > 1)
+	if ((symbol.type == S_EXP_SYMBOL || symbol.type == COMPACT_SYMBOL) && (symbol.GetList().size() > 1))
 	{
-		vector<Symbols> tail;
-		ComposeSList(fields.begin()+1, fields.end(), tail);
-		result += tail;
+		data_stack.push_back(Symbols(symbol.type, vector<Symbols>(symbol.GetList().begin()+1, symbol.GetList().end())));
+	}
+	else if (symbol.type == STRING_SYMBOL && (*symbol.s)->size() > 0)
+	{
+		(*(*symbol.s)) = (*symbol.s)->substr(1);
+		data_stack.push_back(symbol);
+	}
+	else
+	{
+		data_stack.push_back(Symbols(COMPACT_SYMBOL));
 	}
 
 	return true;

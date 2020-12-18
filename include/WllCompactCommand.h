@@ -10,301 +10,132 @@
 
 #include "WllIntepreter.h"
 
-class WllCompactCommand
-{
-public:
-	WllCompactCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result) = 0;
-protected:
-	Symbols command;
-	WllIntepreter* intepreter;
-};
+//$LOAD_TRANSLATION(COMPACT_SYMBOL) => VOID_SYMBOL
+inline bool IntepretLoadTranslationsCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class LoadTranslationsCommand : public WllCompactCommand
-{
-public:
-	LoadTranslationsCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$ADD_TRANSLATION(COMPACT_SYMBOL) => VOID_SYMBOL
+inline bool IntepretAddTranslationsCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class AddTranslationsCommand : public WllCompactCommand
-{
-public:
-	AddTranslationsCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$WLL0(COMPACT_SYMBOL) => VOID_SYMBOL
+inline bool IntepretWll0Command(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class Wll0Command : public WllCompactCommand
-{
-public:
-	Wll0Command(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$TRANSLATION(MAP_SYMBOL,MAP_SYMBOL) => MAP_SYMBOL
+inline bool IntepretTranslationCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class TranslationCommand : public WllCompactCommand
-{
-public:
-	TranslationCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$RULE(VARIABLE_SYMBOL,COMPACT_SYMBOL) => MAP_SYMBOL
+inline bool IntepretRuleCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class RuleCommand : public WllCompactCommand
-{
-public:
-	RuleCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$VARIABLE(COMPACT_SYMBOL) => VARIABLE_SYMBOL
+inline bool IntepretVariableCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class VariableCommand : public WllCompactCommand
-{
-public:
-	VariableCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$CONSTANT(COMPACT_SYMBOL) => COMPACT_SYMBOL
+inline bool IntepretConstantCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class ConstantCommand : public WllCompactCommand
-{
-public:
-	ConstantCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$REMARK(COMPACT_SYMBOL) => VARIABLE_SYMBOL
+inline bool IntepretRemarkCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class RemarkCommand : public WllCompactCommand
-{
-public:
-	RemarkCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$EVAL(ANY_SYMBOL) => SYMBOLS(AUTO COMPACT TO COMPACT_SYMBOL)
+inline bool IntepretEvalCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class EvalCommand : public WllCompactCommand
-{
-public:
-	EvalCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$EXEC(ANY_SYMBOL) => SYMBOLS(AUTO COMPACT TO COMPACT_SYMBOL)
+inline bool IntepretExecCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class ExecCommand : public WllCompactCommand
-{
-public:
-	ExecCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$IGNORE(ANY_SYMBOL) => ANY_SYMBOL
+inline bool IntepretIgnoreCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class IgnoreCommand : public WllCompactCommand
-{
-public:
-	IgnoreCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$COMPACT(ANY_SYMBOL,ANY_SYMBOL) => COMPACT_SYMBOL
+inline bool IntepretCompactCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class ListCommand : public WllCompactCommand
-{
-public:
-	ListCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$LIST ($LIST, A, B, ... , N, n) = (A, B, ... , N)
+//$LIST(ANY_SYMBOL, ... , ANY_SYMBOL, n) = S_EXP_SYMBOL
+inline bool IntepretListCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class AppendCommand : public WllCompactCommand
-{
-public:
-	AppendCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$APPEND(S_EXP_SYMBOL, S_EXP_SYMBOL) = S_EXP_SYMBOL
+//($APPEND, (A,B), (C,D)) = (A, B, C, D)
+inline bool IntepretAppendCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class CarCommand : public WllCompactCommand
-{
-public:
-	CarCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$CAR(ANY_SYMBOL) = S_EXP_SYMBOL|NIL
+//($CAR, (A,B,C)) = A
+inline bool IntepretCarCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class CdrCommand : public WllCompactCommand
-{
-public:
-	CdrCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$CDR(ANY_SYMBOL) = S_EXP_SYMBOL|NIL
+//($CDR, (A,B,C)) = (B, C)
+inline bool IntepretCdrCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class CondCommand : public WllCompactCommand
-{
-public:
-	CondCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$COND
+inline bool IntepretCondCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class LoopCommand : public WllCompactCommand
-{
-public:
-	LoopCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$LOOP
+inline bool IntepretLoopCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class DefCommand : public WllCompactCommand
-{
-public:
-	DefCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$DEF
+inline bool IntepretDefCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class SetCommand : public WllCompactCommand
-{
-public:
-	SetCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$SET
+inline bool IntepretSetCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class GetCommand : public WllCompactCommand
-{
-public:
-	GetCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$GET
+inline bool IntepretGetCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class PushDataCommand : public WllCompactCommand
-{
-public:
-	PushDataCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$PUSHDATA
+inline bool IntepretPushDataCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class PopDataCommand : public WllCompactCommand
-{
-public:
-	PopDataCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$POPDATA
+inline bool IntepretPopDataCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class PushCommand : public WllCompactCommand
-{
-public:
-	PushCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$PUSH
+inline bool IntepretPushCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class PopCommand : public WllCompactCommand
-{
-public:
-	PopCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$POP
+inline bool IntepretPopCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class CallCommand : public WllCompactCommand
-{
-public:
-	CallCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$CALL
+inline bool IntepretCallCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class ArrayCommand : public WllCompactCommand
-{
-public:
-	ArrayCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$ARRAY
+inline bool IntepretArrayCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class MapCommand : public WllCompactCommand
-{
-public:
-	MapCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$MAP
+inline bool IntepretMapCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class SubStrCommand : public WllCompactCommand
-{
-public:
-	SubStrCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$SUBSTR
+inline bool IntepretSubStrCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class CastCommand : public WllCompactCommand
-{
-public:
-	CastCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$CAST
+inline bool IntepretCastCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class AddCommand : public WllCompactCommand
-{
-public:
-	AddCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$ADD
+inline bool IntepretAddCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class SubCommand : public WllCompactCommand
-{
-public:
-	SubCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$SUB
+inline bool IntepretSubCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class MulCommand : public WllCompactCommand
-{
-public:
-	MulCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$MUL
+inline bool IntepretMulCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class DivCommand : public WllCompactCommand
-{
-public:
-	DivCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$DIV
+inline bool IntepretDivCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class EqCommand : public WllCompactCommand
-{
-public:
-	EqCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$EQ
+inline bool IntepretEqCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class LtCommand : public WllCompactCommand
-{
-public:
-	LtCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$LT
+inline bool IntepretLtCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class AndCommand : public WllCompactCommand
-{
-public:
-	AndCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$AND
+inline bool IntepretAndCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
+//$OR
+inline bool IntepretOrCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class OrCommand : public WllCompactCommand
-{
-public:
-	OrCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$NOT
+inline bool IntepretNotCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class NotCommand : public WllCompactCommand
-{
-public:
-	NotCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$SHELL
+inline bool IntepretShellCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class ShellCommand : public WllCompactCommand
-{
-public:
-	ShellCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
+//$CAT
+inline bool IntepretCatCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-class CatCommand : public WllCompactCommand
-{
-public:
-	CatCommand(Symbols cmd, WllIntepreter* intepreter);
-	virtual bool Intepret(std::vector<Symbols>& result);
-};
-
-class WllCommandFactory
-{
-public:
-	static WllCompactCommand* CreateCommand(Symbols cmd, WllIntepreter* intepreter);
-};
 
 #endif /* WLL_COMPACT_COMMAND_H_ */
