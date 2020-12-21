@@ -61,6 +61,7 @@ const Symbols Symbols::NOT(REMARK_SYMBOL,"$NOT");
 const Symbols Symbols::SHELL(REMARK_SYMBOL,"$SHELL");
 const Symbols Symbols::CALL(REMARK_SYMBOL,"$CALL");
 //支持变量存储
+const Symbols Symbols::REF(REMARK_SYMBOL,"$REF");
 const Symbols Symbols::DEF(REMARK_SYMBOL,"$DEF");
 const Symbols Symbols::SET(REMARK_SYMBOL,"$SET");
 const Symbols Symbols::GET(REMARK_SYMBOL,"$GET");
@@ -71,6 +72,7 @@ const Symbols Symbols::POP(REMARK_SYMBOL,"$POP");
 //支持数据结构
 const Symbols Symbols::MAP(REMARK_SYMBOL,"$MAP");
 const Symbols Symbols::ARRAY(REMARK_SYMBOL,"$ARRAY");
+
 
 const Symbols Symbols::CAT(REMARK_SYMBOL,"$CAT");
 
@@ -91,6 +93,7 @@ void Symbols::Init()
 	this->s = NULL;
 	this->list = NULL;
 	this->m = NULL;
+	this->reference = NULL;
 }
 
 void Symbols::Destroy()
@@ -159,6 +162,9 @@ void Symbols::Copy(const Symbols& that)
 		break;
 	case STRING_SYMBOL:
 		this->s = new shared_ptr<string>(*that.s);
+		break;
+	case REFERENCE_SYMBOL:
+		this->reference = that.reference;
 		break;
 	default:
 		this->value = that.value;

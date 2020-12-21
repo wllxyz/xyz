@@ -23,6 +23,7 @@ enum SymbolTypes
 	FLOAT_SYMBOL,		//浮点数类型
 	DOUBLE_SYMBOL,		//双精度浮点数类型
 	STRING_SYMBOL,		//字符串类型
+	REFERENCE_SYMBOL,	//引用類型(指針類型)
 	
 	COMPACT_SYMBOL,		//(同之前的内部打包解包类型)
 	S_EXP_SYMBOL,		//S表达式类型
@@ -46,7 +47,8 @@ public:
 		double d;
 		shared_ptr<string>* s;
 		shared_ptr< vector<Symbols> >* list;
-		shared_ptr< map<string, Symbols> >* m;		
+		shared_ptr< map<string, Symbols> >* m;
+		Symbols* reference;		
 	};
 	SymbolTypes type;
 private:
@@ -103,7 +105,7 @@ public:
 	static const Symbols REMARK_CONSTANT;
 	static const Symbols REMARK_REMARK;
 	//支持S表达式求解(WLL1文法自解释)
-	static const Symbols COMPACT;
+	static const Symbols COMPACT;			//COMPACT操作，把SYMBOL,...,SYMBOL=>COMPACT_SYMBOL
 	static const Symbols REMARK_IGNORE;		//忽略$IGNORE$LEFT_QUOTE...$RIGHT_QUOTE括号内的符号的求值
 	static const Symbols EVAL;				//执行求值动作,受外部$IGNORE制约
 	static const Symbols EXEC;				//执行求值动作,不受外部$IGNORE制约
@@ -117,24 +119,12 @@ public:
 	static const Symbols APPEND;
 	static const Symbols CAR;
 	static const Symbols CDR;
-	//支持运算控制
-	static const Symbols ADD;				//整数加,1..n个参数
-	static const Symbols SUB;				//整数减,1..n个参数
-	static const Symbols MUL;				//整数乘,1..n个参数
-	static const Symbols DIV;				//整数除,1..n个参数
-	static const Symbols SUB_STR;		//取子串,from,size,1或2個參數
-	static const Symbols TRUE;				//逻辑真
-	static const Symbols FALSE;				//逻辑假
+	//控制結構
 	static const Symbols COND;				//条件控制
 	static const Symbols LOOP;				//循环控制
-	static const Symbols EQ;				//等于
-	static const Symbols LT;				//小于(字典序)
-	static const Symbols AND;				//与
-	static const Symbols OR;				//或
-	static const Symbols NOT;				//非
-	static const Symbols SHELL;				//执行shell命令
 	static const Symbols CALL;			//执行call命令
 	//支持变量存储
+	static const Symbols REF;				//ARRAY/MAP寻址指令，返回REF_SYMBOL类型变量(地址类型)
     static const Symbols DEF;				//变量定义
 	static const Symbols SET;				//变量赋值,如果变量之前没有定义则自动定义
 	static const Symbols GET;				//变量引用,如果变量没有定义,返回空值
@@ -145,9 +135,7 @@ public:
 	//支持数据结构
 	static const Symbols ARRAY;				//创建Symbols(LIST_SYMBOL)数值变量
 	static const Symbols MAP;				//创建Symbols(MAP_SYMBOL)字典变量
-	static const Symbols INDEX;				//ARRAY/MAP寻址指令，返回REF_SYMBOL类型变量(地址类型)
 	
-	static const Symbols CAT;				//从文件中加载符号,支持INCLUDE特性
 	//類型常量
 	static const Symbols CHAR;
 	static const Symbols INTEGER;
@@ -157,6 +145,23 @@ public:
 	static const Symbols STRING;
 	
 	static const Symbols CAST;			//類型轉換
+	//支持运算控制
+	static const Symbols ADD;				//整数加,1..n个参数
+	static const Symbols SUB;				//整数减,1..n个参数
+	static const Symbols MUL;				//整数乘,1..n个参数
+	static const Symbols DIV;				//整数除,1..n个参数
+	static const Symbols TRUE;				//逻辑真
+	static const Symbols FALSE;				//逻辑假
+	static const Symbols EQ;				//等于
+	static const Symbols LT;				//小于(字典序)
+	static const Symbols AND;				//与
+	static const Symbols OR;				//或
+	static const Symbols NOT;				//非	
+
+	static const Symbols SUB_STR;		//取子串,from,size,1或2個參數
+	static const Symbols SHELL;				//执行shell命令
+	static const Symbols CAT;				//从文件中加载符号,支持INCLUDE特性
+
 };
 
 bool operator== (const vector<Symbols>& a, const vector<Symbols>& b);
