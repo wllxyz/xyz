@@ -180,6 +180,7 @@ Symbols::Symbols()
 	this->s = NULL;
 	this->list = NULL;
 	this->m = NULL;
+	this->reference = NULL;
 }
 
 Symbols::Symbols(const Symbols& that)
@@ -271,6 +272,12 @@ Symbols::Symbols(double d)
 {
 	this->type = DOUBLE_SYMBOL;
 	this->d = d;
+}
+
+Symbols::Symbols(Symbols* reference)
+{
+	this->type = REFERENCE_SYMBOL;
+	this->reference = reference;
 }
 
 Symbols::Symbols(SymbolTypes type, vector<Symbols> symbols)

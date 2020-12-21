@@ -68,6 +68,7 @@ public:
 	Symbols(long l);
 	Symbols(float f);
 	Symbols(double d);
+	Symbols(Symbols* reference);
 	Symbols(SymbolTypes symbol_type, vector<Symbols> symbols);
 	Symbols(SymbolTypes type);
 	bool operator== (const Symbols& that) const;
