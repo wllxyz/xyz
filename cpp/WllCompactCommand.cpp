@@ -200,14 +200,14 @@ inline bool IntepretEvalCommand(std::vector<Symbols>& data_stack, WllIntepreter*
 
 //evalue symbols' result, execute evalue will always do, regardness ignore state
 //$EXEC(ANY_SYMBOL) => SYMBOLS(AUTO COMPACT TO COMPACT_SYMBOL)
-inline bool IntepretExecCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
+inline bool IntepretExecCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
 	//SAME AS EVAL COMMAND EXCEPT EXEC TIME
 	return IntepretEvalCommand(data_stack, intepreter);
 }
 
 //$IGNORE(ANY_SYMBOL) => ANY_SYMBOL
-inline bool IntepretIgnoreCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
+inline bool IntepretIgnoreCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
 	assert(data_stack.size() >= 1);
 
@@ -325,7 +325,7 @@ inline bool IntepretCdrCommand(std::vector<Symbols>& data_stack, WllIntepreter* 
 //($COND, CONDITION, THEN, ELSE)
 inline bool IntepretCondCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
-	assert(data_stack.size >= 2);
+	assert(data_stack.size() >= 2);
 	Symbols else_part = data_stack.back();
 	data_stack.pop_back();
 	Symbols then_part = data_stack.back();
@@ -416,7 +416,7 @@ inline bool IntepretCallCommand(std::vector<Symbols>& data_stack, WllIntepreter*
 
 //$FCALL(STRING_SYMBOL,VARIABLE_SYMBOL,COMPACT_SYMBOL)
 //($FCALL, STRING_SYMBOL, VARIABLE_SYMBOL, COMPACT_SYMBOL) => COMPACT_SYMBOL
-inline bool IntepretCallCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+inline bool IntepretFCallCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
 	assert(data_stack.size() >= 3);
 	Symbols input_symbols = data_stack.back();
@@ -634,7 +634,7 @@ inline bool IntepretPushCommand(std::vector<Symbols>& data_stack, WllIntepreter*
 inline bool IntepretPopCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
 	vector<Symbols>*parameter_stack = Singleton<vector<Symbols> >::GetInstance();
-	assert(!parameter_stack.empty());
+	assert(!parameter_stack->empty());
 
 	assert(data_stack.size() >= 1);
 	Symbols symbol = data_stack.back();
@@ -1041,7 +1041,4 @@ inline bool IntepretSubStrCommand(std::vector<Symbols>& data_stack, WllInteprete
 
 	return true;
 }
-
-
-
 
