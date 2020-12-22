@@ -62,40 +62,57 @@ inline bool IntepretCarCommand(std::vector<Symbols>& data_stack, WllIntepreter* 
 //($CDR, (A,B,C)) = (B, C)
 inline bool IntepretCdrCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-//$COND
+//$COND(TRUE|FALSE,COMPACT|S_EXP,COMPACT|S_EXP)
+//($COND, CONDITION, THEN, ELSE)
 inline bool IntepretCondCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-//$LOOP
+//$LOOP(COMPACT,COMPACT)
+//($LOOP, CONDITION, REPEAT)
 inline bool IntepretLoopCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-//$DEF
-inline bool IntepretDefCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
-
-//$SET
-inline bool IntepretSetCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
-
-//$GET
-inline bool IntepretGetCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
-
-//$PUSHDATA
-inline bool IntepretPushDataCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
-
-//$POPDATA
-inline bool IntepretPopDataCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
-
-//$PUSH
-inline bool IntepretPushCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
-
-//$POP
-inline bool IntepretPopCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
-
-//$CALL
+//$CALL(VARIABLE_SYMBOL,COMPACT_SYMBOL)
+//($CALL, VARIABLE_SYMBOL, COMPACT_SYMBOL) => COMPACT_SYMBOL
 inline bool IntepretCallCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-//$ARRAY
+//$FCALL(STRING_SYMBOL,VARIABLE_SYMBOL,COMPACT_SYMBOL)
+//($FCALL, STRING_SYMBOL, VARIABLE_SYMBOL, COMPACT_SYMBOL) => COMPACT_SYMBOL
+inline bool IntepretCallCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
+
+//$LREF(REFERENCE,STRING)
+inline bool IntepretLRefCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
+
+//$RREF(REFERENCE,STRING)
+inline bool IntepretRRefCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
+
+//$DEF(STRING, ANY_SYMBOL)
+inline bool IntepretDefCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
+
+//$SET(STRING|REFERENCE, ANY_SYMBOL)
+inline bool IntepretSetCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
+
+//$GET(STRING|REFERENCE, ANY_SYMBOL)
+inline bool IntepretGetCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
+
+//$PUSHDATA()
+//($PUSHDATA)
+inline bool IntepretPushDataCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
+
+//$POPDATA()
+//($POPDATA)
+inline bool IntepretPopDataCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
+
+//$PUSH(ANY_SYMBOL)
+inline bool IntepretPushCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
+
+//$POP(STRING_SYMBOL|REFERENCE)
+inline bool IntepretPopCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
+
+//$ARRAY()
+//($ARRAY)
 inline bool IntepretArrayCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-//$MAP
+//$MAP()
+//($MAP)
 inline bool IntepretMapCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
 //$SUBSTR

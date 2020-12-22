@@ -321,6 +321,362 @@ inline bool IntepretCdrCommand(std::vector<Symbols>& data_stack, WllIntepreter* 
 	return true;
 }
 
+//$COND(TRUE|FALSE, COMPACT_SYMBOL|S_EXP_SYMBOL)
+//($COND, CONDITION, THEN, ELSE)
+inline bool IntepretCondCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size >= 2);
+	Symbols else_part = data_stack.back();
+	data_stack.pop_back();
+	Symbols then_part = data_stack.back();
+	data_stack.pop_back();
+	Symbols condition = data_stack.back();
+	data_stack.pop_back();
+
+	if (condition == Symbols::TRUE)
+	{
+		if (then_part.type == COMPACT_SYMBOL || then_part.type == S_EXP_SYMBOL)
+		{
+			intepreter->IntepretWll(then_part.GetList(), data_stack);
+		}
+		else
+		{
+			data_stack.push_back(then_part);
+		}
+		
+	}
+	else
+	{
+		if (else_part.type == COMPACT_SYMBOL || else_part.type == S_EXP_SYMBOL)
+		{
+			intepreter->IntepretWll(else_part.GetList(), data_stack);
+		}
+		else
+		{
+			data_stack.push_back(else_part);
+		}
+		
+	}
+	
+	return true;
+}
+
+
+//$LOOP(COMPACT,COMPACT)
+//($LOOP, CONDITION, REPEAT)
+inline bool IntepretLoopCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size() >= 2);
+	Symbols condition = data_stack.back();
+	data_stack.pop_back();
+	Symbols repeat = data_stack.back();
+	data_stack.pop_back();
+	assert(repeat.type == COMPACT_SYMBOL || repeat.type == S_EXP_SYMBOL);
+
+	do
+	{
+		Symbols condition_result;
+		if (condition.type == COMPACT_SYMBOL || condition.type == S_EXP_SYMBOL)
+		{
+			intepreter->IntepretWll(condition.GetList(), data_stack);
+			condition_result = data_stack.back();
+			data_stack.pop_back();
+		}
+		else
+		{
+			condition_result = condition;
+		}
+		
+		if (!(condition_result == Symbols::TRUE)) break;
+
+		intepreter->IntepretWll(repeat.GetList(), data_stack);
+	} while (true);
+
+	return true;
+}
+
+//$CALL(VARIABLE_SYMBOL,COMPACT_SYMBOL)
+//($CALL, VARIABLE_SYMBOL, COMPACT_SYMBOL) => COMPACT_SYMBOL
+inline bool IntepretCallCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size() >= 2);
+	Symbols input_symbols = data_stack.back();
+	data_stack.pop_back();
+	Symbols start_symbol = data_stack.back();
+	data_stack.pop_back();
+	assert(input_symbols.type == COMPACT_SYMBOL);
+	assert(start_symbol.type == VARIABLE_SYMBOL);
+
+	vector<Symbols> result;
+	bool retval = intepreter->compiler->Process(input_symbols.GetList(), result, start_symbol);
+	if (retval) data_stack.push_back(Encode(result, true));
+
+	return retval;
+}
+
+//$FCALL(STRING_SYMBOL,VARIABLE_SYMBOL,COMPACT_SYMBOL)
+//($FCALL, STRING_SYMBOL, VARIABLE_SYMBOL, COMPACT_SYMBOL) => COMPACT_SYMBOL
+inline bool IntepretCallCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size() >= 3);
+	Symbols input_symbols = data_stack.back();
+	data_stack.pop_back();
+	Symbols start_symbol = data_stack.back();
+	data_stack.pop_back();
+	Symbols file_name = data_stack.back();
+	data_stack.pop_back();
+	assert(input_symbols.type == COMPACT_SYMBOL);
+	assert(start_symbol.type == VARIABLE_SYMBOL);
+	assert(file_name.type == STRING_SYMBOL);
+	
+	vector<Symbols> result;
+	Compiler* compiler = Singleton<CompilerManager>().GetInstance()->CreateOrGetCompiler(**file_name.s);
+	bool retval = compiler->Process(input_symbols.GetList(), result, start_symbol);
+	if (retval) data_stack.push_back(Encode(result, true));
+
+	return retval;
+}
+
+Symbols* Index(Symbols* symbol, string index, bool write_flag=false)
+{	
+	assert(symbol != NULL);
+
+	if(symbol->type == LIST_SYMBOL)
+	{
+		int index_i;
+		String2Int(index,index_i);
+		if(index_i == symbol->GetList().size())
+		{
+			if(write_flag)
+			{
+				symbol->GetList().resize(index_i+1);
+			}
+			else
+			{
+				throw IntepretException("read index["+index+"] out of range");
+			}
+		}
+		else if(index_i > symbol->GetList().size() || index_i < 0)
+		{
+			throw IntepretException("index["+index+"] out of range");
+			//throw IntepretException((write_flag?string("write"):string("read"))+" index["+index+"] out of range"); 
+		}
+		symbol = &(symbol->GetList()[index_i]);
+	}
+	else if(symbol->type == MAP_SYMBOL)
+	{
+		symbol = &(symbol->GetMap()[index]);
+	}
+	else
+	{
+		throw IntepretException("index with type other than LIST and MAP");
+	}		
+
+	return symbol;
+}
+
+//$REF(REFERENCE,STRING)
+inline bool IntepretLRefCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size() >= 1);
+	Symbols symbol = data_stack.back();
+	data_stack.pop_back();
+	assert(symbol.type == STRING_SYMBOL || symbol.type == REFERENCE_SYMBOL);
+
+	if (symbol.type == STRING_SYMBOL)
+	{
+		VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
+		assert(!variable_table_stack->empty());
+		Symbols* reference_symbol = variable_table_stack->LookupOrRegister(*(*(symbol.s)));
+		data_stack.push_back(Symbols(reference_symbol));	
+	}
+	else if (symbol.type == REFERENCE_SYMBOL)
+	{
+		assert(data_stack.size() >= 1);
+		Symbols index = data_stack.back();
+		data_stack.pop_back();
+		assert(index.type == STRING_SYMBOL);
+		Symbols* reference_symbol = Index(symbol.reference, **index.s, true);
+		data_stack.push_back(Symbols(reference_symbol));
+	}
+	
+	return true;
+}
+
+//$RREF(REFERENCE,STRING)
+inline bool IntepretRRefCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size() >= 1);
+	Symbols symbol = data_stack.back();
+	data_stack.pop_back();
+	assert(symbol.type == STRING_SYMBOL || symbol.type == REFERENCE_SYMBOL);
+
+	if (symbol.type == STRING_SYMBOL)
+	{
+		VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
+		assert(!variable_table_stack->empty());
+		Symbols* reference_symbol = variable_table_stack->Lookup(*(*(symbol.s)));
+		data_stack.push_back(Symbols(reference_symbol));	
+	}
+	else if (symbol.type == REFERENCE_SYMBOL)
+	{
+		assert(data_stack.size() >= 1);
+		Symbols index = data_stack.back();
+		data_stack.pop_back();
+		assert(index.type == STRING_SYMBOL);
+		Symbols* reference_symbol = Index(symbol.reference, **index.s, false);
+		data_stack.push_back(Symbols(reference_symbol));
+	}
+	
+	return true;	
+}
+
+//$DEF(STRING, ANY_SYMBOL)
+inline bool IntepretDefCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size() >= 2);
+	Symbols value = data_stack.back();
+	data_stack.pop_back();
+	Symbols symbol = data_stack.back();
+	data_stack.pop_back();
+	assert(symbol.type == STRING_SYMBOL);
+
+	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
+	assert(!variable_table_stack->empty());
+	Symbols* reference_symbol = variable_table_stack->Register(*(*(symbol.s)));
+	*reference_symbol = value;
+	
+	return true;
+}
+
+//$SET(STRING|REFERENCE, ANY_SYMBOL)
+inline bool IntepretSetCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size() >= 2);
+	Symbols value = data_stack.back();
+	data_stack.pop_back();
+	Symbols symbol = data_stack.back();
+	data_stack.pop_back();
+	assert(symbol.type == STRING_SYMBOL || symbol.type == REFERENCE_SYMBOL);
+
+	if (symbol.type == STRING_SYMBOL)
+	{
+		VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
+		assert(!variable_table_stack->empty());
+		Symbols* reference_symbol = variable_table_stack->LookupOrRegister(*(*(symbol.s)));
+		*reference_symbol = value;
+	} 
+	else if (symbol.type == REFERENCE_SYMBOL)
+	{
+		assert(symbol.reference != NULL);
+		*symbol.reference = value;
+	}
+	
+	return true;
+}
+
+//$GET(STRING|REFERENCE, ANY_SYMBOL)
+inline bool IntepretGetCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size() >= 1);
+	Symbols symbol = data_stack.back();
+	data_stack.pop_back();
+	assert(symbol.type == STRING_SYMBOL || symbol.type == REFERENCE_SYMBOL);
+
+	if (symbol.type == STRING_SYMBOL)
+	{
+		VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
+		assert(!variable_table_stack->empty());
+		Symbols* reference_symbol = variable_table_stack->Lookup(*(*(symbol.s)));
+		assert(reference_symbol != NULL);
+		data_stack.push_back(*reference_symbol);	
+	}
+	else if (symbol.type == REFERENCE_SYMBOL)
+	{
+		assert(symbol.reference != NULL);
+		data_stack.push_back(*symbol.reference);
+	}
+
+	return true;
+}
+
+//$PUSHDATA()
+//($PUSHDATA)
+inline bool IntepretPushDataCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
+	variable_table_stack->Push();
+
+	return true;
+}
+
+//$POPDATA()
+//($POPDATA)
+inline bool IntepretPopDataCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
+	assert(!variable_table_stack->empty());
+	variable_table_stack->Pop();
+
+	return true;
+}
+
+//$PUSH
+inline bool IntepretPushCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	vector<Symbols>*parameter_stack = Singleton<vector<Symbols> >::GetInstance();
+	parameter_stack->push_back(data_stack.back());
+
+	return true;
+}
+
+//$POP(STRING_SYMBOL|REFERENCE)
+inline bool IntepretPopCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	vector<Symbols>*parameter_stack = Singleton<vector<Symbols> >::GetInstance();
+	assert(!parameter_stack.empty());
+
+	assert(data_stack.size() >= 1);
+	Symbols symbol = data_stack.back();
+	data_stack.pop_back();
+	assert(symbol.type == STRING_SYMBOL || symbol.type == REFERENCE_SYMBOL);
+
+	if (symbol.type == STRING_SYMBOL)
+	{
+		VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
+		assert(!variable_table_stack->empty());
+		Symbols* reference_symbol = variable_table_stack->LookupOrRegister(*(*(symbol.s)));
+		*reference_symbol = parameter_stack->back();
+		parameter_stack->pop_back();	
+	}
+	else if (symbol.type == REFERENCE_SYMBOL)
+	{
+		assert(symbol.reference != NULL);
+		*symbol.reference = parameter_stack->back();
+		parameter_stack->pop_back();
+	}
+	
+	return true;
+}
+
+//$ARRAY()
+//($ARRAY)
+inline bool IntepretArrayCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	data_stack.push_back(Symbols(LIST_SYMBOL));
+
+	return true;
+}
+
+//$MAP()
+//($MAP)
+inline bool IntepretMapCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	data_stack.push_back(Symbols(MAP_SYMBOL));
+	
+	return true;
+}
+
 //($ADD, SYMBOLS, SYMBOLS)
 AddCommand::AddCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCompactCommand(cmd,parameter_fields,intepreter)
@@ -443,60 +799,6 @@ bool SubStrCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-CondCommand::CondCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool CondCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size()%2==1);
-	for(int i=1; i<this->parameters.size(); i+=2)
-	{
-		if(this->parameters[i][0] == Symbols::TRUE)
-		{
-			this->intepreter->IntepretWll(this->parameters[i+1], result);
-			break;
-		}
-	}
-	return true;
-}
-
-LoopCommand::LoopCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-//($LOOP <condition> <expression>)
-bool LoopCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size()==3);
-	do
-	{
-		std::vector<Symbols> condition_result;
-		INFO("Intepret LoopCommand condition part: condition=["<<this->parameters[1]<<"],expression=["<<this->parameters[2]<<"]");
-		if(!this->intepreter->IntepretWll(this->parameters[1],condition_result))
-		{
-			TERM_ERROR("Intepret LoopCommand condition failed: condition=["<<this->parameters[1]<<"],expression=["<<this->parameters[2]<<"]");
-			return false;
-		}
-
-		INFO("condition_result="<<condition_result);
-		if(condition_result[0] == Symbols::FALSE) break;
-
-		INFO("Intepret LoopCommand expression part: condition=["<<this->parameters[1]<<"],expression=["<<this->parameters[2]<<"]");
-		if(!this->intepreter->IntepretWll(this->parameters[2], result))
-		{
-			TERM_ERROR("Intepret LoopCommand expression failed: condition=["<<this->parameters[1]<<"],expression=["<<this->parameters[2]<<"]");
-			return false;
-		}
-	}while(true);
-
-	return true;
-}
-
 EqCommand::EqCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCompactCommand(cmd,parameter_fields,intepreter)
 {
@@ -593,235 +895,6 @@ bool ShellCommand::Intepret(std::vector<Symbols>& result)
 	return true;
 }
 
-Symbols* Index(Symbols* symbol, vector< vector<Symbols> >&parameters, int from, int to,bool write_flag=false)
-{
-	int i = from;
-	while(i < to)
-	{
-		string index;
-		ToString(index,parameters[i]);
-		
-		if(symbol->type == LIST_SYMBOL || symbol->type == STRING_SYMBOL)
-		{
-			int index_i;
-			String2Int(index,index_i);
-			if(index_i == symbol->GetList().size())
-			{
-				if(write_flag)
-				{
-					symbol->GetList().resize(index_i+1);
-				}
-				else
-				{
-					throw IntepretException("read index["+index+"] out of range");
-				}
-			}
-			else if(index_i > symbol->GetList().size() || index_i < 0)
-			{
-				throw IntepretException("index["+index+"] out of range");
-				//throw IntepretException((write_flag?string("write"):string("read"))+" index["+index+"] out of range"); 
-			}
-			symbol = &(symbol->GetList()[index_i]);
-		}
-		else if(symbol->type == MAP_SYMBOL)
-		{
-			symbol = &(symbol->GetMap()[index]);
-		}
-		else
-		{
-			throw IntepretException("index with type other than LIST and MAP");
-		}
-		
-		i++;
-	}
-	return symbol;
-} 
-
-DefCommand::DefCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool DefCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size() >= 3);
-	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
-	assert(!variable_table_stack->empty());
-
-	string variable_name;
-	ToString(variable_name, this->parameters[1]);
-
-	Symbols* symbol = variable_table_stack->Register(variable_name);
-	symbol = Index(symbol, this->parameters, 2, this->parameters.size()-1,true);
-	*symbol = Encode(this->parameters.back());
-	
-	return true;
-}
-
-SetCommand::SetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool SetCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size() >= 3);
-	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
-	assert(!variable_table_stack->empty());
-
-	string variable_name;
-	ToString(variable_name, this->parameters[1]);
-
-	Symbols* symbol = variable_table_stack->LookupOrRegister(variable_name);
-	symbol = Index(symbol, this->parameters, 2, this->parameters.size()-1,true);
-	*symbol = Encode(this->parameters.back());
-	
-	return true;
-}
-
-GetCommand::GetCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool GetCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size() >= 2);
-	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
-	assert(!variable_table_stack->empty());
-
-	string variable_name;
-	ToString(variable_name, this->parameters[1]);
-	Symbols* symbol = variable_table_stack->Lookup(variable_name);
-	symbol = Index(symbol, this->parameters, 2, this->parameters.size());
-	
-	if(symbol != NULL)
-	{
-		result += Decode(*symbol);
-	}
-	else
-	{
-		INFO("variable_name["<<variable_name<<"] not find in variable table stack, return empty");
-	}
-	return true;
-}
-
-PushDataCommand::PushDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool PushDataCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size() == 1);
-	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
-	variable_table_stack->Push();
-	return true;
-}
-
-PopDataCommand::PopDataCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool PopDataCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size() == 1);
-	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
-	if(variable_table_stack->empty())		return false;
-	variable_table_stack->Pop();
-	return true;
-}
-
-
-PushCommand::PushCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool PushCommand::Intepret(std::vector<Symbols>& result)
-{
-	vector<Symbols>*parameter_stack = Singleton<vector<Symbols> >::GetInstance();
-	for(int i=1; i<this->parameters.size(); i++)
-	{
-		parameter_stack->push_back(Encode(this->parameters[i]));
-	}
-	return true;
-}
-
-
-PopCommand::PopCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool PopCommand::Intepret(std::vector<Symbols>& result)
-{
-	vector<Symbols>*parameter_stack = Singleton<vector<Symbols> >::GetInstance();
-	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
-	assert(!variable_table_stack->empty());
-	for(int i = this->parameters.size()-1; i != 0; --i)
-	{
-		if(!parameter_stack->empty())
-		{
-			string variable_name;
-			ToString(variable_name, this->parameters[i]);
-
-			Symbols* symbol = variable_table_stack->LookupOrRegister(variable_name);
-			*symbol = parameter_stack->back();
-			
-			parameter_stack->pop_back();			
-		}
-		else
-		{
-			ERROR("PopCommand Intepret error: pop when parameter_stack is empty");
-			return false;
-		}
-	}
-	return true;
-}
-
-CallCommand::CallCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool CallCommand::Intepret(std::vector<Symbols>& result)
-{
-
-	assert(this->parameters.size() == 3 || this->parameters.size() == 4);
-	if(this->parameters.size() == 3)
-	{
-		//($CALL, "<function_name>", "<parameter>")
-		string start_symbol;
-		ToString(start_symbol, this->parameters[1]);
-		return this->intepreter->compiler->Process(this->parameters[2], result, Symbols(start_symbol.c_str()));
-	}
-	else if(this->parameters.size() == 4)
-	{
-		//($CALL, "<file_name>", "<function_name>", "<parameter>")
-		string grammar_file_name;
-		ToString(grammar_file_name, this->parameters[1]);
-		string start_symbol;
-		ToString(start_symbol, this->parameters[2]);
-		//#bug: 跨文件Call应该使用不同的编译环境
-		//<update>
-		//return this->intepreter->compiler->Process(grammar_file_name, this->parameters[3], result, Symbols(start_symbol.c_str()));
-		//<as>
-        Compiler* compiler = Singleton<CompilerManager>().GetInstance()->CreateOrGetCompiler(grammar_file_name);
-		return compiler->Process(this->parameters[3], result, Symbols(start_symbol.c_str()));
-		//</update>
-	}
-	return false;
-}
 
 CatCommand::CatCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCompactCommand(cmd,parameter_fields,intepreter)
@@ -842,43 +915,6 @@ bool CatCommand::Intepret(std::vector<Symbols>& result)
 	INFO("result="<<result);
 	input_file>>result;
 	INFO("result="<<result);
-	return true;
-}
-
-ArrayCommand::ArrayCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool ArrayCommand::Intepret(std::vector<Symbols>& result)
-{
-
-	assert(this->parameters.size() == 1 || this->parameters.size() == 2);
-	
-	Symbols symbol(LIST_SYMBOL);
-	//($ARRAY)
-	if(this->parameters.size() == 2)
-	{
-		//($ARRAY,<symbols>)
-		symbol.GetList() = this->parameters[1];
-	}
-	result.push_back(symbol);
-	return true;
-}
-
-MapCommand::MapCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool MapCommand::Intepret(std::vector<Symbols>& result)
-{
-
-	assert(this->parameters.size() == 1);
-	//($MAP)
-	result.push_back(Symbols(MAP_SYMBOL));
 	return true;
 }
 
