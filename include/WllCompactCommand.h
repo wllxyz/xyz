@@ -145,13 +145,13 @@ inline bool IntepretOrCommand(std::vector<Symbols>& data_stack, WllIntepreter* i
 //$NOT(TRUE|FALSE, TRUE|FALSE)
 inline bool IntepretNotCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-//$SHELL
+//$SHELL(STRING_SYMBOL) => STRING_SYMBOL
 inline bool IntepretShellCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-//$CAT
+//$CAT(STRING_SYMBOL) => STRING_SYMBOL
 inline bool IntepretCatCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-//$SUBSTR
+//$SUBSTR(STRING) => STRING
 inline bool IntepretSubStrCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
 

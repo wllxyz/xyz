@@ -970,275 +970,78 @@ inline bool IntepretNotCommand(std::vector<Symbols>& data_stack, WllIntepreter* 
 	return true;
 }
 
-ShellCommand::ShellCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
+//$SHELL(STRING_SYMBOL) => STRING_SYMBOL
+inline bool IntepretShellCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
-}
+	assert(data_stack.size() >= 1);
+	Symbols input_symbol = data_stack.back();
+	assert(input_symbol.type == STRING_SYMBOL || input_symbol.type == COMPACT_SYMBOL);
 
-bool ShellCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size() == 2);
-	string input;
-	ToString(input,this->parameters[1]);
+	string input = input_symbol.ToString();
+
 	FILE* fp = popen(input.c_str(),"r");
 	if(fp==NULL)
 	{
 		ERROR("popen failed");
 		return false;
 	}
+	string output;
 	char c;
 	while((c=fgetc(fp))!=EOF)
 	{
-		result.push_back(c);
+		output.push_back(c);
 	}
 	if(pclose(fp)!=0)
 	{
 		ERROR("pclose failed");
 		return false;
 	}
+	data_stack.push_back(Symbols(STRING_SYMBOL, output.c_str()));
+
 	return true;
 }
 
-
-CatCommand::CatCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
+//$CAT(STRING_SYMBOL) => COMPACT_SYMBOL
+inline bool IntepretCatCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
+	assert(data_stack.size() >= 1);
+	Symbols s = data_stack.back();
+	data_stack.pop_back();
+	assert(s.type == STRING_SYMBOL);
 
-}
-
-bool CatCommand::Intepret(std::vector<Symbols>& result)
-{
-
-	assert(this->parameters.size() == 2);
 	//($CAT, "<file_name>")
-	string file_name;
-	ToString(file_name, this->parameters[1]);
+	string file_name = **s.s;
 	INFO("file_name="<<file_name);
 	ifstream input_file(file_name.c_str());
 	if(input_file.fail()) return false;
-	INFO("result="<<result);
+	vector<Symbols> result;
 	input_file>>result;
 	INFO("result="<<result);
+
+	data_stack.push_back(Encode(result,true));
+	return true;
+}
+
+//$SUBSTR(STRING) => STRING
+inline bool IntepretSubStrCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size() >= 3);
+	Symbols len = data_stack.back();
+	data_stack.pop_back();
+	Symbols from = data_stack.back();
+	data_stack.pop_back();
+	Symbols str = data_stack.back();
+	data_stack.pop_back();
+	assert(len.type == INTEGER_SYMBOL);
+	assert(from.type == INTEGER_SYMBOL);
+	assert(str.type == STRING_SYMBOL);
+
+	**str.s = (*str.s)->substr(from.i, len.i);
+	data_stack.push_back(str);
+
 	return true;
 }
 
 
-SubStrCommand::SubStrCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool SubStrCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size()==3 || this->parameters.size()==4);
-
-	string str;
-	ToString(str, this->parameters[1]);
-
-	string from_str;
-	ToString(from_str, this->parameters[2]);
-	int from;
-	String2Int(from_str, from);
-
-	int size = string::npos;
-	if(this->parameters.size()==4)
-	{
-		string size_str;
-		ToString(size_str, this->parameters[3]);
-		String2Int(size_str, size);
-	}
-
-	if(from<0)
-	{
-		from = str.size() + from;
-		if(from<0) from = 0;
-	}
-
-	string sub_str = str.substr(from,size);
-
-	for(string::const_iterator i = sub_str.begin(); i != sub_str.end(); ++i)
-	{
-		result.push_back(Symbols(*i));
-	}
-
-	return true;
-}
-
-WllCompactCommand* WllCommandFactory::CreateCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-{
-	INFO("cmd="<<cmd);
-	INFO("parameters=");
-	for(int  i = 0; i<parameter_fields.size(); ++i)
-	{
-		INFO("parameter["<<i<<"]="<<parameter_fields[i]);
-	}
-
-	WllCompactCommand* command = NULL;
-	if(cmd == Symbols::LOAD_TRANSLATIONS)
-	{
-		command = new LoadTranslationsCommand(cmd,parameter_fields,intepreter);
-	}//LOAD_TRANSLATIONS
-	else if(cmd == Symbols::ADD_TRANSLATIONS)
-	{
-		command = new AddTranslationsCommand(cmd,parameter_fields,intepreter);
-	}//LOAD_TRANSLATIONS
-	else if(cmd == Symbols::REMARK_WLL0)
-	{
-		command = new Wll0Command(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::REMARK_TRANSLATION)
-	{
-		command = new TranslationCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::REMARK_RULE)
-	{
-		command = new RuleCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::REMARK_VARIABLE)
-	{
-		command = new VariableCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::REMARK_CONSTANT)
-	{
-		command = new ConstantCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::REMARK_REMARK)
-	{
-		command = new RemarkCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::LIST)
-	{
-		command = new ListCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::APPEND)
-	{
-		command = new AppendCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::CAR)
-	{
-		command = new CarCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::CDR)
-	{
-		command = new CdrCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::EVAL)
-	{
-		command = new EvalCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::EXEC)
-	{
-		command = new ExecCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::REMARK_IGNORE)
-	{
-		command = new IgnoreCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::CALL)
-	{
-		command = new CallCommand(cmd,parameter_fields,intepreter);
-	}	
-	else if(cmd == Symbols::COND)
-	{
-		command = new CondCommand(cmd,parameter_fields,intepreter);
-	}//COND
-	else if(cmd == Symbols::LOOP)
-	{
-		command = new LoopCommand(cmd,parameter_fields,intepreter);
-	}//LOOP
-	else if(cmd == Symbols::DEF)
-	{
-		command = new DefCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::SET)
-	{
-		command = new SetCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::GET)
-	{
-		command = new GetCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::PUSH_DATA)
-	{
-		command = new PushDataCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::POP_DATA)
-	{
-		command = new PopDataCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::PUSH)
-	{
-		command = new PushCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::POP)
-	{
-		command = new PopCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::ARRAY)
-	{
-		command = new ArrayCommand(cmd, parameter_fields, intepreter);
-	}
-	else if(cmd == Symbols::MAP)
-	{
-		command = new MapCommand(cmd, parameter_fields, intepreter);
-	}
-	else if(cmd == Symbols::SUB_STR)
-	{
-		command = new SubStrCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::CAST)
-	{
-		command = new CastCommand(cmd, parameter_fields, intepreter);
-	}	
-	else if(cmd == Symbols::ADD)
-	{
-		command = new AddCommand(cmd,parameter_fields,intepreter);
-	}//ADD
-	else if(cmd == Symbols::SUB)
-	{
-		command = new SubCommand(cmd,parameter_fields,intepreter);
-	}//SUB
-	else if(cmd == Symbols::MUL)
-	{
-		command = new MulCommand(cmd,parameter_fields,intepreter);
-	}//MUL
-	else if(cmd == Symbols::DIV)
-	{
-		command = new DivCommand(cmd,parameter_fields,intepreter);
-	}//DIV
-	else if(cmd == Symbols::EQ)
-	{
-		command = new EqCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::LT)
-	{
-		command = new LtCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::AND)
-	{
-		command = new AndCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::OR)
-	{
-		command = new OrCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::NOT)
-	{
-		command = new NotCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::SHELL)
-	{
-		command = new ShellCommand(cmd,parameter_fields,intepreter);
-	}
-	else if(cmd == Symbols::CAT)
-	{
-		command = new CatCommand(cmd, parameter_fields, intepreter);
-	}
-
-
-	assert(command);
-	return command;
-}
 
 
