@@ -124,8 +124,10 @@ public:
 	static const Symbols COND;				//条件控制
 	static const Symbols LOOP;				//循环控制
 	static const Symbols CALL;			//执行call命令
+	static const Symbols FCALL;				//從文件加載文法進行調用
 	//支持变量存储
-	static const Symbols REF;				//ARRAY/MAP寻址指令，返回REF_SYMBOL类型变量(地址类型)
+	static const Symbols LREF;				//左值引用(write)
+	static const Symbols RREF;				//右值引用(read)
     static const Symbols DEF;				//变量定义
 	static const Symbols SET;				//变量赋值,如果变量之前没有定义则自动定义
 	static const Symbols GET;				//变量引用,如果变量没有定义,返回空值
