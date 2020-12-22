@@ -43,25 +43,15 @@ const Symbols Symbols::LIST(REMARK_SYMBOL,"$LIST");
 const Symbols Symbols::APPEND(REMARK_SYMBOL,"$APPEND");
 const Symbols Symbols::CAR(REMARK_SYMBOL,"$CAR");
 const Symbols Symbols::CDR(REMARK_SYMBOL,"$CDR");
-//支持运算控制
-const Symbols Symbols::ADD(REMARK_SYMBOL,"$ADD");
-const Symbols Symbols::SUB(REMARK_SYMBOL,"$SUB");
-const Symbols Symbols::MUL(REMARK_SYMBOL,"$MUL");
-const Symbols Symbols::DIV(REMARK_SYMBOL,"$DIV");
-const Symbols Symbols::SUB_STR(REMARK_SYMBOL,"$SUB_STR");
-const Symbols Symbols::TRUE(REMARK_SYMBOL,"$TRUE");
-const Symbols Symbols::FALSE(REMARK_SYMBOL,"$FALSE");
+//控制結構
 const Symbols Symbols::COND(REMARK_SYMBOL,"$COND");
 const Symbols Symbols::LOOP(REMARK_SYMBOL,"$LOOP");
-const Symbols Symbols::EQ(REMARK_SYMBOL,"$EQ");
-const Symbols Symbols::LT(REMARK_SYMBOL,"$LT");
-const Symbols Symbols::AND(REMARK_SYMBOL,"$AND");
-const Symbols Symbols::OR(REMARK_SYMBOL,"$OR");
-const Symbols Symbols::NOT(REMARK_SYMBOL,"$NOT");
-const Symbols Symbols::SHELL(REMARK_SYMBOL,"$SHELL");
 const Symbols Symbols::CALL(REMARK_SYMBOL,"$CALL");
+const Symbols Symbols::FCALL(REMARK_SYMBOL,"$FCALL");
+
 //支持变量存储
-const Symbols Symbols::REF(REMARK_SYMBOL,"$REF");
+const Symbols Symbols::LREF(REMARK_SYMBOL,"$LREF");
+const Symbols Symbols::RREF(REMARK_SYMBOL,"$RREF");
 const Symbols Symbols::DEF(REMARK_SYMBOL,"$DEF");
 const Symbols Symbols::SET(REMARK_SYMBOL,"$SET");
 const Symbols Symbols::GET(REMARK_SYMBOL,"$GET");
@@ -73,9 +63,6 @@ const Symbols Symbols::POP(REMARK_SYMBOL,"$POP");
 const Symbols Symbols::MAP(REMARK_SYMBOL,"$MAP");
 const Symbols Symbols::ARRAY(REMARK_SYMBOL,"$ARRAY");
 
-
-const Symbols Symbols::CAT(REMARK_SYMBOL,"$CAT");
-
 const Symbols Symbols::CHAR(REMARK_SYMBOL,"$CHAR");
 const Symbols Symbols::INTEGER(REMARK_SYMBOL,"$INTEGER");
 const Symbols Symbols::LONG(REMARK_SYMBOL,"$LONG");
@@ -84,6 +71,23 @@ const Symbols Symbols::DOUBLE(REMARK_SYMBOL,"$DOUBLE");
 const Symbols Symbols::STRING(REMARK_SYMBOL,"$STRING");
 
 const Symbols Symbols::CAST(REMARK_SYMBOL,"$CAST");
+//支持运算控制
+const Symbols Symbols::ADD(REMARK_SYMBOL,"$ADD");
+const Symbols Symbols::SUB(REMARK_SYMBOL,"$SUB");
+const Symbols Symbols::MUL(REMARK_SYMBOL,"$MUL");
+const Symbols Symbols::DIV(REMARK_SYMBOL,"$DIV");
+const Symbols Symbols::TRUE(REMARK_SYMBOL,"$TRUE");
+const Symbols Symbols::FALSE(REMARK_SYMBOL,"$FALSE");
+const Symbols Symbols::EQ(REMARK_SYMBOL,"$EQ");
+const Symbols Symbols::LT(REMARK_SYMBOL,"$LT");
+const Symbols Symbols::AND(REMARK_SYMBOL,"$AND");
+const Symbols Symbols::OR(REMARK_SYMBOL,"$OR");
+const Symbols Symbols::NOT(REMARK_SYMBOL,"$NOT");
+
+//其他命令
+const Symbols Symbols::SUB_STR(REMARK_SYMBOL,"$SUB_STR");
+const Symbols Symbols::SHELL(REMARK_SYMBOL,"$SHELL");
+const Symbols Symbols::CAT(REMARK_SYMBOL,"$CAT");
 
 void Symbols::Init()
 {
