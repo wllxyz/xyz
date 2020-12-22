@@ -115,37 +115,34 @@ inline bool IntepretArrayCommand(std::vector<Symbols>& data_stack, WllIntepreter
 //($MAP)
 inline bool IntepretMapCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-//$SUBSTR
-inline bool IntepretSubStrCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
-
-//$CAST
+//$CAST(REMARK_SYMBOL,SYMBOL)
 inline bool IntepretCastCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-//$ADD
+//($ADD, SYMBOLS, SYMBOLS) = SYMBOLS + SYMBOLS
 inline bool IntepretAddCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-//$SUB
+//($SUB, SYMBOLS, SYMBOLS) = SYMBOLS - SYMBOLS
 inline bool IntepretSubCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-//$MUL
+//($MUL, SYMBOLS, SYMBOLS) = SYMBOLS * SYMBOLS
 inline bool IntepretMulCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-//$DIV
+//($DIV, SYMBOLS, SYMBOLS) = SYMBOLS / SYMBOLS
 inline bool IntepretDivCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-//$EQ
+//($EQ, CHAR_SYMBOL|INTEGER_SYMBOL|LONG_SYMBOL|FLOAT_SYMBOL|DOUBLE_SYMBOL|COMPACT_SYMBOL, SYMBOL)
 inline bool IntepretEqCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-//$LT
+//($LT, CHAR_SYMBOL|INTEGER_SYMBOL|LONG_SYMBOL|FLOAT_SYMBOL|DOUBLE_SYMBOL|COMPACT_SYMBOL, SYMBOL)
 inline bool IntepretLtCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-//$AND
+//$AND(TRUE|FALSE, TRUE|FALSE)
 inline bool IntepretAndCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-//$OR
+//$OR(TRUE|FALSE, TRUE|FALSE)
 inline bool IntepretOrCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
-//$NOT
+//$NOT(TRUE|FALSE, TRUE|FALSE)
 inline bool IntepretNotCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
 //$SHELL
@@ -153,6 +150,9 @@ inline bool IntepretShellCommand(std::vector<Symbols>& data_stack, WllIntepreter
 
 //$CAT
 inline bool IntepretCatCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
+
+//$SUBSTR
+inline bool IntepretSubStrCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter);
 
 
 #endif /* WLL_COMPACT_COMMAND_H_ */

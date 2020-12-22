@@ -673,196 +673,300 @@ inline bool IntepretArrayCommand(std::vector<Symbols>& data_stack, WllIntepreter
 inline bool IntepretMapCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
 	data_stack.push_back(Symbols(MAP_SYMBOL));
+
+	return true;
+}
+
+//$CAST(REMARK_SYMBOL,SYMBOL)
+inline bool IntepretCastCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size() >= 2);
+	Symbols value = data_stack.back();
+	data_stack.pop_back();
+	Symbols type = data_stack.back();
+	data_stack.pop_back();
+	assert(type.IsRemark());
+
+	//TODO: CastTo: COMPACT_SYMBOL => INTEGER|LONG|FLOAT|DOUBLE	
+	data_stack.push_back(CastTo(type, value));
+
+	return true;
+}
+
+//($ADD, SYMBOLS, SYMBOLS) = SYMBOLS + SYMBOLS
+inline bool IntepretAddCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size() >= 2);
+	Symbols n2 = data_stack.back();
+	data_stack.pop_back();
+	Symbols n1 = data_stack.back();
+	data_stack.pop_back();
+	assert(
+		n1.type == CHAR_SYMBOL ||
+		n1.type == INTEGER_SYMBOL ||
+		n1.type == LONG_SYMBOL ||
+		n1.type == FLOAT_SYMBOL ||
+		n1.type == DOUBLE_SYMBOL ||
+		n1.type == COMPACT_SYMBOL
+	);
+	assert(
+		n2.type == CHAR_SYMBOL ||
+		n2.type == INTEGER_SYMBOL ||
+		n2.type == LONG_SYMBOL ||
+		n2.type == FLOAT_SYMBOL ||
+		n2.type == DOUBLE_SYMBOL ||
+		n2.type == COMPACT_SYMBOL
+	);	
+
+	if (n1.type == COMPACT_SYMBOL)
+	{
+		n1 = CastTo(n1.GetList(), true);
+	}
+	if (n2.type == COMPACT_SYMBOL)
+	{
+		n2 = CastTo(n2.GetList(), true);
+	}	
+	AddTo(n1, n2);
+	data_stack.push_back(n1);
+
+	return true;
+}
+
+//($SUB, SYMBOLS, SYMBOLS) = SYMBOLS - SYMBOLS
+inline bool IntepretSubCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size() >= 2);
+	Symbols n2 = data_stack.back();
+	data_stack.pop_back();
+	Symbols n1 = data_stack.back();
+	data_stack.pop_back();
+	assert(
+		n1.type == CHAR_SYMBOL ||
+		n1.type == INTEGER_SYMBOL ||
+		n1.type == LONG_SYMBOL ||
+		n1.type == FLOAT_SYMBOL ||
+		n1.type == DOUBLE_SYMBOL ||
+		n1.type == COMPACT_SYMBOL
+	);
+	assert(
+		n2.type == CHAR_SYMBOL ||
+		n2.type == INTEGER_SYMBOL ||
+		n2.type == LONG_SYMBOL ||
+		n2.type == FLOAT_SYMBOL ||
+		n2.type == DOUBLE_SYMBOL ||
+		n2.type == COMPACT_SYMBOL
+	);	
+
+	if (n1.type == COMPACT_SYMBOL)
+	{
+		n1 = CastTo(n1.GetList(), true);
+	}
+	if (n2.type == COMPACT_SYMBOL)
+	{
+		n2 = CastTo(n2.GetList(), true);
+	}	
+	n1 -= n2;
+	data_stack.push_back(n1);
+
+	return true;
+}
+
+//($MUL, SYMBOLS, SYMBOLS) = SYMBOLS * SYMBOLS
+inline bool IntepretMulCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size() >= 2);
+	Symbols n2 = data_stack.back();
+	data_stack.pop_back();
+	Symbols n1 = data_stack.back();
+	data_stack.pop_back();
+	assert(
+		n1.type == CHAR_SYMBOL ||
+		n1.type == INTEGER_SYMBOL ||
+		n1.type == LONG_SYMBOL ||
+		n1.type == FLOAT_SYMBOL ||
+		n1.type == DOUBLE_SYMBOL ||
+		n1.type == COMPACT_SYMBOL
+	);
+	assert(
+		n2.type == CHAR_SYMBOL ||
+		n2.type == INTEGER_SYMBOL ||
+		n2.type == LONG_SYMBOL ||
+		n2.type == FLOAT_SYMBOL ||
+		n2.type == DOUBLE_SYMBOL ||
+		n2.type == COMPACT_SYMBOL
+	);	
+
+	if (n1.type == COMPACT_SYMBOL)
+	{
+		n1 = CastTo(n1.GetList(), true);
+	}
+	if (n2.type == COMPACT_SYMBOL)
+	{
+		n2 = CastTo(n2.GetList(), true);
+	}	
+	n1 *= n2;
+	data_stack.push_back(n1);
+
+	return true;
+}
+
+//($DIV, SYMBOLS, SYMBOLS) = SYMBOLS / SYMBOLS
+inline bool IntepretDivCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size() >= 2);
+	Symbols n2 = data_stack.back();
+	data_stack.pop_back();
+	Symbols n1 = data_stack.back();
+	data_stack.pop_back();
+	assert(
+		n1.type == CHAR_SYMBOL ||
+		n1.type == INTEGER_SYMBOL ||
+		n1.type == LONG_SYMBOL ||
+		n1.type == FLOAT_SYMBOL ||
+		n1.type == DOUBLE_SYMBOL ||
+		n1.type == COMPACT_SYMBOL
+	);
+	assert(
+		n2.type == CHAR_SYMBOL ||
+		n2.type == INTEGER_SYMBOL ||
+		n2.type == LONG_SYMBOL ||
+		n2.type == FLOAT_SYMBOL ||
+		n2.type == DOUBLE_SYMBOL ||
+		n2.type == COMPACT_SYMBOL
+	);	
+
+	if (n1.type == COMPACT_SYMBOL)
+	{
+		n1 = CastTo(n1.GetList(), true);
+	}
+	if (n2.type == COMPACT_SYMBOL)
+	{
+		n2 = CastTo(n2.GetList(), true);
+	}	
+	n1 /= n2;
+	data_stack.push_back(n1);
+
+	return true;
+}
+
+//($EQ, CHAR_SYMBOL|INTEGER_SYMBOL|LONG_SYMBOL|FLOAT_SYMBOL|DOUBLE_SYMBOL|COMPACT_SYMBOL, SYMBOL)
+inline bool IntepretEqCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size() >= 2);
+	Symbols n2 = data_stack.back();
+	data_stack.pop_back();
+	Symbols n1 = data_stack.back();
+	data_stack.pop_back();
+	assert(
+		n1.type == CHAR_SYMBOL ||
+		n1.type == INTEGER_SYMBOL ||
+		n1.type == LONG_SYMBOL ||
+		n1.type == FLOAT_SYMBOL ||
+		n1.type == DOUBLE_SYMBOL ||
+		n1.type == COMPACT_SYMBOL
+	);
+	assert(
+		n2.type == CHAR_SYMBOL ||
+		n2.type == INTEGER_SYMBOL ||
+		n2.type == LONG_SYMBOL ||
+		n2.type == FLOAT_SYMBOL ||
+		n2.type == DOUBLE_SYMBOL ||
+		n2.type == COMPACT_SYMBOL
+	);
+
+	if (n1.type == COMPACT_SYMBOL)
+	{
+		n1 = CastTo(n1.GetList(), true);
+	}
+	if (n2.type == COMPACT_SYMBOL)
+	{
+		n2 = CastTo(n2.GetList(), true);
+	}
+	data_stack.push_back(Equal(n1, n2) ? Symbols::TRUE : Symbols::FALSE);
+
+	return true;
+}
+
+//($LT, CHAR_SYMBOL|INTEGER_SYMBOL|LONG_SYMBOL|FLOAT_SYMBOL|DOUBLE_SYMBOL|COMPACT_SYMBOL, SYMBOL)
+inline bool IntepretLtCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size() >= 2);
+	Symbols n2 = data_stack.back();
+	data_stack.pop_back();
+	Symbols n1 = data_stack.back();
+	data_stack.pop_back();
+	assert(
+		n1.type == CHAR_SYMBOL ||
+		n1.type == INTEGER_SYMBOL ||
+		n1.type == LONG_SYMBOL ||
+		n1.type == FLOAT_SYMBOL ||
+		n1.type == DOUBLE_SYMBOL ||
+		n1.type == COMPACT_SYMBOL
+	);
+	assert(
+		n2.type == CHAR_SYMBOL ||
+		n2.type == INTEGER_SYMBOL ||
+		n2.type == LONG_SYMBOL ||
+		n2.type == FLOAT_SYMBOL ||
+		n2.type == DOUBLE_SYMBOL ||
+		n2.type == COMPACT_SYMBOL
+	);
+
+	if (n1.type == COMPACT_SYMBOL)
+	{
+		n1 = CastTo(n1.GetList(), true);
+	}
+	if (n2.type == COMPACT_SYMBOL)
+	{
+		n2 = CastTo(n2.GetList(), true);
+	}
+	data_stack.push_back(LessThan(n1, n2) ? Symbols::TRUE : Symbols::FALSE);
+
+	return true;
+}
+
+//$AND(TRUE|FALSE, TRUE|FALSE)
+inline bool IntepretAndCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size() >= 2);
+	Symbols b2 = data_stack.back();
+	data_stack.pop_back();
+	Symbols b1 = data_stack.back();
+	data_stack.pop_back();
+	assert(b1 == Symbols::TRUE || b1 == Symbols::FALSE);
+	assert(b2 == Symbols::TRUE || b2 == Symbols::FALSE);
+
+	data_stack.push_back((b1 == Symbols::TRUE && b2 == Symbols::TRUE) ? Symbols::TRUE : Symbols::FALSE);
 	
 	return true;
 }
 
-//($ADD, SYMBOLS, SYMBOLS)
-AddCommand::AddCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
+//$OR(TRUE|FALSE, TRUE|FALSE)
+inline bool IntepretOrCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
+	assert(data_stack.size() >= 2);
+	Symbols b2 = data_stack.back();
+	data_stack.pop_back();
+	Symbols b1 = data_stack.back();
+	data_stack.pop_back();
+	assert(b1 == Symbols::TRUE || b1 == Symbols::FALSE);
+	assert(b2 == Symbols::TRUE || b2 == Symbols::FALSE);
 
-}
-
-//($ADD, SYMBOLS, SYMBOLS) = SYMBOLS + SYMBOLS
-bool AddCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size() == 3);
-
-	Symbols n1 = CastTo(this->parameters[1], true);
-	Symbols n2 = CastTo(this->parameters[2], true);
-	AddTo(n1, n2);
-	result.push_back(n1);
-
+	data_stack.push_back((b1 == Symbols::TRUE || b2 == Symbols::TRUE) ? Symbols::TRUE : Symbols::FALSE);
+	
 	return true;
 }
 
-//($SUB, SYMBOLS, SYMBOLS)
-SubCommand::SubCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
+//$NOT(TRUE|FALSE, TRUE|FALSE)
+inline bool IntepretNotCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
+	assert(data_stack.size() >= 1);
+	Symbols b1 = data_stack.back();
+	data_stack.pop_back();
+	assert(b1 == Symbols::TRUE || b1 == Symbols::FALSE);
 
-}
-
-//($SUB, SYMBOLS, SYMBOLS) = SYMBOLS - SYMBOLS
-bool SubCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size() == 3);
-
-	Symbols n1 = CastTo(this->parameters[1], true);
-	Symbols n2 = CastTo(this->parameters[2], true);
-	n1 -= n2;
-	result.push_back(n1);
-
-	return true;
-}
-
-//($MUL, SYMBOLS, SYMBOLS)
-MulCommand::MulCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-//($MUL, SYMBOLS, SYMBOLS) = SYMBOLS * SYMBOLS
-bool MulCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size() == 3);
-
-	Symbols n1 = CastTo(this->parameters[1], true);
-	Symbols n2 = CastTo(this->parameters[2], true);
-	n1 *= n2;
-	result.push_back(n1);
-
-	return true;
-}
-
-//($DIV, SYMBOLS, SYMBOLS)
-DivCommand::DivCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-//($DIV, SYMBOLS, SYMBOLS) = SYMBOLS / SYMBOLS
-bool DivCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size() == 3);
-
-	Symbols n1 = CastTo(this->parameters[1], true);
-	Symbols n2 = CastTo(this->parameters[2], true);
-	n1 /= n2;
-	result.push_back(n1);
-
-	return true;
-}
-
-SubStrCommand::SubStrCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-
-}
-
-bool SubStrCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size()==3 || this->parameters.size()==4);
-
-	string str;
-	ToString(str, this->parameters[1]);
-
-	string from_str;
-	ToString(from_str, this->parameters[2]);
-	int from;
-	String2Int(from_str, from);
-
-	int size = string::npos;
-	if(this->parameters.size()==4)
-	{
-		string size_str;
-		ToString(size_str, this->parameters[3]);
-		String2Int(size_str, size);
-	}
-
-	if(from<0)
-	{
-		from = str.size() + from;
-		if(from<0) from = 0;
-	}
-
-	string sub_str = str.substr(from,size);
-
-	for(string::const_iterator i = sub_str.begin(); i != sub_str.end(); ++i)
-	{
-		result.push_back(Symbols(*i));
-	}
-
-	return true;
-}
-
-EqCommand::EqCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-}
-
-bool EqCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size() == 3);
-	Symbols n1 = CastTo(this->parameters[1], true);
-	Symbols n2 = CastTo(this->parameters[2], true);
-
-	result.push_back(Equal(n1, n2) ? Symbols::TRUE : Symbols::FALSE);
-	return true;
-}
-
-LtCommand::LtCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-}
-
-bool LtCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size() == 3);
-	Symbols n1 = CastTo(this->parameters[1], true);
-	Symbols n2 = CastTo(this->parameters[2], true);
-
-	result.push_back(LessThan(n1, n2) ? Symbols::TRUE : Symbols::FALSE);
-	return true;
-}
-
-AndCommand::AndCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-}
-
-bool AndCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size() == 3);
-	result.push_back((this->parameters[1][0] == Symbols::TRUE && this->parameters[2][0] == Symbols::TRUE) ? Symbols::TRUE : Symbols::FALSE);
-	return true;
-}
-
-OrCommand::OrCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-}
-
-bool OrCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size() == 3);
-	result.push_back((this->parameters[1][0] == Symbols::TRUE || this->parameters[2][0] == Symbols::TRUE) ? Symbols::TRUE : Symbols::FALSE);
-	return true;
-}
-
-
-NotCommand::NotCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
-: WllCompactCommand(cmd,parameter_fields,intepreter)
-{
-}
-
-bool NotCommand::Intepret(std::vector<Symbols>& result)
-{
-	assert(this->parameters.size() == 2);
-	result.push_back((this->parameters[1][0] == Symbols::FALSE) ? Symbols::TRUE : Symbols::FALSE);
+	data_stack.push_back((b1 == Symbols::FALSE) ? Symbols::TRUE : Symbols::FALSE);
+	
 	return true;
 }
 
@@ -919,16 +1023,45 @@ bool CatCommand::Intepret(std::vector<Symbols>& result)
 }
 
 
-CastCommand::CastCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
+SubStrCommand::SubStrCommand(Symbols cmd, std::vector< std::vector<Symbols> >& parameter_fields, WllIntepreter* intepreter)
 : WllCompactCommand(cmd,parameter_fields,intepreter)
 {
 
 }
 
-bool CastCommand::Intepret(std::vector<Symbols>& result)
+bool SubStrCommand::Intepret(std::vector<Symbols>& result)
 {
-	assert(this->parameters.size() == 3);	
-	result.push_back(CastTo(this->parameters[1][0], this->parameters[2]));
+	assert(this->parameters.size()==3 || this->parameters.size()==4);
+
+	string str;
+	ToString(str, this->parameters[1]);
+
+	string from_str;
+	ToString(from_str, this->parameters[2]);
+	int from;
+	String2Int(from_str, from);
+
+	int size = string::npos;
+	if(this->parameters.size()==4)
+	{
+		string size_str;
+		ToString(size_str, this->parameters[3]);
+		String2Int(size_str, size);
+	}
+
+	if(from<0)
+	{
+		from = str.size() + from;
+		if(from<0) from = 0;
+	}
+
+	string sub_str = str.substr(from,size);
+
+	for(string::const_iterator i = sub_str.begin(); i != sub_str.end(); ++i)
+	{
+		result.push_back(Symbols(*i));
+	}
+
 	return true;
 }
 
