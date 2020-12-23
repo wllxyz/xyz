@@ -20,6 +20,7 @@ public:
 	bool Push();
 	bool Pop();
 public:
+	size_t size() { return variable_stack.size(); }
 	bool empty() { return variable_stack.empty(); }
 	Symbols* Lookup(string variable_name);
 	Symbols* Register(string variable_name);
