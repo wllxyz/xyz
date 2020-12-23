@@ -514,7 +514,15 @@ string Symbols::ToString() const
 	case DOUBLE_SYMBOL:
 		Double2String(this->d, result);
 		return result;
-		break;			
+		break;
+	case REFERENCE_SYMBOL:
+		{
+			char buffer[80];
+			snprintf(buffer, sizeof(buffer)-1, "%p", this->reference);
+			buffer[sizeof(buffer)-1] = 0;
+			return string(buffer);
+			break;
+		}					
 	case STRING_SYMBOL:
 		return *(*this->s);
 		break;
