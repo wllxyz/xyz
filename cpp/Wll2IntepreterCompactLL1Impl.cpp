@@ -11,8 +11,9 @@
 #include <queue>
 #include "WllTrace.h"
 #include <cassert>
-#include "WllCommand.h"
+#include "WllCompactCommand.h"
 #include "IntepretException.h"
+#include "Calculate.h"
 
 Wll2IntepreterCompactLL1Impl::Wll2IntepreterCompactLL1Impl(const std::vector<Symbols>& input_symbols,std::vector<Symbols>& output_symbols, WllIntepreter* intepreter)
 :input_symbols(input_symbols),output_symbols(output_symbols),intepreter(intepreter)
@@ -35,10 +36,11 @@ bool Wll2IntepreterCompactLL1Impl::IntepretWll()
 
 }
 
-bool Wll2IntepreterCompactLL1Impl::IntepretExpression(const Symbols& compected_symbol, std::vector<Symbols>& result)
+bool Wll2IntepreterCompactLL1Impl::IntepretExpression(const Symbols& compected_symbol, std::vector<Symbols>& data_stack)
 {
 	if (compected_symbol.type == COMPACT_SYMBOL)
 	{
+		vector<Symbols> result;
 		for(vector<Symbols>::const_iterator i = compected_symbol.GetList().begin(); i != compected_symbol.GetList().end(); i++)
 		{
 			if (i->type == S_EXP_SYMBOL)
@@ -54,10 +56,11 @@ bool Wll2IntepreterCompactLL1Impl::IntepretExpression(const Symbols& compected_s
 				result.push_back(*i);
 			}	
 		}
+		data_stack.push_back(Encode(result, false));
 	}
 	else if (compected_symbol.type == S_EXP_SYMBOL)
 	{
-		if (!this->IntepretSExpression(compected_symbol, result))
+		if (!this->IntepretSExpression(compected_symbol, data_stack))
 		{
 			INFO("IntepretSExpression failed");
 			return false;				
@@ -65,7 +68,7 @@ bool Wll2IntepreterCompactLL1Impl::IntepretExpression(const Symbols& compected_s
 	}
 	else
 	{
-		result.push_back(compected_symbol);
+		data_stack.push_back(compected_symbol);
 	}
 
 	return true;
@@ -81,13 +84,10 @@ bool Wll2IntepreterCompactLL1Impl::IntepretSExpression(const Symbols& s_exp_symb
 	bool local_eval_switch;
 	local_eval_switch = this->eval_switch;
 
-	std::vector<Symbols> cmd;
-	if(!this->IntepretExpression(s_exp_symbol.GetList().front(), cmd)) 
-	{
-		INFO("IntepretExpression failed at the cmd part");
-		return false;
-	}
-	Symbols symbol = cmd[0];
+	vector<Symbols> cmd;
+	this->IntepretExpression(s_exp_symbol.GetList().front(), cmd);
+	assert(!cmd.empty());
+	Symbols symbol = cmd.back();
 	assert(symbol.IsRemark());
 
 	if(symbol == Symbols::REMARK_IGNORE)
@@ -99,42 +99,30 @@ bool Wll2IntepreterCompactLL1Impl::IntepretSExpression(const Symbols& s_exp_symb
 		this->eval_switch = true;			//$EXEC的子节点开启求值(允许内层屏蔽节点先求值)
 	}
 
-	vector<vector<Symbols> > parameter_fields;
-	parameter_fields.push_back(cmd);
-
-	//<expression-list>--><expression>$SEPERATOR<expression-list>
-	for(vector<Symbols>::const_iterator i = s_exp_symbol.GetList().begin() + 1; i != s_exp_symbol.GetList().end(); i++)
-	{
-		vector<Symbols> parameter;
-		if(!this->IntepretExpression(*i, parameter)) 
-		{
-			INFO("IntepretExpression failed at the parameter part");
-			return false;
-		}
-		parameter_fields.push_back(parameter);
-	}
-
 	if(local_eval_switch || symbol == Symbols::EXEC)    //EXEC命令本身也需要求值
 	{
-		WllCommand* command = WllCommandFactory::CreateCommand(symbol, parameter_fields,this->intepreter);
-		assert(command!=NULL);
-		vector<Symbols> command_result;
+		//<expression-list>--><expression>$SEPERATOR<expression-list>
+		for(vector<Symbols>::const_iterator i = s_exp_symbol.GetList().begin() + 1; i != s_exp_symbol.GetList().end(); i++)
+		{
+			if(!this->IntepretExpression(*i, result)) 
+			{
+				INFO("IntepretExpression failed at the parameter part");
+				return false;
+			}
+		}
+
 		try{
-			retval = command->Intepret(command_result);
+			retval = IntepretCommand(symbol, result, this->intepreter);
 		}
 		catch(IntepretException& e)
 		{
 			TERM_ERROR(e);
 			retval = false;
 		}
-		
-		INFO(symbol<<" command_result="<<command_result);
-		result += command_result;
-		delete command;
 	}
 	else
 	{
-		ComposeSList(parameter_fields.begin(), parameter_fields.end(),result);
+		result.push_back(s_exp_symbol);
 	}
 
 	this->eval_switch = local_eval_switch;
