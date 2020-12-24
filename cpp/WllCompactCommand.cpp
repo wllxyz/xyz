@@ -207,73 +207,29 @@ bool IntepretRemarkCommand(std::vector<Symbols>& data_stack, WllIntepreter* inte
 	return true;
 }
 
+///!!! EVAL, EXEC, IGNORE命令都不做任何事情,其區別在控制求值開關狀態
 //evalue symbols' result, whether execute evalue or not is controlled by ignore state
 ////$EVAL(ANY_SYMBOL) => SYMBOLS(AUTO COMPACT TO COMPACT_SYMBOL)
 bool IntepretEvalCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
 	assert(data_stack.size() >= 1);
-	Symbols symbol = data_stack.back();
-	data_stack.pop_back(); 
 
-	INFO("command=" << Symbols::EVAL << ", op1=" << symbol);
+	INFO("command=" << Symbols::EVAL <<", op1=" << data_stack.back());
+	INFO("command=" << Symbols::EVAL <<", result=" << data_stack.back());
 
-	vector<Symbols> result;
-	bool retval = true;
-
-	if (symbol.type == COMPACT_SYMBOL)
-	{
-		Wll2IntepreterCompactLL1Impl* i = (Wll2IntepreterCompactLL1Impl*)(intepreter);
-		retval = i->IntepretExpression(symbol, result);
-	}
-	else if (symbol.type == S_EXP_SYMBOL)
-	{
-		Wll2IntepreterCompactLL1Impl* i = (Wll2IntepreterCompactLL1Impl*)(intepreter);
-		retval = i->IntepretSExpression(symbol, result);		
-	}
-	else
-	{
-		result.push_back(symbol);
-	}
-	data_stack += result;
-
-	INFO("command=" << Symbols::EVAL << ", result=" << result);
-
-	return retval;
+	return true;
 }
 
 //evalue symbols' result, execute evalue will always do, regardness ignore state
 //$EXEC(ANY_SYMBOL) => SYMBOLS(AUTO COMPACT TO COMPACT_SYMBOL)
 bool IntepretExecCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
 {
-	//SAME AS EVAL COMMAND EXCEPT EXEC TIME
 	assert(data_stack.size() >= 1);
-	Symbols symbol = data_stack.back();
-	data_stack.pop_back(); 
 
-	INFO("command=" << Symbols::EXEC << ", op1=" << symbol);
+	INFO("command=" << Symbols::EXEC <<", op1=" << data_stack.back());
+	INFO("command=" << Symbols::EXEC <<", result=" << data_stack.back());
 
-	vector<Symbols> result;
-	bool retval = true;
-
-	if (symbol.type == COMPACT_SYMBOL)
-	{
-		Wll2IntepreterCompactLL1Impl* i = (Wll2IntepreterCompactLL1Impl*)(intepreter);
-		retval = i->IntepretExpression(symbol, result);
-	}
-	else if (symbol.type == S_EXP_SYMBOL)
-	{
-		Wll2IntepreterCompactLL1Impl* i = (Wll2IntepreterCompactLL1Impl*)(intepreter);
-		retval = i->IntepretSExpression(symbol, result);		
-	}
-	else
-	{
-		result.push_back(symbol);
-	}
-	data_stack += result;
-
-	INFO("command=" << Symbols::EXEC << ", result=" << result);
-
-	return retval;
+	return true;
 }
 
 //$IGNORE(ANY_SYMBOL) => ANY_SYMBOL
