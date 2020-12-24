@@ -176,8 +176,11 @@ bool IntepretConstantCommand(std::vector<Symbols>& data_stack, WllIntepreter* in
 
 	INFO("command=" << Symbols::REMARK_CONSTANT << ", op1=" << constants);
 
-	assert(constants.type == COMPACT_SYMBOL);
-	AssertSymbolsType(constants.GetList(), CONSTANT_SYMBOL);
+	assert(constants.type == COMPACT_SYMBOL || constants.type == CONSTANT_SYMBOL);
+	if (constants.type == COMPACT_SYMBOL) 
+	{
+		AssertSymbolsType(constants.GetList(), CONSTANT_SYMBOL);
+	}
 
 	INFO("command=" << Symbols::REMARK_CONSTANT << ", result=" << constants);
 
