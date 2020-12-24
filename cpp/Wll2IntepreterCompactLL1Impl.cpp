@@ -25,15 +25,45 @@ Wll2IntepreterCompactLL1Impl::Wll2IntepreterCompactLL1Impl(const std::vector<Sym
 bool Wll2IntepreterCompactLL1Impl::IntepretWll()
 {
 	INFO("start IntepretWll, symbols="<<this->input_symbols);
-	Symbols compected_input_symbol(COMPACT_SYMBOL);
-	if (!CompactSExpression(this->input_symbols, compected_input_symbol)) {
-		ERROR("compact input_symbols failed");
-		return false;
+	vector<size_t> left_quote_starts;
+
+	for (vector<Symbols>::const_iterator i = this->input_symbols.begin(); i != this->input_symbols.end(); i++)
+	{
+		if (*i == Symbols::REMARK_IGNORE)
+		{
+			assert(i+1 != this->input_symbols.end());
+			this->output_symbols.push_back(*++i);
+		}
+		else if (*i == Symbols::LEFT_QUOTE)
+		{
+			left_quote_starts.push_back(this->output_symbols.size());
+		}
+		else if (*i == Symbols::RIGHT_QUOTE)
+		{
+			assert(!left_quote_starts.empty());
+			size_t start = left_quote_starts.back();
+			left_quote_starts.pop_back();
+			assert(this->output_symbols.begin()+start <= this->output_symbols.end());
+			Symbols compacted_symbol(COMPACT_SYMBOL, vector<Symbols>(this->output_symbols.begin()+start, this->output_symbols.end()));
+			this->output_symbols.resize(start);
+			this->output_symbols.push_back(compacted_symbol);
+		}
+		else if (i->IsRemark()) 
+		{
+			if (!IntepretCommand(*i, this->output_symbols, this->intepreter))
+			{
+				ERROR("IntepretCommand" << *i << "failed!!!");
+				return false;
+			}	
+		}	
+		else
+		{
+			this->output_symbols.push_back(*i);
+		}
 	}
-	INFO("compected_input_symbol=" << compected_input_symbol.ToString());
+	assert(left_quote_starts.empty());
 
-	return this->IntepretExpression(compected_input_symbol, this->output_symbols);
-
+	return true;
 }
 
 bool Wll2IntepreterCompactLL1Impl::IntepretExpression(const Symbols& compected_symbol, std::vector<Symbols>& data_stack)
