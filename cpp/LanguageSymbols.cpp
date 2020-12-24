@@ -605,6 +605,60 @@ void Symbols::Display(ostream& o) const
 
 void Symbols::Dump(ostream& o) const
 {
+	o << "{";
+	switch (this->type)
+	{
+	case VOID_SYMBOL:
+		o << "VOID_SYMBOL";
+		break;
+	case VARIABLE_SYMBOL:
+		o << "VARIABLE_SYMBOL";
+		break;
+	case REMARK_SYMBOL:
+		o << "REMARK_SYMBOL";
+		break;
+	case CONSTANT_SYMBOL:
+		o << "CONSTANT_SYMBOL";
+		break;
+	case CHAR_SYMBOL:
+		o << "CHAR_SYMBOL";
+		break;
+	case INTEGER_SYMBOL:
+		o << "INTEGER_SYMBOL";
+		break;
+	case LONG_SYMBOL:
+		o << "LONG_SYMBOL";
+		break;
+	case FLOAT_SYMBOL:
+		o << "FLOAT_SYMBOL";
+		break;
+	case DOUBLE_SYMBOL:
+		o << "DOUBLE_SYMBOL";
+		break;
+	case STRING_SYMBOL:
+		o << "STRING_SYMBOL";
+		break;
+	case REFERENCE_SYMBOL:
+		o << "REFERENCE_SYMBOL";
+		break;	
+	case COMPACT_SYMBOL:
+		o << "COMPACT_SYMBOL";
+		break;
+	case S_EXP_SYMBOL:
+		o << "S_EXP_SYMBOL";
+		break;
+	case LIST_SYMBOL:
+		o << "LIST_SYMBOL";
+		break;
+	case MAP_SYMBOL:
+		o << "MAP_SYMBOL";
+		break;
+	default:
+		break;
+	}
+
+	o << ",";
+
 	switch(this->type)
 	{
 	case CONSTANT_SYMBOL:
@@ -634,6 +688,7 @@ void Symbols::Dump(ostream& o) const
 		o<<this->ToString();
 		break;
 	}
+	o << "}";
 }
 
 istream& operator>> (istream&ins, vector<Symbols>& symbols)
@@ -655,7 +710,12 @@ istream& operator>> (istream&ins, vector<Symbols>& symbols)
 
 ostream& operator<< (ostream& o, const Symbols& symbol)
 {
+#define DEBUG
+#ifdef DEBUG
+	symbol.Dump(o);
+#else
 	symbol.Display(o);
+#endif
 	return o;
 }
 
