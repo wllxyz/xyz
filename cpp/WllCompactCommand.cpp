@@ -130,11 +130,20 @@ bool IntepretRuleCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepr
 	INFO("command=" << Symbols::REMARK_RULE << ", op1=" << root << ", op2=" << expression);
 
 	assert(root.IsVariable());
-	assert(expression.type == COMPACT_SYMBOL);
+	assert(expression.type == COMPACT_SYMBOL || expression.IsVariable() || expression.IsConstant() || expression.IsRemark());
 
 	Symbols rule(MAP_SYMBOL);
 	rule.GetMap()["root"] = root;
-	rule.GetMap()["expression"] = expression;
+	if (expression.type == COMPACT_SYMBOL)
+	{
+		rule.GetMap()["expression"] = expression;
+	}
+	else
+	{
+		rule.GetMap()["expression"] = Symbols(COMPACT_SYMBOL);
+		rule.GetMap()["expression"].GetList().push_back(expression);
+	}
+	
 	data_stack.push_back(rule);
 
 	INFO("command=" << Symbols::REMARK_RULE << ", result=" << rule);
