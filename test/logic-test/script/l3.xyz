@@ -11,12 +11,12 @@
 <assign_statement>--><variable>"="<e>		==>	<assign_statement>-->($SET, <variable>, <e>);
 <print_statement>-->"$print "<e>				==> <print_statement>--><e>"\n";
 <e_statement>--><e>				==> <e_statement>--><e>;
-<while_statement>-->"$while("<e>")\n"<statement>	==>	<while_statement>-->($LOOP, ($IGNORE,($NOT, ($EQ, <e>, "0"))), ($IGNORE, <statement>));
+<while_statement>-->"$while("<e>")\n"<statement>	==>	<while_statement>-->($LOOP, ($IGNORE,($NOT, ($EQ, <e>, ($CAST, $INTEGER,"0")))), ($IGNORE, <statement>));
 
-<if_statement>-->"$if("<e>")\n"<statement>"\n$else\n"<statement2>			==>	<if_statement>-->($COND, ($NOT, ($EQ, <e>, "0")), ($IGNORE,<statement>), $TRUE, ($IGNORE,<statement2>));
+<if_statement>-->"$if("<e>")\n"<statement>"\n$else\n"<statement2>			==>	<if_statement>-->($COND, ($NOT, ($EQ, <e>, ($CAST, $INTEGER, "0"))), ($IGNORE,<statement>), ($IGNORE,<statement2>));
 <statement2>--><statement>					==> <statement2>--><statement>;
 <complex_statement>-->"{\n"<statement_list>"}"	==> <complex_statement>--><statement_list>;
-<variable>--><identifier>					==>		<variable>--><identifier>;
+<variable>--><identifier>					==>		<variable>-->($CAST, $STRING, $LEFT_QUOTE<identifier>$RIGHT_QUOTE);
 <identifier>--><letter>==><identifier>--><letter>;
 <identifier>--><letter><letter_digit_string>==><identifier>--><letter><letter_digit_string>;
 <letter_digit_string>--><letter>==><letter_digit_string>--><letter>;
@@ -93,13 +93,13 @@
 <t>--><t>"*"<f>		==>		<t>-->($MUL, <t>, <f>);
 <t>--><t>"/"<f>		==>		<t>-->($DIV, <t>, <f>);
 <f>--><variable>		==>		<f>-->($GET, <variable>);
-<f>--><n>		==>		<f>--><n>;
+<f>--><n>		==>		<f>-->($CAST, $INTEGER, $LEFT_QUOTE<n>$RIGHT_QUOTE);
 <f>-->"("<e>")"		==>		<f>--><e>;
 <f>--><r>		==>		<f>--><r>;
 <n>--><digit>	==>		<n>--><digit>;
 <n>--><digit><n>	==>		<n>--><digit><n>;
 
-<define_statement>--><fn>"("<pl>")=\n"<statement>==>		<define_statement>-->($SET, <fn>, ($IGNORE,<statement>));
+<define_statement>--><fn>"("<pl>")=\n"<statement>==>		<define_statement>-->($SET, <fn>, ($IGNORE,$LEFT_QUOTE<statement>$RIGHT_QUOTE));
 <fn>--><identifier>		==>		<fn>--><identifier>;
 <pl>--><p>		==>		<pl>--><p>;
 <pl>--><p>","<pl>	==>		<pl>--><p>","<pl>;
@@ -108,4 +108,3 @@
 <ll>--><l>		==>		<ll>--><l>;
 <ll>--><l>","<ll>	==>		<ll>--><l><ll>;
 <l>--><p>"="<e>		==>		<l>-->($DEF, <p>, <e>);
-

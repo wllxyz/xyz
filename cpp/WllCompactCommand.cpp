@@ -225,27 +225,13 @@ bool IntepretEvalCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepr
 {
 	assert(data_stack.size() >= 1);
 	Symbols symbol = data_stack.back();
-	data_stack.pop_back(); 
+	data_stack.pop_back();
+	assert(symbol.type == COMPACT_SYMBOL);
 
 	INFO("command=" << Symbols::EVAL << ", op1=" << symbol);
 
 	vector<Symbols> result;
-	bool retval = true;
-
-	if (symbol.type == COMPACT_SYMBOL)
-	{
-		Wll2IntepreterCompactLL1Impl* i = (Wll2IntepreterCompactLL1Impl*)(intepreter);
-		retval = i->IntepretExpression(symbol, result);
-	}
-	else if (symbol.type == S_EXP_SYMBOL)
-	{
-		Wll2IntepreterCompactLL1Impl* i = (Wll2IntepreterCompactLL1Impl*)(intepreter);
-		retval = i->IntepretSExpression(symbol, result);		
-	}
-	else
-	{
-		result.push_back(symbol);
-	}
+	bool retval = intepreter->IntepretWll(symbol.GetList(), result);;
 	data_stack += result;
 
 	INFO("command=" << Symbols::EVAL << ", result=" << result);
@@ -260,27 +246,13 @@ bool IntepretExecCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepr
 	//SAME AS EVAL COMMAND EXCEPT EXEC TIME
 	assert(data_stack.size() >= 1);
 	Symbols symbol = data_stack.back();
-	data_stack.pop_back(); 
+	data_stack.pop_back();
+	assert(symbol.type == COMPACT_SYMBOL);
 
 	INFO("command=" << Symbols::EXEC << ", op1=" << symbol);
 
 	vector<Symbols> result;
-	bool retval = true;
-
-	if (symbol.type == COMPACT_SYMBOL)
-	{
-		Wll2IntepreterCompactLL1Impl* i = (Wll2IntepreterCompactLL1Impl*)(intepreter);
-		retval = i->IntepretExpression(symbol, result);
-	}
-	else if (symbol.type == S_EXP_SYMBOL)
-	{
-		Wll2IntepreterCompactLL1Impl* i = (Wll2IntepreterCompactLL1Impl*)(intepreter);
-		retval = i->IntepretSExpression(symbol, result);		
-	}
-	else
-	{
-		result.push_back(symbol);
-	}
+	bool retval = intepreter->IntepretWll(symbol.GetList(), result);;
 	data_stack += result;
 
 	INFO("command=" << Symbols::EXEC << ", result=" << result);
@@ -1467,6 +1439,15 @@ bool IntepretCommand(const Symbols& command, std::vector<Symbols>& data_stack, W
 	else if (command == Symbols::SUB_STR)
 	{
 		return IntepretSubStrCommand(data_stack, intepreter);
+	}
+	else if (command == Symbols::CHAR || command == Symbols::INTEGER || command == Symbols::LONG || command == Symbols::FLOAT || command == Symbols::DOUBLE || command == Symbols::STRING)
+	{
+		data_stack.push_back(command);
+	}
+	else
+	{
+		ERROR("unsupported command " << command << " !!!");
+		assert(false);
 	}
 
 }

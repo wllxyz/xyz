@@ -67,6 +67,12 @@
 <remark>-->"$ARRAY"==><remark>-->$IGNORE$ARRAY;
 <remark>-->"$MAP"==><remark>-->$IGNORE$MAP;
 <remark>-->"$CAST"==><remark>-->$IGNORE$CAST;
+<remark>-->"$CHAR"==><remark>-->$IGNORE$CHAR;
+<remark>-->"$INTEGER"==><remark>-->$IGNORE$INTEGER;
+<remark>-->"$LONG"==><remark>-->$IGNORE$LONG;
+<remark>-->"$FLOAT"==><remark>-->$IGNORE$FLOAT;
+<remark>-->"$DOUBLE"==><remark>-->$IGNORE$DOUBLE;
+<remark>-->"$STRING"==><remark>-->$IGNORE$STRING;
 <remark>-->"$ADD"==><remark>-->$IGNORE$ADD;
 <remark>-->"$SUB"==><remark>-->$IGNORE$SUB;
 <remark>-->"$MUL"==><remark>-->$IGNORE$MUL;
@@ -109,6 +115,12 @@
 <remark>-->$ARRAY==><remark>-->$ARRAY;
 <remark>-->$MAP==><remark>-->$MAP;
 <remark>-->$CAST==><remark>-->$CAST;
+<remark>-->$CHAR==><remark>-->$CHAR;
+<remark>-->$INTEGER==><remark>-->$INTEGER;
+<remark>-->$LONG==><remark>-->$LONG;
+<remark>-->$FLOAT==><remark>-->$FLOAT;
+<remark>-->$DOUBLE==><remark>-->$DOUBLE;
+<remark>-->$STRING==><remark>-->$STRING;
 <remark>-->$ADD==><remark>-->$ADD;
 <remark>-->$SUB==><remark>-->$SUB;
 <remark>-->$MUL==><remark>-->$MUL;
