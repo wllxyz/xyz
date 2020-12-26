@@ -25,6 +25,7 @@ Wll2IntepreterCompactLL1Impl::Wll2IntepreterCompactLL1Impl(const std::vector<Sym
 bool Wll2IntepreterCompactLL1Impl::IntepretWll()
 {
 	INFO("start IntepretWll, symbols="<<this->input_symbols);
+	bool eval_flag = true;
 	vector<size_t> left_quote_starts;
 
 	for (vector<Symbols>::const_iterator i = this->input_symbols.begin(); i != this->input_symbols.end(); i++)
@@ -36,6 +37,7 @@ bool Wll2IntepreterCompactLL1Impl::IntepretWll()
 		}
 		else if (*i == Symbols::LEFT_QUOTE)
 		{
+			eval_flag = false;
 			left_quote_starts.push_back(this->output_symbols.size());
 		}
 		else if (*i == Symbols::RIGHT_QUOTE)
@@ -47,8 +49,12 @@ bool Wll2IntepreterCompactLL1Impl::IntepretWll()
 			Symbols compacted_symbol(COMPACT_SYMBOL, vector<Symbols>(this->output_symbols.begin()+start, this->output_symbols.end()));
 			this->output_symbols.resize(start);
 			this->output_symbols.push_back(compacted_symbol);
+			if (left_quote_starts.empty())
+			{
+				eval_flag = true;
+			}
 		}
-		else if (i->IsRemark()) 
+		else if (i->IsRemark() && eval_flag || (*i == Symbols::EXEC)) 
 		{
 			if (!IntepretCommand(*i, this->output_symbols, this->intepreter))
 			{
