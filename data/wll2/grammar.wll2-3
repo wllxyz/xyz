@@ -49,6 +49,7 @@
 <remark>-->"$REMARK"==><remark>-->$IGNORE$REMARK;
 <remark>-->"$IGNORE"==><remark>-->$IGNORE$IGNORE;
 <remark>-->"$EVAL"==><remark>-->$IGNORE$EVAL;
+<remark>-->"$EXEC"==><remark>-->$IGNORE$EXEC;
 <remark>-->"$COND"==><remark>-->$IGNORE$COND;
 <remark>-->"$LOOP"==><remark>-->$IGNORE$LOOP;
 <remark>-->"$CALL"==><remark>-->$IGNORE$CALL;
@@ -97,6 +98,7 @@
 <remark>-->$REMARK==><remark>-->$REMARK;
 <remark>-->$IGNORE==><remark>-->$IGNORE;
 <remark>-->$EVAL==><remark>-->$EVAL;
+<remark>-->$EXEC==><remark>-->$EXEC;
 <remark>-->$COND==><remark>-->$COND;
 <remark>-->$LOOP==><remark>-->$LOOP;
 <remark>-->$CALL==><remark>-->$CALL;

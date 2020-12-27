@@ -26,33 +26,56 @@ bool Wll2IntepreterCompactLL1Impl::IntepretWll()
 {
 	INFO("start IntepretWll, symbols="<<this->input_symbols);
 	bool eval_flag = true;
-	vector<size_t> left_quote_starts;
+	vector<size_t> compact_quote_starts;
+	vector<size_t> ignore_quote_starts;
 
 	for (vector<Symbols>::const_iterator i = this->input_symbols.begin(); i != this->input_symbols.end(); i++)
 	{
-		if (*i == Symbols::REMARK_IGNORE)
+		if (!eval_flag && !(*i == Symbols::EXEC) && !(*i == Symbols::REMARK_IGNORE) && !(*i == Symbols::IGNORE_BEGIN) && !(*i == Symbols::IGNORE_END))
+		{
+			this->output_symbols.push_back(*i);
+		}
+		else if (*i == Symbols::REMARK_IGNORE)
 		{
 			assert(i+1 != this->input_symbols.end());
+			if (!eval_flag && !(*(i+1) == Symbols::IGNORE_BEGIN) && !(*(i+1) == Symbols::IGNORE_END))
+			{
+				this->output_symbols.push_back(*i);
+			}
 			this->output_symbols.push_back(*++i);
 		}
-		else if (*i == Symbols::LEFT_QUOTE)
+		else if (*i == Symbols::IGNORE_BEGIN)
 		{
+			ignore_quote_starts.push_back(this->output_symbols.size());
 			eval_flag = false;
-			left_quote_starts.push_back(this->output_symbols.size());
 		}
-		else if (*i == Symbols::RIGHT_QUOTE)
+		else if (*i == Symbols::IGNORE_END)
 		{
-			assert(!left_quote_starts.empty());
-			size_t start = left_quote_starts.back();
-			left_quote_starts.pop_back();
+			assert(!ignore_quote_starts.empty());
+			size_t start = ignore_quote_starts.back();
+			ignore_quote_starts.pop_back();
 			assert(this->output_symbols.begin()+start <= this->output_symbols.end());
 			Symbols compacted_symbol(COMPACT_SYMBOL, vector<Symbols>(this->output_symbols.begin()+start, this->output_symbols.end()));
 			this->output_symbols.resize(start);
 			this->output_symbols.push_back(compacted_symbol);
-			if (left_quote_starts.empty())
+			if (ignore_quote_starts.empty())
 			{
 				eval_flag = true;
-			}
+			}	
+		}
+		else if (*i == Symbols::LEFT_QUOTE)
+		{
+			compact_quote_starts.push_back(this->output_symbols.size());
+		}
+		else if (*i == Symbols::RIGHT_QUOTE)
+		{
+			assert(!compact_quote_starts.empty());
+			size_t start = compact_quote_starts.back();
+			compact_quote_starts.pop_back();
+			assert(this->output_symbols.begin()+start <= this->output_symbols.end());
+			Symbols compacted_symbol(COMPACT_SYMBOL, vector<Symbols>(this->output_symbols.begin()+start, this->output_symbols.end()));
+			this->output_symbols.resize(start);
+			this->output_symbols.push_back(compacted_symbol);
 		}
 		else if (i->IsRemark() && eval_flag || (*i == Symbols::EXEC)) 
 		{
@@ -67,7 +90,7 @@ bool Wll2IntepreterCompactLL1Impl::IntepretWll()
 			this->output_symbols.push_back(*i);
 		}
 	}
-	assert(left_quote_starts.empty());
+	assert(compact_quote_starts.empty());
 
 	return true;
 }
