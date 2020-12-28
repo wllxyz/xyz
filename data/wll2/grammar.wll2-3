@@ -48,6 +48,8 @@
 <remark>-->"$CONSTANT"==><remark>-->$IGNORE$CONSTANT;
 <remark>-->"$REMARK"==><remark>-->$IGNORE$REMARK;
 <remark>-->"$IGNORE"==><remark>-->$IGNORE$IGNORE;
+<remark>-->"$IGNORE_BEGIN"==><remark>-->$IGNORE$IGNORE_BEGIN;
+<remark>-->"$IGNORE_END"==><remark>-->$IGNORE$IGNORE_END;
 <remark>-->"$EVAL"==><remark>-->$IGNORE$EVAL;
 <remark>-->"$EXEC"==><remark>-->$IGNORE$EXEC;
 <remark>-->"$COND"==><remark>-->$IGNORE$COND;
@@ -97,6 +99,8 @@
 <remark>-->$CONSTANT==><remark>-->$CONSTANT;
 <remark>-->$REMARK==><remark>-->$REMARK;
 <remark>-->$IGNORE==><remark>-->$IGNORE;
+<remark>-->$IGNORE_BEGIN==><remark>-->$IGNORE_BEGIN;
+<remark>-->$IGNORE_END==><remark>-->$IGNORE_END;
 <remark>-->$EVAL==><remark>-->$EVAL;
 <remark>-->$EXEC==><remark>-->$EXEC;
 <remark>-->$COND==><remark>-->$COND;
