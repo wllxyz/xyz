@@ -1449,7 +1449,7 @@ bool IntepretCommand(const Symbols& command, std::vector<Symbols>& data_stack, W
 		ERROR("unsupported command " << command << " !!!");
 		assert(false);
 	}
-
+	return true;
 }
 
 
