@@ -891,6 +891,7 @@ bool LoadLanguage(const std::vector<Symbols>& input_symbols, LanguageGrammar& la
 	{
 		INFO("wllloader="<<input_symbols);
 
+		/*
 		if(check_grammar)
 		{
 			if(!loader->TestLanguage())
@@ -904,6 +905,7 @@ bool LoadLanguage(const std::vector<Symbols>& input_symbols, LanguageGrammar& la
 		{
 			INFO("Test WLL language grammar SKIPED!!!");
 		}
+		*/
 
 		if(!add_mode)
 		{

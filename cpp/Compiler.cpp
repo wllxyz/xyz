@@ -68,6 +68,7 @@ bool Compiler::Process(const LanguageGrammar& languages, const std::vector<Symbo
 	LanguageTree* source_tree = NULL;
 	LanguageTree* destination_tree = NULL;
 
+	INFO("parse start ...");
 	LanguageParsers* parser = this->parser_strategy.Get();
 	if(!parser->Parse(languages, input_symbols, source_tree, start_symbol))
 	{
@@ -75,7 +76,9 @@ bool Compiler::Process(const LanguageGrammar& languages, const std::vector<Symbo
 		INFO("Parse failed");
 		return false;
 	}
+	INFO("parse end success");
 
+	INFO("translate start ...");
 	if(!TranslateTree(source_tree, destination_tree, languages.destination_rules.rules))
 	{
 		DestroyTree(source_tree);
@@ -83,12 +86,14 @@ bool Compiler::Process(const LanguageGrammar& languages, const std::vector<Symbo
 		INFO("Translate failed");
 		return false;
 	}
+	INFO("translate end success");
 
 	vector<Symbols> translate_output_symbols;
 	DisplayTreeLeaves(translate_output_symbols, destination_tree);
 
 	INFO("input_symbols="<<input_symbols<<", translate_output_symbols="<<translate_output_symbols);
 
+	INFO("inteprete start ...");
 	WllIntepreter* intepreter = this->intepreter_strategy.Get();
 	if(!intepreter->IntepretWll(translate_output_symbols, output_symbols))
 	{
@@ -97,6 +102,7 @@ bool Compiler::Process(const LanguageGrammar& languages, const std::vector<Symbo
 		INFO("Intepreter failed");
 		return false;
 	}
+	INFO("inteprete end success");
 
 	INFO("translate_output_symbols="<<translate_output_symbols<<", output_symbols="<<output_symbols);
 
