@@ -13,7 +13,6 @@
 
 Wll1Loader::Wll1Loader(const vector<Symbols>& input_symbols) : WllLoader(input_symbols)
 {
-	this->grammar_file_name = "wll1.xyz";
 	this->input_pos = 0;
 	INFO("input_symbols="<<this->input_symbols);
 }
@@ -461,10 +460,3 @@ void Wll1Loader::ShowErrorMessage()
 	}
 }
 
-bool Wll1Loader::TestLanguage()
-{
-	static LanguageGrammar wll_xyz_languages;
-	static bool is_wll_xyz_loaded = false;
-
-	return WllLoader::TestLanguage(wll_xyz_languages, is_wll_xyz_loaded);
-}

@@ -15,4 +15,5 @@ eg. echo "3+4" | wll add.xyz - | wll counter.xyz -
 
 2. check grammar split from IsXYZLanguage
 
+3. 语法分析模块的性能还需要优化(data/grammar2-3的加载需要4-5秒时间)
  
