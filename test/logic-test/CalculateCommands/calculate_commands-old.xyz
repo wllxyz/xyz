@@ -1,0 +1,10 @@
+<i>-->""==><o>-->
+($PUSH_DATA)
+($DEF,"x","0")
+($DEF,"i","0")
+($LOOP,
+	($IGNORE,($LT,($GET,"i"),"10000")),
+	($IGNORE, ($SET, "x", ($ADD,($GET,"x"),($GET,"i")))($SET, "i", ($ADD, ($GET,"i"), "1")))
+)
+($GET,"x")
+($POP_DATA);
