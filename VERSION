@@ -1,3 +1,4 @@
 # date : branch-name : desciption
 2020-12-18 : 2.0.0-S表达式解释器和后缀表达式解释器对照实验功能 : STEP1-Wll2IntepreterCompactLL1Impl和Wll2IntepreterLL1Impl实现对WLL2原文法的解释执行(使用CompactSExpression内部格式转换后执行)
 2020-12-18 : 2.0.1-S表达式解释器和后缀表达式解释器对照实验功能 : STEP2-通过引入对expression的Compact处理S-表达式统一能处理Symbols格式的输入和输出，CompactCommand可以对输入和输出做数据入栈和出栈处理, Wll2IntepreterLL1Impl已经能对修改后的data/wll2/grammar.wll2-2文法进行解释执行.下一步目标是修改Wll2IntepreterCompactLL1Impl对数据入栈出栈处理，减少对代码临时数据栈的依赖．
+2021-01-12 : 2.0.2-S表达式解释器和后缀表达式解释器对照实验功能 : STEP3-改寫Wll2IntepreterCompactLL1Impl和WllCompactCommand對數據進行統一堆棧操作,引入$IGNORE_BEGIN-$IGNORE-END和$LEFT_QUOTE-$RIGHT_QUOTE範圍操作算符
