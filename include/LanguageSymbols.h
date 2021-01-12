@@ -158,6 +158,7 @@ public:
 	static const Symbols TRUE;				//逻辑真
 	static const Symbols FALSE;				//逻辑假
 	static const Symbols EQ;				//等于
+	static const Symbols SAME;				//字符比較
 	static const Symbols LT;				//小于(字典序)
 	static const Symbols AND;				//与
 	static const Symbols OR;				//或
