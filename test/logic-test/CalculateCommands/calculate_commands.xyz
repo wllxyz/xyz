@@ -1,10 +1,10 @@
 <i>-->""==><o>-->
 ($PUSH_DATA)
-($DEF,"x",0)
-($DEF,"i",0)
+($DEF,($COMPACT,"x"),0)
+($DEF,($COMPACT,"i"),0)
 ($LOOP,
-	($IGNORE,($LT,($GET,"i"),10000)),
-	($IGNORE, ($SET, "x", ($ADD,($GET,"x"),($GET,"i")))($SET, "i", ($ADD, ($GET,"i"), 1)))
+	($IGNORE,($LT,($GET,($COMPACT,"i")),10000)),
+	($IGNORE, ($SET, ($COMPACT,"x"), ($ADD,($GET,($COMPACT,"x")),($GET,($COMPACT,"i"))))($SET, ($COMPACT,"i"), ($ADD, ($GET,($COMPACT,"i")), 1)))
 )
-($GET,"x")
+($GET,($COMPACT,"x"))
 ($POP_DATA);
