@@ -655,11 +655,12 @@ bool IntepretDefCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepre
 
 	INFO("command=" << Symbols::DEF << ", symbol=" << symbol << ", value=" << value);
 
-	assert(symbol.type == STRING_SYMBOL);
+	assert(symbol.type == STRING_SYMBOL || symbol.type == COMPACT_SYMBOL);
+	string id = symbol.ToString();
 
 	VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
 	assert(!variable_table_stack->empty());
-	Symbols* reference_symbol = variable_table_stack->Register(*(*(symbol.s)));
+	Symbols* reference_symbol = variable_table_stack->Register(id);
 	*reference_symbol = value;
 	
 	return true;
@@ -676,13 +677,14 @@ bool IntepretSetCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepre
 
 	INFO("command=" << Symbols::SET << ", symbol=" << symbol << ", value=" << value);
 
-	assert(symbol.type == STRING_SYMBOL || symbol.type == REFERENCE_SYMBOL);
+	assert(symbol.type == STRING_SYMBOL || symbol.type == COMPACT_SYMBOL || symbol.type == REFERENCE_SYMBOL);
 
-	if (symbol.type == STRING_SYMBOL)
+	if (symbol.type == STRING_SYMBOL || symbol.type == COMPACT_SYMBOL)
 	{
+		string id = symbol.ToString();
 		VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
 		assert(!variable_table_stack->empty());
-		Symbols* reference_symbol = variable_table_stack->LookupOrRegister(*(*(symbol.s)));
+		Symbols* reference_symbol = variable_table_stack->LookupOrRegister(id);
 		*reference_symbol = value;
 	} 
 	else if (symbol.type == REFERENCE_SYMBOL)
@@ -703,13 +705,14 @@ bool IntepretGetCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepre
 
 	INFO("command=" << Symbols::GET << ", symbol=" << symbol);
 
-	assert(symbol.type == STRING_SYMBOL || symbol.type == REFERENCE_SYMBOL);
+	assert(symbol.type == STRING_SYMBOL || symbol.type == COMPACT_SYMBOL || symbol.type == REFERENCE_SYMBOL);
 
-	if (symbol.type == STRING_SYMBOL)
+	if (symbol.type == STRING_SYMBOL || symbol.type == COMPACT_SYMBOL)
 	{
+		string id = symbol.ToString();
 		VariableStack* variable_table_stack = Singleton<VariableStack>::GetInstance();
 		assert(!variable_table_stack->empty());
-		Symbols* reference_symbol = variable_table_stack->Lookup(*(*(symbol.s)));
+		Symbols* reference_symbol = variable_table_stack->Lookup(id);
 		assert(reference_symbol != NULL);
 		data_stack.push_back(*reference_symbol);
 		INFO("command=" << Symbols::GET << ", result=" << *reference_symbol);	
@@ -1015,6 +1018,25 @@ bool IntepretDivCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepre
 	data_stack.push_back(n1);
 
 	INFO("command=" << Symbols::DIV << ", result=" << n1);
+
+	return true;
+}
+
+//($SAME, SYMBOL, SYMBOL)
+bool IntepretSameCommand(std::vector<Symbols>& data_stack, WllIntepreter* intepreter)
+{
+	assert(data_stack.size() >= 2);
+	Symbols n2 = data_stack.back();
+	data_stack.pop_back();
+	Symbols n1 = data_stack.back();
+	data_stack.pop_back();
+
+	INFO("command=" << Symbols::SAME << ", n1=" << n1 << ", n2=" << n2);
+
+	Symbols result = (n1==n2) ? Symbols::TRUE : Symbols::FALSE;
+	data_stack.push_back(result);
+
+	INFO("command=" << Symbols::SAME << ", result=" << result);
 
 	return true;
 }
@@ -1412,6 +1434,10 @@ bool IntepretCommand(const Symbols& command, std::vector<Symbols>& data_stack, W
 	{
 		return IntepretEqCommand(data_stack, intepreter);
 	}
+	else if (command == Symbols::SAME)
+	{
+		return IntepretSameCommand(data_stack, intepreter);
+	}	
 	else if (command == Symbols::LT)
 	{
 		return IntepretLtCommand(data_stack, intepreter);
