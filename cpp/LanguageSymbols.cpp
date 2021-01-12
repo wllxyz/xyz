@@ -713,7 +713,7 @@ istream& operator>> (istream&ins, vector<Symbols>& symbols)
 
 ostream& operator<< (ostream& o, const Symbols& symbol)
 {
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
 	symbol.Dump(o);
 #else
