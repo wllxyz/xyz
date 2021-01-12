@@ -213,6 +213,7 @@ Symbols CastTo(const Symbols& targetType, const Symbols& value)
 			|| value.type == FLOAT_SYMBOL
 			|| value.type == DOUBLE_SYMBOL
 			|| value.type == STRING_SYMBOL
+			|| value.type == COMPACT_SYMBOL
 		);
 		switch(value.type)
 		{
@@ -235,6 +236,13 @@ Symbols CastTo(const Symbols& targetType, const Symbols& value)
 			{
 				int i;
 				String2Int(*(*(value.s)),i);
+				return(Symbols(i));
+			}
+			break;
+		case COMPACT_SYMBOL:
+			{
+				int i;
+				String2Int(value.ToString(),i);
 				return(Symbols(i));
 			}
 			break;
@@ -276,6 +284,13 @@ Symbols CastTo(const Symbols& targetType, const Symbols& value)
 				return(Symbols(l));
 			}
 			break;
+		case COMPACT_SYMBOL:
+			{
+				long l;
+				String2Long(value.ToString(),l);
+				return(Symbols(l));
+			}
+			break;			
 		default:
 			break;
 		}
@@ -314,6 +329,13 @@ Symbols CastTo(const Symbols& targetType, const Symbols& value)
 				return(Symbols(f));
 			}
 			break;
+		case COMPACT_SYMBOL:
+			{
+				float f;
+				String2Float(value.ToString(),f);
+				return(Symbols(f));
+			}
+			break;			
 		default:
 			break;
 		}		
@@ -352,6 +374,13 @@ Symbols CastTo(const Symbols& targetType, const Symbols& value)
 				return(Symbols(d));
 			}
 			break;
+		case COMPACT_SYMBOL:
+			{
+				double d;
+				String2Double(value.ToString(),d);
+				return(Symbols(d));
+			}
+			break;			
 		default:
 			break;
 		}		
