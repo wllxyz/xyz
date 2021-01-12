@@ -81,6 +81,7 @@ const Symbols Symbols::DIV(REMARK_SYMBOL,"$DIV");
 const Symbols Symbols::TRUE(REMARK_SYMBOL,"$TRUE");
 const Symbols Symbols::FALSE(REMARK_SYMBOL,"$FALSE");
 const Symbols Symbols::EQ(REMARK_SYMBOL,"$EQ");
+const Symbols Symbols::SAME(REMARK_SYMBOL,"$SAME");
 const Symbols Symbols::LT(REMARK_SYMBOL,"$LT");
 const Symbols Symbols::AND(REMARK_SYMBOL,"$AND");
 const Symbols Symbols::OR(REMARK_SYMBOL,"$OR");
@@ -712,7 +713,7 @@ istream& operator>> (istream&ins, vector<Symbols>& symbols)
 
 ostream& operator<< (ostream& o, const Symbols& symbol)
 {
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
 	symbol.Dump(o);
 #else
