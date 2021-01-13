@@ -10,7 +10,7 @@
 #include "Wll0Loader.h"
 #include "Wll1Loader.h"
 #include "WllIntepreter.h"
-#include "Wll2IntepreterCompactLL1Impl.h"
+#include "Wll3Intepreter.h"
 #include "WllTrace.h"
 #include "WllSingleton.h"
 #include "WllString.h"

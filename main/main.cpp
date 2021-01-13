@@ -5,8 +5,10 @@
 #define	WLL0INTERPRETER	0
 #define	WLL1INTERPRETER	1
 #define	WLL2INTERPRETER	2
+#define	WLL3INTERPRETER	3
 
 //#define PARSER  LR1_PARSER
+//#define INTERPRETER WLL3INTERPRETER
 
 #if PARSER==LR0_PARSER
 #include "LR0Parsers.h"
@@ -19,6 +21,7 @@
 #include <fstream>
 #include <iostream>
 #include <cstring>
+#include "Wll3Intepreter.h"
 #include "Wll2Intepreter.h"
 #include "Wll1Intepreter.h"
 #include "Wll0Intepreter.h"
@@ -41,6 +44,8 @@ int main(int argc,char** argv)
 	WllIntepreter* interpreter = new Wll1Intepreter(&compiler);
 #elif	INTERPRETER==WLL2INTERPRETER
 	WllIntepreter* interpreter = new Wll2Intepreter(&compiler);
+#elif	INTERPRETER==WLL3INTERPRETER
+	WllIntepreter* interpreter = new Wll3Intepreter(&compiler);
 #endif	//INTERPRETER
 
 	compiler.parser_strategy.Set(parser);
