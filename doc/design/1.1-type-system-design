@@ -3,16 +3,16 @@
 	VOID_SYMBOL,		-- VOID类型，作为空类型
 	VARIABLE_SYMBOL,	-- 文法变量类型
 	CONSTANT_SYMBOL,	-- 文法常量类型
-	REMARK_SYMBOL,		-- 文法标记类型
+	REMARK_SYMBOL,		-- 文法标记类型(特殊算符和值)
 	COMPACT_SYMBOL,		-- S表达式类型(组合压缩类型)
-	CHAR_SYMBOL,            -- 单个字符类型
+	CHAR_SYMBOL,        -- 单个字符类型
 	INTEGER_SYMBOL,		-- 整数类型
 	LONG_SYMBOL,		-- 长整数类型
 	FLOAT_SYMBOL,		-- 浮点数类型
 	DOUBLE_SYMBOL,		-- 双精度浮点数类型
 	STRING_SYMBOL,		-- 字符串类型
 	LIST_SYMBOL,		-- 数组类型
-	MAP_SYMBOL		-- 字典类型
+	MAP_SYMBOL			-- 字典类型
 
 类型转换：
 	自动类型转换
@@ -44,7 +44,6 @@
 			float f;
 			double d;
 			string s;
-			shared_ptr<vector<LanguageSymbols> >* s_expression;
 			shared_ptr<vector<LanguageSymbols> >* list;
 			shared_ptr<map<string,LanguageSymbols> >* map;
 		}

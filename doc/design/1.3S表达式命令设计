@@ -1,32 +1,79 @@
 S-表达式命令设计
 运算方式加载文法：
-	$WLL0		加载自解释文法规则	($WLL0 ($TRANSLATION ...) ($TRANSLATION ...)) => 
-	$TRANSLATION	组装文法转换规则	($TRANSLATION ($RULE ...) ($RULE ...)) => MAP_SYMBOL
-	$RULE		组装文法规则		($RULE VARIABLE_SYMBOL COMPACT_SYMBOL) => MAP_SYMBOL
-	$VARIABLE	组装文法变量		($VARIABLE CONSTANT_SYMBOL ... CONSTANT_SYMBOL) => VARIABLE_SYMBOL
-	$CONSTANT	组装文法常量		($CONSTANT 
+	$WLL0		加载自解释文法规则	
+		($WLL0 ($TRANSLATION ...) ($TRANSLATION ...)) => 
+		输入：　为$TRANSLATION输出的MAP_SYMBOL{"source_rule","destination_rule"}组成的COMPACT_SYMBOL
+		输出：　加载新的文法规则 => 文法栈
+
+	$TRANSLATION	组装文法转换规则	
+		($TRANSLATION ($RULE ...) ($RULE ...)) => MAP_SYMBOL
+		输入：　为两个$RULE输出的MAP_SYMBOL{"root","expression"}
+		输出：　MAP_SYMBOL{"source_rule","destination_rule"}
+
+	$RULE		组装文法规则		
+		($RULE VARIABLE_SYMBOL COMPACT_SYMBOL) => MAP_SYMBOL
+		输入：	 VARIABLE_SYMBOL -- root_symbol
+				COMPACT_SYMBOL  -- expression
+		输出：	MAP_SYMBOL{"root","expression"}
+
+	$VARIABLE	组装文法变量		
+		($VARIABLE CONSTANT_SYMBOL ... CONSTANT_SYMBOL) => VARIABLE_SYMBOL
+		输入：	COMPACT_SYMBOLS OF CONSTANT_SYMBOL
+		输出：	VARIABLE_SYMBOL
+	
 	$REMARK		组装文法特殊关键字
+		输入：	COMPACT_SYMBOLS OF CONSTANT_SYMBOL
+		输出：	REMARK_SYMBOL
+
 直接加载规则字符串：
 	$LOAD_TRANSLATIONS 加载文法规则
+		输入：	COMPACT_SYMBOL OF ANY SYMBOL
+		输出：	调用WllLoader加载文法规则
+
 	$ADD_TRANSLATIONS 添加文法规则
-	
+		输入：	COMPACT_SYMBOL OF ANY SYMBOL
+		输出：	调用WllLoader加载文法规则（增量）
+
 	$LIST		($LIST, A, B,...,Z) = (A, B, ..., Z)
 		A B ... Z n $LIST = COMPACT(A B ... Z)
+		输入：	n个ANY_SYMBOL
+				n -- ANY_SYMBOL的数量[0,++]
+		输出：	S_EXP_SYMBOL
+
 	$APPEND		($APPEND, (A, B), (C, D)) = (A, B, C, D)
 		(A B) (C D) $APPEND = (A B C D)
+		输入：	S_EXP_SYMBOL, S_EXP_SYMBOL
+		输出：	S_EXP_SYMBOL
+
 	$CAR		($CAR, (A B)) = A
 		(A B) $CAR = A
+		输入：	S_EXP_SYMBOL OR ANY_SYMBOL
+		输出：	S_EXP_SYMBOL OR ANY_SYMBOL
+
 	$CDR		($CDR, (A B)) = (B)
 		(A B) $CDR = (B)
+		输入：	S_EXP_SYMBOL OR ANY_SYMBOL
+		输出：	S_EXP_SYMBOL OR ANY_SYMBOL
+
 	$ADD		($ADD, 1, 2) = 3
 		1 2 $ADD = 3
+		输入：	算术类型(CHAR_SYMBOL|INTEGER_SYMBOL|LONG_SYMBOL|FLOAT_SYMBOL|DOUBLE_SYMBOL|STRING_SYMBOL|COMPACT_SYMBOL)
+		输出：	算术类型
+
 	$SUB		($SUB, 9, 1) = 8
 		9 1 $SUB = 8
+		输入：	算术类型
+		输出：	算术类型
+
 	$MUL		($MUL, 1, 2) = 2
 		1 2 $MUL = 2
+		输入：	算术类型
+		输出：	算术类型
+
 	$DIV		($DIV, 9, 3) = 3
 		9 3 $DIV
-	
+		输入：	算术类型
+		输出：	算术类型	
 	
 	S-表达式的两种等价表达形式：
 		($LIST, A, B)
