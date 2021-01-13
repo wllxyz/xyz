@@ -63,11 +63,11 @@ bool Wll2IntepreterCompactLL1Impl::IntepretWll()
 				eval_flag = true;
 			}	
 		}
-		else if (*i == Symbols::LEFT_QUOTE)
+		else if (*i == Symbols::COMPACT_BEGIN)
 		{
 			compact_quote_starts.push_back(this->output_symbols.size());
 		}
-		else if (*i == Symbols::RIGHT_QUOTE)
+		else if (*i == Symbols::COMPACT_END)
 		{
 			assert(!compact_quote_starts.empty());
 			size_t start = compact_quote_starts.back();

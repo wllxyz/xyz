@@ -29,12 +29,14 @@ const Symbols Symbols::REMARK_VARIABLE(REMARK_SYMBOL,"$VARIABLE");
 const Symbols Symbols::REMARK_CONSTANT(REMARK_SYMBOL,"$CONSTANT");
 const Symbols Symbols::REMARK_REMARK(REMARK_SYMBOL,"$REMARK");
 const Symbols Symbols::REMARK_IGNORE(REMARK_SYMBOL,"$IGNORE");
+const Symbols Symbols::IGNORE_BEGIN(REMARK_SYMBOL,"$IGNORE_BEGIN");
+const Symbols Symbols::IGNORE_END(REMARK_SYMBOL,"$IGNORE_END");
 const Symbols Symbols::COMPACT(REMARK_SYMBOL,"$COMPACT");
+const Symbols Symbols::COMPACT_BEGIN(REMARK_SYMBOL,"$COMPACT_BEGIN");
+const Symbols Symbols::COMPACT_END(REMARK_SYMBOL,"$COMPACT_END");
 //支持S表达式求解(WLL1文法自解释)
 const Symbols Symbols::EVAL(REMARK_SYMBOL,"$EVAL");
 const Symbols Symbols::EXEC(REMARK_SYMBOL,"$EXEC");
-const Symbols Symbols::IGNORE_BEGIN(REMARK_SYMBOL,"$IGNORE_BEGIN");
-const Symbols Symbols::IGNORE_END(REMARK_SYMBOL,"$IGNORE_END");
 const Symbols Symbols::LEFT_QUOTE(REMARK_SYMBOL,"$LEFT_QUOTE");
 const Symbols Symbols::RIGHT_QUOTE(REMARK_SYMBOL,"$RIGHT_QUOTE");
 const Symbols Symbols::SEPERATOR(REMARK_SYMBOL,"$SEPERATOR");
